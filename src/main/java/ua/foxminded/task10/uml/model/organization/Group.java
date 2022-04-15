@@ -1,20 +1,16 @@
 package ua.foxminded.task10.uml.model.organization;
 
-import ua.foxminded.task10.uml.model.curriculums.Course;
 import ua.foxminded.task10.uml.model.people.Student;
-import ua.foxminded.task10.uml.model.schedule.Plannable;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Group implements Plannable {
+public class Group {
 
     private Integer id;
     private String name;
     private List<Student> students;
-    private List<Course> requiredCourses;
 
     public Group() {
     }
@@ -22,18 +18,11 @@ public class Group implements Plannable {
     public Group(String name) {
         this.name = name;
         this.students = new ArrayList<>();
-        this.requiredCourses = new ArrayList<>();
     }
 
     public Group(String name, List<Student> students) {
         this.name = name;
         this.students = new ArrayList<>();
-        this.requiredCourses = new ArrayList<>();
-    }
-
-    @Override
-    public boolean isAvailable(LocalDate begin, LocalDate end) {
-        return false;
     }
 
     public Integer getId() {
@@ -60,26 +49,18 @@ public class Group implements Plannable {
         this.students = students;
     }
 
-    public List<Course> getRequiredCourses() {
-        return requiredCourses;
-    }
-
-    public void setRequiredCourses(List<Course> requiredCourses) {
-        this.requiredCourses = requiredCourses;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Group group = (Group) o;
         return Objects.equals(id, group.id) && Objects.equals(name, group.name) &&
-                Objects.equals(students, group.students) && Objects.equals(requiredCourses, group.requiredCourses);
+                Objects.equals(students, group.students);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, students, requiredCourses);
+        return Objects.hash(id, name, students);
     }
 
     @Override
@@ -88,7 +69,6 @@ public class Group implements Plannable {
                 "id=" + id +
                 ", name='" + name + '\'' +
                 ", students=" + students +
-                ", requriedCourses=" + requiredCourses +
                 '}';
     }
 }

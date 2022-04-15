@@ -2,7 +2,7 @@ package ua.foxminded.task10.uml.model.curriculums;
 
 import ua.foxminded.task10.uml.model.organization.Group;
 import ua.foxminded.task10.uml.model.people.Teacher;
-import ua.foxminded.task10.uml.model.place.Room;
+import ua.foxminded.task10.uml.model.place.Classroom;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,28 +12,18 @@ public class Subject {
 
     private Integer id;
     private String name;
-    private List<Course> courses;
+    private Teacher teacher;
+    private List<Group> groups;
+    private Classroom classroom;
 
-    public Subject(){
-        this.name = "";
-        this.courses = new ArrayList<>();
+    public Subject() {
     }
 
-    public Subject(String name){
+    public Subject(String name, Teacher teacher, List<Group> groups, Classroom classroom) {
         this.name = name;
-        this.courses = new ArrayList<>();
-    }
-
-    public Subject(Integer id, String name){
-        this.id = id;
-        this.name = name;
-        this.courses = new ArrayList<>();
-    }
-
-    public Course addNewCourse(String name, String description){
-        Course course = new Course(name, description);
-        this.courses.add(course);
-        return course;
+        this.teacher = teacher;
+        this.groups = groups;
+        this.classroom = classroom;
     }
 
     public Integer getId() {
@@ -52,12 +42,28 @@ public class Subject {
         this.name = name;
     }
 
-    public List<Course> getCourses() {
-        return courses;
+    public Teacher getTeacher() {
+        return teacher;
     }
 
-    public void setCourses(List<Course> courses) {
-        this.courses = courses;
+    public void setTeacher(Teacher teacher) {
+        this.teacher = teacher;
+    }
+
+    public List<Group> getGroups() {
+        return groups;
+    }
+
+    public void setGroups(List<Group> groups) {
+        this.groups = groups;
+    }
+
+    public Classroom getClassroom() {
+        return classroom;
+    }
+
+    public void setClassroom(Classroom classroom) {
+        this.classroom = classroom;
     }
 
     @Override
@@ -65,12 +71,12 @@ public class Subject {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Subject subject = (Subject) o;
-        return Objects.equals(id, subject.id) && Objects.equals(name, subject.name) && Objects.equals(courses, subject.courses);
+        return Objects.equals(id, subject.id) && Objects.equals(name, subject.name) && Objects.equals(teacher, subject.teacher) && Objects.equals(groups, subject.groups) && Objects.equals(classroom, subject.classroom);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, courses);
+        return Objects.hash(id, name, teacher, groups, classroom);
     }
 
     @Override
@@ -78,7 +84,9 @@ public class Subject {
         return "Subject{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", courses=" + courses +
+                ", teacher=" + teacher +
+                ", groups=" + groups +
+                ", classroom=" + classroom +
                 '}';
     }
 }

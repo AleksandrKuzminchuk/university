@@ -10,6 +10,12 @@ public class Teacher extends Person{
         this.setLastName(lastName);
     }
 
+    public Teacher(Integer id, String firstName, String lastName) {
+        this.setId(id);
+        this.setFirstName(firstName);
+        this.setLastName(lastName);
+    }
+
     @Override
     public String toString() {
         return "Teacher{" + getFirstName() + " " + getLastName() + "}";
