@@ -19,6 +19,10 @@ public class Subject {
     public Subject() {
     }
 
+    public Subject(String name) {
+        this.name = name;
+    }
+
     public Subject(String name, Teacher teacher, List<Group> groups, Classroom classroom) {
         this.name = name;
         this.teacher = teacher;

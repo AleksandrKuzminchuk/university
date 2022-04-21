@@ -1,8 +1,11 @@
 package ua.foxminded.task10.uml.model.people;
 
+import ua.foxminded.task10.uml.model.organization.Group;
+
 public class Student extends Person{
 
     private Integer course;
+    private Group group;
 
     public Student() {
     }
@@ -22,6 +25,22 @@ public class Student extends Person{
         this.setId(id);
         this.setFirstName(firstName);
         this.setLastName(lastName);
+    }
+
+    public Integer getCourse() {
+        return course;
+    }
+
+    public void setCourse(Integer course) {
+        this.course = course;
+    }
+
+    public Group getGroup() {
+        return group;
+    }
+
+    public void setGroup(Group group) {
+        this.group = group;
     }
 
     @Override

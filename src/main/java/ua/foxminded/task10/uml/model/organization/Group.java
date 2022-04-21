@@ -3,6 +3,7 @@ package ua.foxminded.task10.uml.model.organization;
 import ua.foxminded.task10.uml.model.people.Student;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +24,14 @@ public class Group {
     public Group(String name, List<Student> students) {
         this.name = name;
         this.students = new ArrayList<>();
+    }
+
+    public void addStudentToGroup(Student student){
+        if (students == null){
+            students = new LinkedList<>();
+        }
+        students.add(student);
+        student.setGroup(this);
     }
 
     public Integer getId() {
@@ -68,7 +77,6 @@ public class Group {
         return "Group{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", students=" + students +
                 '}';
     }
 }
