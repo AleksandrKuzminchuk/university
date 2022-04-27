@@ -13,8 +13,6 @@ public class Subject {
     private Integer id;
     private String name;
     private Teacher teacher;
-    private List<Group> groups;
-    private Classroom classroom;
 
     public Subject() {
     }
@@ -23,11 +21,15 @@ public class Subject {
         this.name = name;
     }
 
-    public Subject(String name, Teacher teacher, List<Group> groups, Classroom classroom) {
+    public Subject(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public Subject(Integer id, String name, Teacher teacher) {
+        this.id = id;
         this.name = name;
         this.teacher = teacher;
-        this.groups = groups;
-        this.classroom = classroom;
     }
 
     public Integer getId() {
@@ -54,33 +56,17 @@ public class Subject {
         this.teacher = teacher;
     }
 
-    public List<Group> getGroups() {
-        return groups;
-    }
-
-    public void setGroups(List<Group> groups) {
-        this.groups = groups;
-    }
-
-    public Classroom getClassroom() {
-        return classroom;
-    }
-
-    public void setClassroom(Classroom classroom) {
-        this.classroom = classroom;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Subject subject = (Subject) o;
-        return Objects.equals(id, subject.id) && Objects.equals(name, subject.name) && Objects.equals(teacher, subject.teacher) && Objects.equals(groups, subject.groups) && Objects.equals(classroom, subject.classroom);
+        return Objects.equals(id, subject.id) && Objects.equals(name, subject.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, teacher, groups, classroom);
+        return Objects.hash(id, name);
     }
 
     @Override
@@ -88,9 +74,6 @@ public class Subject {
         return "Subject{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", teacher=" + teacher +
-                ", groups=" + groups +
-                ", classroom=" + classroom +
                 '}';
     }
 }

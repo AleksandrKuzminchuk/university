@@ -2,29 +2,24 @@ package ua.foxminded.task10.uml.model.people;
 
 import ua.foxminded.task10.uml.model.organization.Group;
 
+import java.util.Objects;
+
 public class Student extends Person{
 
     private Integer course;
-    private Group group;
+    private Integer groupId;
 
     public Student() {
     }
 
-    public Student(String firstName, String lastName) {
-        this.setFirstName(firstName);
-        this.setLastName(lastName);
-    }
-
-    public Student(String firstName, String lastName, Integer course) {
-        this.setFirstName(firstName);
-        this.setLastName(lastName);
-        this.course = course;
-    }
-
     public Student(Integer id, String firstName, String lastName) {
-        this.setId(id);
-        this.setFirstName(firstName);
-        this.setLastName(lastName);
+        super(id, firstName, lastName);
+    }
+
+    public Student(Integer id, String firstName, String lastName, Integer course, Integer groupId) {
+        super(id, firstName, lastName);
+        this.course = course;
+        this.groupId = groupId;
     }
 
     public Integer getCourse() {
@@ -35,12 +30,26 @@ public class Student extends Person{
         this.course = course;
     }
 
-    public Group getGroup() {
-        return group;
+    public Integer getGroupId() {
+        return groupId;
     }
 
-    public void setGroup(Group group) {
-        this.group = group;
+    public void setGroupId(Integer groupId) {
+        this.groupId = groupId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Student student = (Student) o;
+        return Objects.equals(course, student.course) && Objects.equals(groupId, student.groupId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), course, groupId);
     }
 
     @Override

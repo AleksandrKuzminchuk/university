@@ -11,5 +11,7 @@ public interface StudentDao extends CrudRepository<Student, Integer> {
 
     List<Student> findByCourseNumber(Integer courseNumber);
 
-    void updateStudent(Student student);
+    void updateStudent(String firstName, String lastName, Integer course, Student student);
+
+    List<Student> findStudentsByGroupId(Integer groupId);
 }

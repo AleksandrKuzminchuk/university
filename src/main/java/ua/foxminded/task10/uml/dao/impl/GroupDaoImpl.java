@@ -132,25 +132,34 @@ public class GroupDaoImpl implements GroupDao {
     }
 
     @Override
-    public void updateStudent(Group group) {
-        requiredNonNull(group);
-        logger.info(format("UPDATE %s", group));
-        final String UPDATE_GROUP = "UPDATE groups SET group_name =? WHERE group_id = ?";
-        jdbcTemplate.update(UPDATE_GROUP, group.getId(), new BeanPropertyRowMapper<>(Group.class));
-        logger.info(format("UPDATED %s", group));
+    public void updateGroup(String groupName, String newGroupName) {
+        requiredNonNull(groupName);
+        requiredNonNull(newGroupName);
+        logger.info(format("UPDATING %s", groupName));
+        final String UPDATE_GROUP = "UPDATE groups SET group_name =? WHERE group_name = ?";
+        jdbcTemplate.update(UPDATE_GROUP, new Object[]{newGroupName, groupName}, new BeanPropertyRowMapper<>(Group.class));
+        logger.info(format("UPDATED %s", newGroupName));
     }
 
-    //TODO: Help me to do this method
     @Override
-    public void assignStudentToGroup(Student student, Group group) {
-        requiredNonNull(student);
-        requiredNonNull(group);
-        logger.info(format("ASSIGN %s TO %s", student, group));
-        group.getStudents().add(student);
-        student.setGroup(group);
-        this.save(group);
-        studentDao.save(student);
-        logger.info(format("ASSIGNED %s TO %s SUCCESSFULLY", student, group));
+    public void assignStudentToGroup(Integer studentId, Integer groupId) {
+        requiredNonNull(studentId);
+        requiredNonNull(groupId);
+        logger.info(format("ASSIGN %s TO %s", studentId, groupId));
+        final String ASSIGN_STUDENT_TO_GROUP = "UPDATE students SET group_id = ? WHERE student_id = ?";
+        jdbcTemplate.update(ASSIGN_STUDENT_TO_GROUP, groupId, studentId,
+                new BeanPropertyRowMapper<>(Student.class), new BeanPropertyRowMapper<>(Group.class));
+        logger.info(format("ASSIGNED %s TO %s SUCCESSFULLY", studentId, groupId));
+    }
+
+
+    @Override
+    public void assignStudentsToGroup(List<Student> students, Integer groupId) {
+        requiredNonNull(students);
+        requiredNonNull(groupId);
+        logger.info(format("ASSIGN %d TO GROUP  - %d", students.size(), groupId));
+        students.forEach(student -> assignStudentToGroup(student.getId(), groupId));
+        logger.info(format("ASSIGNED %d TO GROUP - %d SUCCESSFULLY", students.size(), groupId));
     }
 
     private void requiredNonNull(Object o){

@@ -26,14 +26,6 @@ public class Group {
         this.students = new ArrayList<>();
     }
 
-    public void addStudentToGroup(Student student){
-        if (students == null){
-            students = new LinkedList<>();
-        }
-        students.add(student);
-        student.setGroup(this);
-    }
-
     public Integer getId() {
         return id;
     }

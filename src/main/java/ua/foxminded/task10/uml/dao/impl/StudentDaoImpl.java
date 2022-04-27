@@ -32,13 +32,14 @@ public class StudentDaoImpl implements StudentDao {
     public Optional<Student> save(Student entity) {
         requiredNonNull(entity);
         logger.info(format("SAVING %s", entity));
-        final String SAVE_STUDENT = "INSERT INTO students (first_name, last_name, course) VALUES (?,?,?)";
+        final String SAVE_STUDENT = "INSERT INTO students (first_name, last_name, course) VALUES (?,?,?,?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement statement = con.prepareStatement(SAVE_STUDENT, Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, entity.getFirstName());
             statement.setString(2, entity.getLastName());
             statement.setInt(3, entity.getCourse());
+            statement.setInt(4, entity.getGroupId());
             return statement;
         }, holder);
         Integer studentId = holder.getKey().intValue();
@@ -129,12 +130,27 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     @Override
-    public void updateStudent(Student student) {
+    public void updateStudent(String firstName, String lastName, Integer course, Student student) {
         requiredNonNull(student);
-        logger.info(format("UPDATING %s...", student));
-        final String UPDATE_STUDENT = "UPDATE students SET first_name = ?, last_name = ? WHERE student_id = ?";
-        jdbcTemplate.update(UPDATE_STUDENT, student.getId());
+        requiredNonNull(firstName);
+        requiredNonNull(lastName);
+        requiredNonNull(course);
+        logger.info(format("UPDATING... Student %s %s %d", firstName, lastName, course));
+        final String UPDATE_STUDENT = "UPDATE students SET first_name = ?, last_name = ?, course = ? " +
+                "WHERE first_name = ? AND last_name = ? AND course = ?";
+        jdbcTemplate.update(UPDATE_STUDENT, new Object[]{student.getFirstName(), student.getLastName(), student.getCourse(),
+        firstName, lastName, course}, new BeanPropertyRowMapper<>(Student.class));
         logger.info(format("UPDATED %s", student));
+    }
+
+    @Override
+    public List<Student> findStudentsByGroupId(Integer groupId) {
+        requiredNonNull(groupId);
+        logger.info(format("FINDING STUDENTS FROM GROUP ID - %d", groupId));
+        final String FIND_STUDENTS_BY_GROUP_ID = "SELECT * FROM students WHERE group_id = ?";
+        List<Student> students = jdbcTemplate.query(FIND_STUDENTS_BY_GROUP_ID, new Object[]{groupId}, new BeanPropertyRowMapper<>(Student.class));
+        logger.info(format("FOUND %s FROM GROUP ID - %d", students.size(), groupId));
+        return students;
     }
 
     private void requiredNonNull(Object o){

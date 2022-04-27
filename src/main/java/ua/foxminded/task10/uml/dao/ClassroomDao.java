@@ -9,7 +9,5 @@ public interface ClassroomDao extends CrudRepository<Classroom, Integer>{
 
     void saveAll(List<Classroom> classrooms);
 
-    Optional<Classroom> findClassroomByName(String classroom);
-
-    void updateClassroom(Classroom student);
+    void updateClassroom(Integer classNumber, Integer newClassNumber);
 }
