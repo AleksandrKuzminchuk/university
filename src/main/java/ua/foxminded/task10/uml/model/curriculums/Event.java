@@ -4,41 +4,44 @@ import ua.foxminded.task10.uml.model.organization.Group;
 import ua.foxminded.task10.uml.model.people.Teacher;
 import ua.foxminded.task10.uml.model.place.Classroom;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-public class Lesson {
+public class Event {
 
     private Integer id;
+    private LocalDateTime localDateTime;
     private Subject subject;
     private Classroom classroom;
     private Group group;
     private Teacher teacher;
-    private LessonTime lessonTime;
+    private List<Event> events;
 
-    public Lesson() {
+    public Event() {
     }
 
-    public Lesson(Integer id) {
+    public Event(Integer id) {
         this.id = id;
     }
 
-    public Lesson(Subject subject, Classroom classroom, Group group, Teacher teacher, LessonTime lessonTime) {
+    public Event(Subject subject, Classroom classroom, Group group, Teacher teacher, LocalDateTime localDateTime) {
         this.subject = subject;
         this.classroom = classroom;
         this.group = group;
         this.teacher = teacher;
-        this.lessonTime = lessonTime;
+        this.localDateTime = localDateTime;
     }
 
-    public Lesson(Integer id, Subject subject, Classroom classroom, Group group, Teacher teacher, LessonTime lessonTime) {
+    public Event(Integer id, Subject subject, Classroom classroom, Group group, Teacher teacher, LocalDateTime localDateTime) {
         this.id = id;
         this.subject = subject;
         this.classroom = classroom;
         this.group = group;
         this.teacher = teacher;
-        this.lessonTime = lessonTime;
+        this.localDateTime = localDateTime;
     }
 
     public Integer getId() {
@@ -81,25 +84,33 @@ public class Lesson {
         this.teacher = teacher;
     }
 
-    public LessonTime getLessonTime() {
-        return lessonTime;
+    public LocalDateTime getLocalDateTime() {
+        return localDateTime;
     }
 
-    public void setLessonTime(LessonTime lessonTime) {
-        this.lessonTime = lessonTime;
+    public void setLocalDateTime(LocalDateTime localDateTime) {
+        this.localDateTime = localDateTime;
+    }
+
+    public List<Event> getEvents() {
+        return events;
+    }
+
+    public void setEvents(List<Event> events) {
+        this.events = events;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Lesson lesson = (Lesson) o;
-        return Objects.equals(id, lesson.id) && Objects.equals(subject, lesson.subject) && Objects.equals(classroom, lesson.classroom) && Objects.equals(group, lesson.group) && Objects.equals(teacher, lesson.teacher) && Objects.equals(lessonTime, lesson.lessonTime);
+        Event lesson = (Event) o;
+        return Objects.equals(id, lesson.id) && Objects.equals(subject, lesson.subject) && Objects.equals(classroom, lesson.classroom) && Objects.equals(group, lesson.group) && Objects.equals(teacher, lesson.teacher) && Objects.equals(localDateTime, lesson.localDateTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, subject, classroom, group, teacher, lessonTime);
+        return Objects.hash(id, subject, classroom, group, teacher, localDateTime);
     }
 
     @Override
@@ -110,7 +121,7 @@ public class Lesson {
                 ", classroom=" + classroom +
                 ", groups=" + group +
                 ", teacher=" + teacher +
-                ", date=" + lessonTime +
+                ", date=" + localDateTime +
                 '}';
     }
 }
