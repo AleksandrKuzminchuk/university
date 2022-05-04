@@ -21,26 +21,16 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.lang.String.format;
+import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
 
 public class EventDaoImpl implements EventDao {
 
     private final static Logger logger = Logger.getLogger(EventDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
-    private final LocalDateTime localDateTime;
-    private final SubjectDaoImpl subjectDao;
-    private final ClassroomDaoImpl classroomDao;
-    private final GroupDaoImpl groupDao;
-    private final TeacherDao teacherDao;
 
-    public EventDaoImpl(DataSource dataSource, LocalDateTime localDateTime, SubjectDaoImpl subjectDao,
-                        ClassroomDaoImpl classroomDao, GroupDaoImpl groupDao, TeacherDao teacherDao) {
+    public EventDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.localDateTime = localDateTime;
-        this.subjectDao = subjectDao;
-        this.classroomDao = classroomDao;
-        this.groupDao = groupDao;
-        this.teacherDao = teacherDao;
     }
 
     @Override
@@ -48,7 +38,7 @@ public class EventDaoImpl implements EventDao {
         requiredNonNull(entity);
         logger.info(format("SAVING... %s", entity));
         final String SAVE_LESSON = "INSERT INTO events (date_time, subject_id, classroom_id, teacher_id, group_id)" +
-                " VALUES(?,?,?,?,?)";
+                " VALUES('?',?,?,?,?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement statement = con.prepareStatement(SAVE_LESSON, Statement.RETURN_GENERATED_KEYS);
@@ -71,17 +61,26 @@ public class EventDaoImpl implements EventDao {
         requiredNonNull(integer);
         logger.info(format("FINDING... EVENT BY ID - %d", integer));
         final String FIND_BY_ID = "SELECT * FROM events WHERE event_id = ?";
-        Optional<Event> event = Optional.of(Optional.ofNullable(jdbcTemplate.queryForObject(FIND_BY_ID,
-                new Object[]{integer}, new BeanPropertyRowMapper<>(Event.class))))
+        Event event = Optional.ofNullable(jdbcTemplate.queryForObject(FIND_BY_ID,
+                        new Object[]{integer}, new BeanPropertyRowMapper<>(Event.class)))
                 .orElseThrow(() -> new IllegalArgumentException(format("Can't find event by id - %d", integer)));
         logger.info(format("FOUND %s BY ID - %d", event, integer));
-        return event;
+        return Optional.of(event);
     }
 
     @Override
     public boolean existsById(Integer integer) {
+        requiredNonNull(integer);
+        logger.info(format("CHECKING... EXISTS EVENT BY ID - %d", integer));
+        final String EXISTS_BY_ID = "SELECT COUNT(*) FROM events WHERE event_id = ?";
+        boolean result = false;
 
-        throw new NotImplementedException("Method existsById not implemented");
+        long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, new Object[]{integer}, Long.class);
+        if (count > 0){
+            result = true;
+            logger.info(format("CHECKED EVENT BY ID - %d EXISTS", integer));
+        }
+        return result;
     }
 
     @Override
@@ -121,7 +120,10 @@ public class EventDaoImpl implements EventDao {
 
     @Override
     public void delete(Event entity) {
-        throw new NotImplementedException("Method delete not implemented");
+        requiredNonNull(entity);
+        logger.info(format("DELETING... %s", entity));
+        this.deleteById(entity.getId());
+        logger.info(format("DELETED %s SUCCESSFULLY", entity));
     }
 
     @Override
@@ -133,10 +135,10 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public void updateLesson(Event event){
+    public void updateEvent(Event event){
         requiredNonNull(event);
         logger.info(format("UPDATING EVENT BY ID - %d", event.getId()));
-        final String UPDATE_LESSON = "UPDATE events SET date_time = ?, subject_id = ?, classroom_id = ?, teacher_id = ?, " +
+        final String UPDATE_LESSON = "UPDATE events SET date_time = '?', subject_id = ?, classroom_id = ?, teacher_id = ?, " +
                 "group_id = ? WHERE event_id = ?";
         jdbcTemplate.update(UPDATE_LESSON, new Object[]{Timestamp.valueOf(event.getLocalDateTime()), event.getSubject().getId(),
                 event.getClassroom().getId(), event.getTeacher().getId(), event.getGroup().getId(), event.getId()},
@@ -149,7 +151,6 @@ public class EventDaoImpl implements EventDao {
     public List<Event> findEvents(LocalDateTime from, LocalDateTime to) {
         requiredNonNull(from);
         requiredNonNull(to);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
         logger.info(format("FINDING EVENTS FROM %s TO %s", from.format(formatter), to.format(formatter)));
 
         final String FIND_EVENTS = "SELECT date_time , teach.first_name, teach.last_name, group_name, " +

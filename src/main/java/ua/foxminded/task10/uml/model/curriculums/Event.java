@@ -18,7 +18,6 @@ public class Event {
     private Classroom classroom;
     private Group group;
     private Teacher teacher;
-    private List<Event> events;
 
     public Event() {
     }
@@ -90,14 +89,6 @@ public class Event {
 
     public void setLocalDateTime(LocalDateTime localDateTime) {
         this.localDateTime = localDateTime;
-    }
-
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public void setEvents(List<Event> events) {
-        this.events = events;
     }
 
     @Override

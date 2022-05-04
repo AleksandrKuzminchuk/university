@@ -5,11 +5,11 @@ import ua.foxminded.task10.uml.model.people.Teacher;
 
 import java.util.List;
 
-public interface TeacherDao extends CrudRepository<Teacher, Integer> {
+public interface TeacherDao extends CrudRepositoryDao<Teacher, Integer> {
 
     void saveAll(List<Teacher> teachers);
 
-    void updateTeacher(String firstName, String lastName, Teacher teacher);
+    void updateTeacher(Teacher teacher);
 
     void addTeacherToSubject(Integer teacherId, Integer subjectId);
 

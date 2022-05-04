@@ -32,7 +32,7 @@ public class StudentDaoImpl implements StudentDao {
     public Optional<Student> save(Student entity) {
         requiredNonNull(entity);
         logger.info(format("SAVING %s", entity));
-        final String SAVE_STUDENT = "INSERT INTO students (first_name, last_name, course) VALUES (?,?,?,?)";
+        final String SAVE_STUDENT = "INSERT INTO students (first_name, last_name, course, group_id) VALUES (?,?,?,?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement statement = con.prepareStatement(SAVE_STUDENT, Statement.RETURN_GENERATED_KEYS);
@@ -130,17 +130,14 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     @Override
-    public void updateStudent(String firstName, String lastName, Integer course, Student student) {
+    public void updateStudent(Student student) {
         requiredNonNull(student);
-        requiredNonNull(firstName);
-        requiredNonNull(lastName);
-        requiredNonNull(course);
-        logger.info(format("UPDATING... Student %s %s %d", firstName, lastName, course));
-        final String UPDATE_STUDENT = "UPDATE students SET first_name = ?, last_name = ?, course = ? " +
-                "WHERE first_name = ? AND last_name = ? AND course = ?";
+        logger.info(format("UPDATING... STUDENT BY ID - %d", student.getId()));
+        final String UPDATE_STUDENT = "UPDATE students SET first_name = ?, last_name = ?, course = ?, group_id = ? " +
+                "WHERE student_id = ?";
         jdbcTemplate.update(UPDATE_STUDENT, new Object[]{student.getFirstName(), student.getLastName(), student.getCourse(),
-        firstName, lastName, course}, new BeanPropertyRowMapper<>(Student.class));
-        logger.info(format("UPDATED %s", student));
+        student.getGroupId() ,student.getId()}, new BeanPropertyRowMapper<>(Student.class));
+        logger.info(format("UPDATED %s SUCCESSFULLY", student));
     }
 
     @Override

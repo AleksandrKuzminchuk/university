@@ -53,18 +53,28 @@ public class GroupDaoImpl implements GroupDao {
     @Override
     public Optional<Group> findById(Integer integer) {
         requiredNonNull(integer);
-        logger.info(format("FINDING GROUP BY ID - d", integer));
+        logger.info(format("FINDING GROUP BY ID - %d", integer));
         final String FIND_BY_ID = "SELECT * FROM groups WHERE group_id = ?";
-        Optional<Group> result = Optional.of(Optional.ofNullable(jdbcTemplate.queryForObject(
+        Group result = Optional.ofNullable(jdbcTemplate.queryForObject(
                 FIND_BY_ID, new Object[]{integer}, new BeanPropertyRowMapper<>(Group.class)
-        )).orElseThrow(() -> new IllegalArgumentException(format("Can't find group by id - %d", integer))));
+        )).orElseThrow(() -> new IllegalArgumentException(format("Can't find group by id - %d", integer)));
         logger.info(format("FOUND %s BY ID - %d", result, integer));
-        return result;
+        return Optional.of(result);
     }
 
     @Override
     public boolean existsById(Integer integer) {
-        throw new NotImplementedException("Method not implemented");
+        requiredNonNull(integer);
+        logger.info(format("CHECKING... GROUP EXISTS BY ID - %d", integer));
+        final String EXISTS_BY_ID = "SELECT COUNT(*) FROM groups WHERE group_id = ?";
+        boolean result = false;
+
+        long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, new Object[]{integer}, Long.class);
+        if (count > 0){
+            result = true;
+            logger.info(format("CHECKED GROUP BY ID - %d EXISTS", integer));
+        }
+        return result;
     }
 
     @Override
@@ -124,21 +134,20 @@ public class GroupDaoImpl implements GroupDao {
         requiredNonNull(groupName);
         logger.info(format("FINDING GROUP BY NAME - %s", groupName));
         final String FIND_GROUP_BY_NAME = "SELECT * FROM groups WHERE group_name = ?";
-        Optional<Group> group = Optional.of(Optional.ofNullable(jdbcTemplate.queryForObject(FIND_GROUP_BY_NAME,
+        Group group = Optional.ofNullable(jdbcTemplate.queryForObject(FIND_GROUP_BY_NAME,
                 new Object[]{groupName}, new BeanPropertyRowMapper<>(Group.class)))
-                .orElseThrow(() -> new IllegalArgumentException(format("Can't find group by name %s", groupName))));
+                .orElseThrow(() -> new IllegalArgumentException(format("Can't find group by name %s", groupName)));
         logger.info(format("FOUND %s BY NAME %s", group, groupName));
-        return group;
+        return Optional.of(group);
     }
 
     @Override
-    public void updateGroup(String groupName, String newGroupName) {
-        requiredNonNull(groupName);
-        requiredNonNull(newGroupName);
-        logger.info(format("UPDATING %s", groupName));
-        final String UPDATE_GROUP = "UPDATE groups SET group_name =? WHERE group_name = ?";
-        jdbcTemplate.update(UPDATE_GROUP, new Object[]{newGroupName, groupName}, new BeanPropertyRowMapper<>(Group.class));
-        logger.info(format("UPDATED %s", newGroupName));
+    public void updateGroup(Group group) {
+        requiredNonNull(group);
+        logger.info(format("UPDATING GROUP BY ID - %d", group.getId()));
+        final String UPDATE_GROUP = "UPDATE groups SET group_name = ? WHERE group_id = ?";
+        jdbcTemplate.update(UPDATE_GROUP, new Object[]{group.getName(), group.getId()}, new BeanPropertyRowMapper<>(Group.class));
+        logger.info(format("UPDATED %s SUCCESSFULLY", group));
     }
 
     @Override

@@ -1,6 +1,6 @@
 package ua.foxminded.task10.uml.dao.impl;
 
-import org.apache.commons.lang3.NotImplementedException;
+
 import org.apache.log4j.Logger;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -9,14 +9,14 @@ import org.springframework.jdbc.support.KeyHolder;
 import ua.foxminded.task10.uml.dao.SubjectDao;
 import ua.foxminded.task10.uml.exceptions.ExceptionsHandlingConstants;
 import ua.foxminded.task10.uml.model.curriculums.Subject;
-import ua.foxminded.task10.uml.model.people.Teacher;
+
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
+
 
 import static java.lang.String.format;
 
@@ -53,16 +53,26 @@ public class SubjectDaoImpl implements SubjectDao {
         requiredNonNull(integer);
         logger.info(format("FINDING SUBJECT BY ID - %d", integer));
         final String FIND_BY_ID = "SELECT * FROM subjects WHERE subject_id = ?";
-        Optional<Subject> result = Optional.of(Optional.ofNullable(jdbcTemplate.queryForObject(FIND_BY_ID,
-                new Object[]{integer}, new BeanPropertyRowMapper<>(Subject.class))))
+        Subject result = Optional.ofNullable(jdbcTemplate.queryForObject(FIND_BY_ID,
+                new Object[]{integer}, new BeanPropertyRowMapper<>(Subject.class)))
                 .orElseThrow(() -> new IllegalArgumentException(format("Can't find subject by ID - %d", integer)));
         logger.info(format("FOUND %s BY ID - %d SUCCESSFULLY", result, integer));
-        return result;
+        return Optional.of(result);
     }
 
     @Override
     public boolean existsById(Integer integer) {
-        throw new NotImplementedException("Method existsById not implemented");
+        requiredNonNull(integer);
+        logger.info(format("CHECKING... SUBJECT EXISTS BY ID - %d", integer));
+        final String EXISTS_BY_ID = "SELECT COUNT(*) FROM subjects WHERE subject_id = ?";
+        boolean result = false;
+
+        long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, new Object[]{integer}, Long.class);
+        if (count > 0){
+            result = true;
+            logger.info(format("CHECKED SUBJECT BY ID - %d EXISTS", integer));
+        }
+        return result;
     }
 
     @Override
@@ -118,13 +128,12 @@ public class SubjectDaoImpl implements SubjectDao {
     }
 
     @Override
-    public void updateSubject(String subjectName, String newSubjectName) {
-        requiredNonNull(subjectName);
-        requiredNonNull(newSubjectName);
-        logger.info(format("UPDATING SUBJECT %s", subjectName));
-        final String UPDATE_SUBJECT = "UPDATE subjects SET subject_name = ? WHERE subject_name = ?";
-        jdbcTemplate.update(UPDATE_SUBJECT, new Object[]{newSubjectName, subjectName}, new BeanPropertyRowMapper<>(Subject.class));
-        logger.info(format("SAVED %s SUCCESSFULLY", newSubjectName));
+    public void updateSubject(Subject subject) {
+        requiredNonNull(subject);
+        logger.info(format("UPDATING... SUBJECT BY ID - %d", subject.getId()));
+        final String UPDATE_SUBJECT = "UPDATE subjects SET subject_name = ? WHERE subject_id = ?";
+        jdbcTemplate.update(UPDATE_SUBJECT, new Object[]{subject.getName(), subject.getId()}, new BeanPropertyRowMapper<>(Subject.class));
+        logger.info(format("UPDATED %s SUCCESSFULLY", subject));
     }
 
     @Override

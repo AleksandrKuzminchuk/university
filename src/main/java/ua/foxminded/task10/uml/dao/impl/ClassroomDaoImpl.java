@@ -37,13 +37,12 @@ public class ClassroomDaoImpl implements ClassroomDao {
     }
 
     @Override
-    public void updateClassroom(Integer classNumber, Integer newClassNumber) {
-        requiredNonNull(classNumber);
-        requiredNonNull(newClassNumber);
-        logger.info(format("UPDATING... CLASSROOM - %d", classNumber));
-        final String UPDATE_CLASSROOM = "UPDATE classrooms SET room_number = ? WHERE room_number = ?";
-            jdbcTemplate.update(UPDATE_CLASSROOM, new Object[]{newClassNumber, classNumber}, new BeanPropertyRowMapper<>(Classroom.class));
-            logger.info(format("UPDATED CLASSROOM - %d SUCCESSFULLY", newClassNumber));
+    public void updateClassroom(Classroom classroom) {
+        requiredNonNull(classroom);
+        logger.info(format("UPDATING... CLASSROOM BY ID - %d", classroom.getId()));
+        final String UPDATE_CLASSROOM = "UPDATE classrooms SET room_number = ? WHERE classroom_id = ?";
+            jdbcTemplate.update(UPDATE_CLASSROOM, new Object[]{classroom.getNumber(), classroom.getId()}, new BeanPropertyRowMapper<>(Classroom.class));
+            logger.info(format("UPDATED CLASSROOM - %s SUCCESSFULLY", classroom));
     }
 
     @Override
@@ -70,16 +69,26 @@ public class ClassroomDaoImpl implements ClassroomDao {
         requiredNonNull(integer);
         logger.info(format("FINDING... CLASSROOM BY ID - %d", integer));
         final String FIND_BY_ID = "SELECT * FROM classrooms WHERE classroom_id = ?";
-        Optional<Classroom> classroom = Optional.of(Optional.ofNullable(jdbcTemplate.queryForObject(
+        Classroom classroom = Optional.ofNullable(jdbcTemplate.queryForObject(
                     FIND_BY_ID, new Object[]{integer}, new BeanPropertyRowMapper<>(Classroom.class)
-            ))).orElseThrow(() -> new IllegalArgumentException(format("Can't find classroom by id - %d", integer)));
+            )).orElseThrow(() -> new IllegalArgumentException(format("Can't find classroom by id - %d", integer)));
         logger.info(format("FOUND SUCCESSFULLY %s BY ID - %d", classroom, integer));
-        return classroom;
+        return Optional.of(classroom);
     }
 
     @Override
     public boolean existsById(Integer integer) {
-        throw new NotImplementedException("Method not implemented");
+        requiredNonNull(integer);
+        logger.info(format("CHECKING CLASSROOM EXISTS BY ID - %d", integer));
+        final String EXISTS_BY_ID = "SELECT COUNT(*) FROM classrooms WHERE classroom_id = ?";
+        boolean result = false;
+
+        long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, new Object[]{integer}, Long.class);
+        if (count > 0){
+            result = true;
+            logger.info(format("CHECKED CLASSROOM BY ID - %d EXISTS", integer));
+        }
+        return result;
     }
 
     @Override
