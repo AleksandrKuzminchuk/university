@@ -57,11 +57,7 @@ public class GroupServiceImpl implements GroupService {
     public List<Group> findAll() {
         logger.info("FINDING... ALL GROUPS");
         List<Group> result = groupDao.findAll();
-        if (result.isEmpty()){
-            logger.info(format("FOUND %d GROUPS", 0));
-            return result;
-        }
-        logger.info(format("FOUND %d GROUPS SUCCESSFULLY", result.size()));
+        logger.info(format("FOUND %d GROUPS", result.size()));
         return result;
     }
 

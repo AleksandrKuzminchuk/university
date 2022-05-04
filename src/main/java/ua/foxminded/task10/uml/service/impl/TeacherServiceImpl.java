@@ -2,7 +2,6 @@ package ua.foxminded.task10.uml.service.impl;
 
 import org.apache.log4j.Logger;
 import ua.foxminded.task10.uml.dao.TeacherDao;
-import ua.foxminded.task10.uml.exceptions.ExceptionsHandlingConstants;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
@@ -57,10 +56,6 @@ public class TeacherServiceImpl implements TeacherService {
     public List<Teacher> findAll() {
         logger.info("FINDING... ALL TEACHERS");
         List<Teacher> result = teacherDao.findAll();
-        if (result.isEmpty()){
-            logger.info(format("FOUND %d TEACHERS", 0));
-            return result;
-        }
         logger.info(format("FOUND %d TEACHERS", result.size()));
         return result;
     }
@@ -116,7 +111,8 @@ public class TeacherServiceImpl implements TeacherService {
     public void addTeacherToSubject(Integer teacherId, Integer subjectId) {
         requireNonNull(teacherId);
         requireNonNull(subjectId);
-        getNotFoundException(teacherId, subjectId);
+        requiredSubjectExistence(subjectId);
+        requiredTeacherExistence(teacherId);
         logger.info(format("ADDING... TEACHER BY ID - %d TO SUBJECT BY ID - %d", teacherId, subjectId));
         teacherDao.addTeacherToSubject(teacherId, subjectId);
         logger.info(format("ADDED TEACHER BT ID - %d TO SUBJECT BY ID - %d SUCCESSFULLY", teacherId, subjectId));
@@ -126,17 +122,19 @@ public class TeacherServiceImpl implements TeacherService {
     public void addTeacherToSubjects(Integer teacherId, List<Subject> subjects) {
         requireNonNull(teacherId);
         requireNonNull(subjects);
-        for (Subject subject: subjects){
-            getNotFoundException(teacherId, subject.getId());
-        }
+        subjects.forEach(subject -> requiredSubjectExistence(subject.getId()));
         logger.info(format("ADDING... TEACHER BY ID - %d TO SUBJECTS %d", teacherId, subjects.size()));
         teacherDao.addTeacherToSubjects(teacherId, subjects);
         logger.info(format("ADDED TEACHER BY ID - %d TO SUBJECTS %d SUCCESSFULLY", teacherId, subjects.size()));
     }
 
-    private void getNotFoundException(Integer teacherId, Integer subjectId){
-        if (!subjectService.existsById(subjectId) || !this.existsById(teacherId)){
-            throw new NotFoundException(format("Subject by id - %d or Teacher by id - %d not exists", subjectId, teacherId));
-        }
+    private void requiredTeacherExistence(Integer teacherId) {
+        if (!existsById(teacherId))
+            throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
+    }
+
+    private void requiredSubjectExistence(Integer subjectId) {
+        if (!subjectService.existsById(subjectId))
+            throw new NotFoundException(format("Subject by id - %d not exists", subjectId));
     }
 }

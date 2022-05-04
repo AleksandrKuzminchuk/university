@@ -2,7 +2,6 @@ package ua.foxminded.task10.uml.service.impl;
 
 import org.apache.log4j.Logger;
 import ua.foxminded.task10.uml.dao.SubjectDao;
-import ua.foxminded.task10.uml.exceptions.ExceptionsHandlingConstants;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.service.SubjectService;
@@ -15,7 +14,7 @@ import static java.util.Objects.requireNonNull;
 
 public class SubjectServiceImpl implements SubjectService {
 
-    private static final Logger logger = Logger.getLogger(StudentServiceImpl.class);
+    private static final Logger logger = Logger.getLogger(SubjectServiceImpl.class);
 
     private final SubjectDao subjectDao;
     private final TeacherService teacherService;
@@ -29,7 +28,7 @@ public class SubjectServiceImpl implements SubjectService {
     public Subject save(Subject subject) {
         requireNonNull(subject);
         logger.info(format("SAVING... %s", subject));
-        Subject result = subjectDao.save(subject).orElseThrow(()-> new NotFoundException(format("Can't save %s", subject)));
+        Subject result = subjectDao.save(subject).orElseThrow(() -> new NotFoundException(format("Can't save %s", subject)));
         logger.info(format("SAVED %s SUCCESSFULLY", subject));
         return result;
     }
@@ -56,10 +55,6 @@ public class SubjectServiceImpl implements SubjectService {
     public List<Subject> findAll() {
         logger.info("FINDING... ALL SUBJECTS");
         List<Subject> result = subjectDao.findAll();
-        if (result.isEmpty()){
-            logger.info(format("FOUND %d SUBJECTS", 0));
-            return result;
-        }
         logger.info(format("FOUND %d SUBJECTS SUCCESSFULLY", result.size()));
         return result;
     }
@@ -114,20 +109,12 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public List<Subject> findTeacherSubjects(Integer teacherId) {
         requireNonNull(teacherId);
-        getNotFoundException(teacherId);
+        if (!teacherService.existsById(teacherId))
+            throw new NotFoundException(format("Can't find teacher by id - %d", teacherId));
         logger.info(format("FINDING... SUBJECTS BY TEACHER ID - %d", teacherId));
         List<Subject> result = subjectDao.findTeacherSubjects(teacherId);
-        if (result.isEmpty()){
-            logger.info(format("FOUND %d SUBJECTS BY TEACHER ID- %d", 0, teacherId));
-            return result;
-        }
-        logger.info(format("FOUND %d SUBJECTS BY TEACHER ID - %d SUCCESSFULLY", result.size(), teacherId));
+        logger.info(format("FOUND %d SUBJECTS BY TEACHER ID - %d", result.size(), teacherId));
         return result;
     }
 
-    private void getNotFoundException(Integer teacherId){
-        if (!teacherService.existsById(teacherId)){
-            throw new NotFoundException(format("Can't find teacher by id - %d", teacherId));
-        }
-    }
 }

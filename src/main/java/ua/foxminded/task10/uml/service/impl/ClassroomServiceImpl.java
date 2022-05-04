@@ -69,11 +69,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     public List<Classroom> findAll() {
         logger.info("FINDING... ALL CLASSROOMS");
         List<Classroom> result = classroomDao.findAll();
-        if (result.isEmpty()){
-            logger.info(format("FOUND %d CLASSROOMS", 0));
-            return result;
-        }
-        logger.info(format("FOUND %d CLASSROOMS SUCCESSFULLY", result.size()));
+        logger.info(format("FOUND %d CLASSROOMS", result.size()));
         return result;
     }
 

@@ -64,10 +64,6 @@ public class EventServiceImpl implements EventService {
     public List<Event> findAll() {
         logger.info("FINDING... ALL EVENTS");
         List<Event> result = eventDao.findAll();
-        if (result.isEmpty()){
-            logger.info(format("FOUND %d EVENTS", 0));
-            return result;
-        }
         logger.info(format("FOUND %d EVENTS", result.size()));
         return result;
     }
@@ -129,15 +125,11 @@ public class EventServiceImpl implements EventService {
         requireNonNull(to);
         logger.info(format("FINDING... EVENT FROM %s TO %s", from.format(formatter), to.format(formatter)));
         List<Event> result = eventDao.findEvents(from, to);
-        if (result.isEmpty()){
-            logger.info(format("FOUND %d EVENTS FROM %s TO %s", 0, from.format(formatter), to.format(formatter)));
-            return result;
-        }
         logger.info(format("FOUND %d EVENT FROM %s TO %s", result.size(), from.format(formatter), to.format(formatter)));
         return result;
     }
 
-    private void getExceptionNotFound(Event event){
+    private void getExceptionNotFound(Event event){ //FixMe: rename, separate to relevant messages, refactor
         if (!teacherService.existsById(event.getTeacher().getId()) ||
                 !groupService.existsById(event.getGroup().getId()) ||
                 !subjectService.existsById(event.getSubject().getId()) ||

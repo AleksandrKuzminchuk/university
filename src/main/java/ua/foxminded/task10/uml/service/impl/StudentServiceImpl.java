@@ -2,7 +2,6 @@ package ua.foxminded.task10.uml.service.impl;
 
 import org.apache.log4j.Logger;
 import ua.foxminded.task10.uml.dao.StudentDao;
-import ua.foxminded.task10.uml.exceptions.ExceptionsHandlingConstants;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.service.GroupService;
@@ -28,7 +27,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Student save(Student student) {
         requireNonNull(student);
-        getNotFoundException(student.getGroupId());
+        requiredExistence(student.getGroupId());
         logger.info(format("SAVING... %s", student));
         Student result = studentDao.save(student).orElseThrow(() -> new NotFoundException(format("Can't save %s", student)));
         logger.info(format("SAVED %s SUCCESSFULLY", result));
@@ -57,10 +56,6 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> findAll() {
         logger.info("FINDING... ALL STUDENTS");
         List<Student> result = studentDao.findAll();
-        if (result.isEmpty()) {
-            logger.info(format("FOUND %d STUDENTS", 0));
-            return result;
-        }
         logger.info(format("FOUND %d STUDENTS", result.size()));
         return result;
     }
@@ -99,9 +94,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void saveAll(List<Student> students) {
         requireNonNull(students);
-        for (Student student : students) {
-            getNotFoundException(student.getGroupId());
-        }
+        students.forEach(student -> requiredExistence(student.getGroupId()));
         logger.info(format("SAVING... %d STUDENTS", students.size()));
         studentDao.saveAll(students);
         logger.info(format("SAVED %d STUDENTS SUCCESSFULLY", students.size()));
@@ -112,10 +105,6 @@ public class StudentServiceImpl implements StudentService {
         requireNonNull(courseNumber);
         logger.info(format("FINDING... STUDENTS BY COURSE NUMBER - %d", courseNumber));
         List<Student> result = studentDao.findByCourseNumber(courseNumber);
-        if (result.isEmpty()) {
-            logger.info(format("FOUND %d STUDENTS BY COURSE NUMBER - %s", 0, courseNumber));
-            return result;
-        }
         logger.info(format("FOUND %d STUDENTS BY COURSE NUMBER - %d SUCCESSFULLY", result.size(), courseNumber));
         return result;
     }
@@ -123,7 +112,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void updateStudent(Student student) {
         requireNonNull(student);
-        getNotFoundException(student.getGroupId());
+        requiredExistence(student.getGroupId());
         logger.info(format("UPDATING STUDENT BY ID - %d", student.getId()));
         studentDao.updateStudent(student);
         logger.info(format("UPDATED STUDENT BY ID - %d SUCCESSFULLY", student.getId()));
@@ -132,18 +121,14 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> findStudentsByGroupId(Integer groupId) {
         requireNonNull(groupId);
-        getNotFoundException(groupId);
+        requiredExistence(groupId);
         logger.info(format("FINDING... STUDENTS BY ID GROUP - %d", groupId));
         List<Student> result = studentDao.findStudentsByGroupId(groupId);
-        if (result.isEmpty()) {
-            logger.info(format("FOUND %d STUDENTS BY GROUP ID - %d", 0, groupId));
-            return result;
-        }
         logger.info(format("FOUND %d STUDENTS BY ID GROUP ID - %d", result.size(), groupId));
         return result;
     }
 
-    private void getNotFoundException(Integer groupId) {
+    private void requiredExistence(Integer groupId) {
         if (!groupService.existsById(groupId)) {
             throw new NotFoundException(format("Group by id - %d not exists", groupId));
         }
