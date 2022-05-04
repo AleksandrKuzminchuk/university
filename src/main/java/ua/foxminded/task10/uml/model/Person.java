@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.model.people;
+package ua.foxminded.task10.uml.model;
 
 import java.util.Objects;
 
@@ -13,6 +13,11 @@ public abstract class Person {
 
     public Person(Integer id, String firstName, String lastName) {
         this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
+
+    public Person(String firstName, String lastName) {
         this.firstName = firstName;
         this.lastName = lastName;
     }

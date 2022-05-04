@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.model.place;
+package ua.foxminded.task10.uml.model;
 
 import java.util.Objects;
 
@@ -6,14 +6,12 @@ public class Classroom {
 
     private Integer id;
     private Integer number;
-    private String describe;
 
     public Classroom() {
     }
 
-    public Classroom(Integer number, String describe) {
+    public Classroom(Integer number) {
         this.number = number;
-        this.describe = describe;
     }
 
     public Integer getId() {
@@ -32,25 +30,17 @@ public class Classroom {
         this.number = number;
     }
 
-    public String getDescribe() {
-        return describe;
-    }
-
-    public void setDescribe(String describe) {
-        this.describe = describe;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Classroom classroom = (Classroom) o;
-        return Objects.equals(id, classroom.id) && Objects.equals(number, classroom.number) && Objects.equals(describe, classroom.describe);
+        return Objects.equals(id, classroom.id) && Objects.equals(number, classroom.number);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, number, describe);
+        return Objects.hash(id, number);
     }
 
     @Override
@@ -58,7 +48,6 @@ public class Classroom {
         return "Classroom{" +
                 "id=" + id +
                 ", number=" + number +
-                ", describe='" + describe + '\'' +
                 '}';
     }
 }

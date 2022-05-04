@@ -1,6 +1,4 @@
-package ua.foxminded.task10.uml.model.organization;
-
-import ua.foxminded.task10.uml.model.people.Student;
+package ua.foxminded.task10.uml.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -68,7 +66,6 @@ public class Group {
         return "Group{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
-                ", students=" + students +
                 '}';
     }
 }
