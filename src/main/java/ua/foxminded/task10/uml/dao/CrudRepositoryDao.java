@@ -9,7 +9,7 @@ public interface CrudRepositoryDao<T, ID extends Serializable> {
     Optional<T> findById(ID id);
     boolean existsById(ID id);
     List<T> findAll();
-    long count();
+    Long count();
     void deleteById(ID id);
     void delete(T entity);
     void deleteAll();

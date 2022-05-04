@@ -15,64 +15,59 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.String.format;
 
 public class TeacherDaoImpl implements TeacherDao {
 
-    private final JdbcTemplate jdbcTemplate;
+    private static final Logger logger = Logger.getLogger(Teacher.class);
 
-    private final static Logger logger = Logger.getLogger(Teacher.class);
+    private final JdbcTemplate jdbcTemplate;
 
     public TeacherDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Override
-    public Optional<Teacher> save(Teacher entity) {
-        requiredNonNull(entity);
-        logger.info(format("SAVING %s", entity));
+    public Optional<Teacher> save(Teacher teacher) {
+        requiredNonNull(teacher);
+        logger.info(format("SAVING %s", teacher));
         final String SAVE_TEACHER = "INSERT INTO teachers (first_name, last_name) VALUES (?, ?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement statement = con.prepareStatement(SAVE_TEACHER, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, entity.getFirstName());
-            statement.setString(2, entity.getLastName());
+            statement.setString(1, teacher.getFirstName());
+            statement.setString(2, teacher.getLastName());
             return statement;
         }, holder);
-        Integer teacherId = holder.getKey().intValue();
-        entity.setId(teacherId);
-        Optional<Teacher> result = Optional.of(entity);
-        logger.info(format("%s SAVED SUCCESSFULLY", entity));
+        Integer teacherId = Objects.requireNonNull(holder.getKey()).intValue();
+        teacher.setId(teacherId);
+        Optional<Teacher> result = Optional.of(teacher);
+        logger.info(format("%s SAVED SUCCESSFULLY", teacher));
         return result;
     }
 
     @Override
-    public Optional<Teacher> findById(Integer integer) {
-        requiredNonNull(integer);
-        logger.info(format("FINDING TEACHER BY ID - %d", integer));
+    public Optional<Teacher> findById(Integer id) {
+        requiredNonNull(id);
+        logger.info(format("FINDING TEACHER BY ID - %d", id));
         final String FIND_TEACHER_BY_ID = "SELECT * FROM teachers WHERE teacher_id = ?";
-        Teacher teacher = Optional.ofNullable(jdbcTemplate
-                        .queryForObject(FIND_TEACHER_BY_ID, new Object[]{integer}, new BeanPropertyRowMapper<>(Teacher.class)))
-                .orElseThrow(() -> new IllegalArgumentException(format("Can't find teacher by id - %d", integer)));
-        logger.info(format("FOUND %s BY ID SUCCESSFULLY", teacher));
-        return Optional.of(teacher);
+        Teacher result = jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, new BeanPropertyRowMapper<>(Teacher.class), id);
+        logger.info(format("FOUND %s BY ID SUCCESSFULLY", result));
+        return Optional.ofNullable(result);
     }
 
     @Override
-    public boolean existsById(Integer integer) {
-        requiredNonNull(integer);
-        logger.info(format("CHECKING... TEACHER EXISTS BY ID - %d", integer));
+    public boolean existsById(Integer id) {
+        requiredNonNull(id);
+        logger.info(format("CHECKING... TEACHER EXISTS BY ID - %d", id));
         final String EXISTS_BY_ID = "SELECT COUNT(*) FROM teachers WHERE teacher_id = ?";
-        boolean result = false;
-
-        long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, new Object[]{integer}, Long.class);
-        if (count > 0) {
-            result = true;
-            logger.info(format("CHECKED TEACHER BY ID - %d EXISTS", integer));
-        }
-        return result;
+        Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
+        boolean exists = count != null && count > 0;
+        logger.info(format("TEACHER BY ID - %d EXISTS - %s", id, exists));
+        return exists;
     }
 
     @Override
@@ -85,30 +80,31 @@ public class TeacherDaoImpl implements TeacherDao {
     }
 
     @Override
-    public long count() {
+    public Long count() {
         logger.info("FIND COUNT ALL TEACHERS...");
         final String COUNT = "SELECT COUNT(*) FROM teachers";
-        long countTeachers = jdbcTemplate.queryForObject(COUNT, Long.class);
-        logger.info(format("FOUND COUNT ALL TEACHERS - %d", countTeachers));
+        Long countTeachers = jdbcTemplate.queryForObject(COUNT, Long.class);
+        assert countTeachers != null;
+        logger.info(format("FOUND COUNT(%d) TEACHERS SUCCESSFULLY", countTeachers));
         return countTeachers;
     }
 
     @Override
-    public void deleteById(Integer integer) {
-        requiredNonNull(integer);
-        logger.info(format("DELETE TEACHER BY ID - %d", integer));
+    public void deleteById(Integer id) {
+        requiredNonNull(id);
+        logger.info(format("DELETE TEACHER BY ID - %d", id));
         final String DELETE_BY_ID = "DELETE FROM teachers WHERE teacher_id = ?";
-        jdbcTemplate.update(DELETE_BY_ID, new Object[]{integer}, new BeanPropertyRowMapper<>(Teacher.class));
-        logger.info(format("DELETED TEACHER BY ID - %d SUCCESSFULLY", integer));
+        jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, new BeanPropertyRowMapper<>(Teacher.class));
+        logger.info(format("DELETED TEACHER BY ID - %d SUCCESSFULLY", id));
     }
 
     @Override
-    public void delete(Teacher entity) {
-        requiredNonNull(entity);
-        logger.info(format("DELETE %s...", entity));
+    public void delete(Teacher teacher) {
+        requiredNonNull(teacher);
+        logger.info(format("DELETE %s...", teacher));
         final String DELETE_TEACHER = "DELETE FROM teachers WHERE first_name = ? AND last_name = ?";
-        jdbcTemplate.update(DELETE_TEACHER, new Object[]{entity.getFirstName(), entity.getLastName()}, new BeanPropertyRowMapper<>(Teacher.class));
-        logger.info(format("DELETED %s SUCCESSFULLY", entity));
+        jdbcTemplate.update(DELETE_TEACHER, new Object[]{teacher.getFirstName(), teacher.getLastName()}, new BeanPropertyRowMapper<>(Teacher.class));
+        logger.info(format("DELETED %s SUCCESSFULLY", teacher));
     }
 
     @Override

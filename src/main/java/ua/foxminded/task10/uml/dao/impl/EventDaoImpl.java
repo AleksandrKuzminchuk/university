@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -25,7 +26,7 @@ import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
 
 public class EventDaoImpl implements EventDao {
 
-    private final static Logger logger = Logger.getLogger(EventDaoImpl.class);
+    private static final Logger logger = Logger.getLogger(EventDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
 
@@ -34,53 +35,47 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public Optional<Event> save(Event entity) {
-        requiredNonNull(entity);
-        logger.info(format("SAVING... %s", entity));
+    public Optional<Event> save(Event event) {
+        requiredNonNull(event);
+        logger.info(format("SAVING... %s", event));
         final String SAVE_LESSON = "INSERT INTO events (date_time, subject_id, classroom_id, teacher_id, group_id)" +
-                " VALUES('?',?,?,?,?)";
+                " VALUES(?,?,?,?,?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement statement = con.prepareStatement(SAVE_LESSON, Statement.RETURN_GENERATED_KEYS);
-            statement.setObject(1, Timestamp.valueOf(entity.getLocalDateTime()));
-            statement.setInt(2, entity.getSubject().getId());
-            statement.setInt(3, entity.getClassroom().getId());
-            statement.setInt(4, entity.getTeacher().getId());
-            statement.setInt(5,  entity.getGroup().getId());
+            statement.setObject(1, Timestamp.valueOf(event.getLocalDateTime()));
+            statement.setInt(2, event.getSubject().getId());
+            statement.setInt(3, event.getClassroom().getId());
+            statement.setInt(4, event.getTeacher().getId());
+            statement.setInt(5,  event.getGroup().getId());
             return statement;
         }, holder);
-        Integer eventId = holder.getKey().intValue();
-        entity.setId(eventId);
-        Optional<Event> result = Optional.of(entity);
+        Integer eventId = Objects.requireNonNull(holder.getKey()).intValue();
+        event.setId(eventId);
+        Optional<Event> result = Optional.of(event);
         logger.info(format("SAVED %s SUCCESSFULLY", result));
         return result;
     }
 
     @Override
-    public Optional<Event> findById(Integer integer) {
-        requiredNonNull(integer);
-        logger.info(format("FINDING... EVENT BY ID - %d", integer));
+    public Optional<Event> findById(Integer id) {
+        requiredNonNull(id);
+        logger.info(format("FINDING... EVENT BY ID - %d", id));
         final String FIND_BY_ID = "SELECT * FROM events WHERE event_id = ?";
-        Event event = Optional.ofNullable(jdbcTemplate.queryForObject(FIND_BY_ID,
-                        new Object[]{integer}, new BeanPropertyRowMapper<>(Event.class)))
-                .orElseThrow(() -> new IllegalArgumentException(format("Can't find event by id - %d", integer)));
-        logger.info(format("FOUND %s BY ID - %d", event, integer));
-        return Optional.of(event);
+        Event result = jdbcTemplate.queryForObject(FIND_BY_ID, new BeanPropertyRowMapper<>(Event.class), id);
+        logger.info(format("FOUND %s BY ID - %d", result, id));
+        return Optional.ofNullable(result);
     }
 
     @Override
-    public boolean existsById(Integer integer) {
-        requiredNonNull(integer);
-        logger.info(format("CHECKING... EXISTS EVENT BY ID - %d", integer));
+    public boolean existsById(Integer id) {
+        requiredNonNull(id);
+        logger.info(format("CHECKING... EXISTS EVENT BY ID - %d", id));
         final String EXISTS_BY_ID = "SELECT COUNT(*) FROM events WHERE event_id = ?";
-        boolean result = false;
-
-        long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, new Object[]{integer}, Long.class);
-        if (count > 0){
-            result = true;
-            logger.info(format("CHECKED EVENT BY ID - %d EXISTS", integer));
-        }
-        return result;
+        Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
+        boolean exists = count != null && count > 0;
+        logger.info(format("EVENT BY ID - %d EXISTS - %s", id, exists));
+        return exists;
     }
 
     @Override
@@ -93,21 +88,22 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public long count() {
+    public Long count() {
         logger.info("FINDING COUNT EVENTS");
         final String COUNT = "SELECT COUNT(*) FROM events";
-        long count = jdbcTemplate.queryForObject(COUNT, Long.class);
-        logger.info(format("FOUND COUNT - %d SUCCESSFULLY", count));
+        Long count = jdbcTemplate.queryForObject(COUNT, Long.class);
+        assert count != null;
+        logger.info(format("FOUND COUNT(%d) EVENTS SUCCESSFULLY", count));
         return count;
     }
 
     @Override
-    public void deleteById(Integer integer) {
-        requiredNonNull(integer);
-        logger.info(format("DELETING EVENTS BY ID - %d", integer));
+    public void deleteById(Integer id) {
+        requiredNonNull(id);
+        logger.info(format("DELETING EVENTS BY ID - %d", id));
         final String DELETE_BY_ID = "DELETE FROM events WHERE events_id = ?";
-        jdbcTemplate.update(DELETE_BY_ID, new Object[]{integer}, new BeanPropertyRowMapper<>(Event.class));
-        logger.info(format("DELETED EVENTS BY ID - %d SUCCESSFULLY", integer));
+        jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, new BeanPropertyRowMapper<>(Event.class));
+        logger.info(format("DELETED EVENTS BY ID - %d SUCCESSFULLY", id));
     }
 
     @Override
@@ -119,11 +115,11 @@ public class EventDaoImpl implements EventDao {
     }
 
     @Override
-    public void delete(Event entity) {
-        requiredNonNull(entity);
-        logger.info(format("DELETING... %s", entity));
-        this.deleteById(entity.getId());
-        logger.info(format("DELETED %s SUCCESSFULLY", entity));
+    public void delete(Event event) {
+        requiredNonNull(event);
+        logger.info(format("DELETING... %s", event));
+        this.deleteById(event.getId());
+        logger.info(format("DELETED %s SUCCESSFULLY", event));
     }
 
     @Override
@@ -138,7 +134,7 @@ public class EventDaoImpl implements EventDao {
     public void updateEvent(Event event){
         requiredNonNull(event);
         logger.info(format("UPDATING EVENT BY ID - %d", event.getId()));
-        final String UPDATE_LESSON = "UPDATE events SET date_time = '?', subject_id = ?, classroom_id = ?, teacher_id = ?, " +
+        final String UPDATE_LESSON = "UPDATE events SET date_time = ?, subject_id = ?, classroom_id = ?, teacher_id = ?, " +
                 "group_id = ? WHERE event_id = ?";
         jdbcTemplate.update(UPDATE_LESSON, new Object[]{Timestamp.valueOf(event.getLocalDateTime()), event.getSubject().getId(),
                 event.getClassroom().getId(), event.getTeacher().getId(), event.getGroup().getId(), event.getId()},
@@ -160,8 +156,8 @@ public class EventDaoImpl implements EventDao {
                 "JOIN subjects subj ON (ts.subject_id = subj.subject_id)" +
                 " JOIN groups gr ON (ev.group_id = gr.group_id) " +
                 "JOIN students st (gr.group_id = st.group_id) WHERE date_time BETWEEN '?' AND '?'";
-        List<Event> events = jdbcTemplate.query(FIND_EVENTS, new Object[]{from.format(formatter), to.format(formatter)},
-                new BeanPropertyRowMapper<>(Event.class));
+        List<Event> events = jdbcTemplate.query(FIND_EVENTS, new BeanPropertyRowMapper<>(Event.class),
+                from.format(formatter), to.format(formatter));
         logger.info(format("FOUND %d FROM %s TO %s", events.size(), from.format(formatter), to.format(formatter)));
         return events;
     }

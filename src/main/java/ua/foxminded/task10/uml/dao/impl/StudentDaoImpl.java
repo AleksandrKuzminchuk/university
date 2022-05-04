@@ -14,6 +14,7 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -29,41 +30,45 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     @Override
-    public Optional<Student> save(Student entity) {
-        requiredNonNull(entity);
-        logger.info(format("SAVING %s", entity));
+    public Optional<Student> save(Student student) {
+        requiredNonNull(student);
+        logger.info(format("SAVING %s", student));
         final String SAVE_STUDENT = "INSERT INTO students (first_name, last_name, course, group_id) VALUES (?,?,?,?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement statement = con.prepareStatement(SAVE_STUDENT, Statement.RETURN_GENERATED_KEYS);
-            statement.setString(1, entity.getFirstName());
-            statement.setString(2, entity.getLastName());
-            statement.setInt(3, entity.getCourse());
-            statement.setInt(4, entity.getGroupId());
+            statement.setString(1, student.getFirstName());
+            statement.setString(2, student.getLastName());
+            statement.setInt(3, student.getCourse());
+            statement.setInt(4, student.getGroupId());
             return statement;
         }, holder);
-        Integer studentId = holder.getKey().intValue();
-        entity.setId(studentId);
-        Optional<Student> result = Optional.of(entity);
-        logger.info(format("%s SAVED SUCCESSFULLY", entity));
+        Integer studentId = Objects.requireNonNull(holder.getKey()).intValue();
+        student.setId(studentId);
+        Optional<Student> result = Optional.of(student);
+        logger.info(format("%s SAVED SUCCESSFULLY", student));
         return result;
     }
 
     @Override
-    public Optional<Student> findById(Integer integer) {
-        requiredNonNull(integer);
-        logger.info(format("FIND STUDENT BY ID - %d", integer));
+    public Optional<Student> findById(Integer id) {
+        requiredNonNull(id);
+        logger.info(format("FIND STUDENT BY ID - %d", id));
         final String FIND_BY_ID = "SELECT * FROM students WHERE student_id = ?";
-        Optional<Student> student = Optional.of(Optional.ofNullable(jdbcTemplate.
-                        queryForObject(FIND_BY_ID, new Object[]{integer}, new BeanPropertyRowMapper<>(Student.class)))
-                .orElseThrow(() -> new IllegalArgumentException(format("Can't find student by id - %d", integer))));
-        logger.info(format("FOUND %s BY ID SUCCESSFULLY", student));
-        return student;
+        Student result = jdbcTemplate.queryForObject(FIND_BY_ID, new BeanPropertyRowMapper<>(Student.class), id);
+        logger.info(format("FOUND %s BY ID SUCCESSFULLY", result));
+        return Optional.ofNullable(result);
     }
 
     @Override
-    public boolean existsById(Integer integer) {
-        throw new NotImplementedException("Method existsById not implemented");
+    public boolean existsById(Integer id) {
+        requiredNonNull(id);
+        logger.info(format("CHECING... STUDENT EXISTS BY ID - %d", id));
+        final String EXISTS_BY_ID = "SELECT COUNT(*) FROM students WHERE student_id = ?";
+        Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
+        boolean exists = count != null && count > 0;
+        logger.info(format("STUDENT BY ID - %d EXISTS - %s", id, exists));
+        return exists;
     }
 
     @Override
@@ -76,30 +81,31 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     @Override
-    public long count() {
+    public Long count() {
         logger.info("FIND COUNT ALL STUDENTS...");
         final String COUNT = "SELECT COUNT(*) FROM students";
-        long countStudents = jdbcTemplate.queryForObject(COUNT, Long.class);
-        logger.info(format("FOUND COUNT ALL STUDENTS - %d", countStudents));
+        Long countStudents = jdbcTemplate.queryForObject(COUNT, Long.class);
+        assert countStudents != null;
+        logger.info(format("FOUND COUNT(%d) STUDENTS SUCCESSFULLY", countStudents));
         return countStudents;
     }
 
     @Override
-    public void deleteById(Integer integer) {
-        requiredNonNull(integer);
-        logger.info(format("DELETE STUDENT BY ID - %d", integer));
+    public void deleteById(Integer id) {
+        requiredNonNull(id);
+        logger.info(format("DELETE STUDENT BY ID - %d", id));
         final String DELETE_BY_ID = "DELETE FROM students WHERE student_id = ?";
-        jdbcTemplate.update(DELETE_BY_ID, new Object[]{integer}, new BeanPropertyRowMapper<>(Student.class));
-        logger.info(format("DELETED STUDENT BY ID - %d SUCCESSFULLY", integer));
+        jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, new BeanPropertyRowMapper<>(Student.class));
+        logger.info(format("DELETED STUDENT BY ID - %d SUCCESSFULLY", id));
     }
 
     @Override
-    public void delete(Student entity) {
-        requiredNonNull(entity);
-        logger.info(format("DELETE %s...", entity));
+    public void delete(Student student) {
+        requiredNonNull(student);
+        logger.info(format("DELETE %s...", student));
         final String DELETE_STUDENT = "DELETE FROM students WHERE first_name = ? AND last_name = ?";
-        jdbcTemplate.update(DELETE_STUDENT, new Object[]{entity.getFirstName(), entity.getLastName()}, new BeanPropertyRowMapper<>(Student.class));
-        logger.info(format("DELETED %s SUCCESSFULLY", entity));
+        jdbcTemplate.update(DELETE_STUDENT, new Object[]{student.getFirstName(), student.getLastName()}, new BeanPropertyRowMapper<>(Student.class));
+        logger.info(format("DELETED %s SUCCESSFULLY", student));
     }
 
     @Override
@@ -124,7 +130,7 @@ public class StudentDaoImpl implements StudentDao {
         logger.info(format("FINDING STUDENTS BY COURSE NUMBER %d", courseNumber));
         final String FIND_STUDENTS_BY_COURSE_NUMBER = "SELECT * FROM students WHERE course_number = ?";
         List<Student> students = jdbcTemplate.query(FIND_STUDENTS_BY_COURSE_NUMBER,
-                new Object[]{courseNumber}, new BeanPropertyRowMapper<>(Student.class));
+                 new BeanPropertyRowMapper<>(Student.class), courseNumber);
         logger.info(format("FOUND %s BY COURSE NUMBER - %d",students, courseNumber));
         return students;
     }
@@ -145,7 +151,7 @@ public class StudentDaoImpl implements StudentDao {
         requiredNonNull(groupId);
         logger.info(format("FINDING STUDENTS FROM GROUP ID - %d", groupId));
         final String FIND_STUDENTS_BY_GROUP_ID = "SELECT * FROM students WHERE group_id = ?";
-        List<Student> students = jdbcTemplate.query(FIND_STUDENTS_BY_GROUP_ID, new Object[]{groupId}, new BeanPropertyRowMapper<>(Student.class));
+        List<Student> students = jdbcTemplate.query(FIND_STUDENTS_BY_GROUP_ID, new BeanPropertyRowMapper<>(Student.class), groupId);
         logger.info(format("FOUND %s FROM GROUP ID - %d", students.size(), groupId));
         return students;
     }
