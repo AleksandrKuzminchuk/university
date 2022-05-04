@@ -27,7 +27,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public Student save(Student student) {
         requireNonNull(student);
-        requiredExistence(student.getGroupId());
+        requiredGroupExistence(student.getGroupId());
         logger.info(format("SAVING... %s", student));
         Student result = studentDao.save(student).orElseThrow(() -> new NotFoundException(format("Can't save %s", student)));
         logger.info(format("SAVED %s SUCCESSFULLY", result));
@@ -94,7 +94,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void saveAll(List<Student> students) {
         requireNonNull(students);
-        students.forEach(student -> requiredExistence(student.getGroupId()));
+        students.forEach(student -> requiredGroupExistence(student.getGroupId()));
         logger.info(format("SAVING... %d STUDENTS", students.size()));
         studentDao.saveAll(students);
         logger.info(format("SAVED %d STUDENTS SUCCESSFULLY", students.size()));
@@ -112,7 +112,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public void updateStudent(Student student) {
         requireNonNull(student);
-        requiredExistence(student.getGroupId());
+        requiredGroupExistence(student.getGroupId());
         logger.info(format("UPDATING STUDENT BY ID - %d", student.getId()));
         studentDao.updateStudent(student);
         logger.info(format("UPDATED STUDENT BY ID - %d SUCCESSFULLY", student.getId()));
@@ -121,14 +121,14 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> findStudentsByGroupId(Integer groupId) {
         requireNonNull(groupId);
-        requiredExistence(groupId);
+        requiredGroupExistence(groupId);
         logger.info(format("FINDING... STUDENTS BY ID GROUP - %d", groupId));
         List<Student> result = studentDao.findStudentsByGroupId(groupId);
         logger.info(format("FOUND %d STUDENTS BY ID GROUP ID - %d", result.size(), groupId));
         return result;
     }
 
-    private void requiredExistence(Integer groupId) {
+    private void requiredGroupExistence(Integer groupId) {
         if (!groupService.existsById(groupId)) {
             throw new NotFoundException(format("Group by id - %d not exists", groupId));
         }

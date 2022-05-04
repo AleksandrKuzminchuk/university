@@ -122,6 +122,7 @@ public class TeacherServiceImpl implements TeacherService {
     public void addTeacherToSubjects(Integer teacherId, List<Subject> subjects) {
         requireNonNull(teacherId);
         requireNonNull(subjects);
+        requiredTeacherExistence(teacherId);
         subjects.forEach(subject -> requiredSubjectExistence(subject.getId()));
         logger.info(format("ADDING... TEACHER BY ID - %d TO SUBJECTS %d", teacherId, subjects.size()));
         teacherDao.addTeacherToSubjects(teacherId, subjects);

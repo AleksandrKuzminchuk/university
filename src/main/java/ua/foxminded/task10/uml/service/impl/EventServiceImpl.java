@@ -2,7 +2,6 @@ package ua.foxminded.task10.uml.service.impl;
 
 import org.apache.log4j.Logger;
 import ua.foxminded.task10.uml.dao.EventDao;
-import ua.foxminded.task10.uml.exceptions.ExceptionsHandlingConstants;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Event;
 import ua.foxminded.task10.uml.service.*;
@@ -35,7 +34,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event save(Event event) {
         requireNonNull(event);
-        getExceptionNotFound(event);
+        requiredEventExistence(event);
         logger.info(format("SAVING... %s", event));
         Event result = eventDao.save(event).orElseThrow(() -> new NotFoundException(format("Can't save %s", event)));
         logger.info(format("SAVED %s SUCCESSFULLY", event));
@@ -102,9 +101,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void saveAll(List<Event> events) {
         requireNonNull(events);
-        for(Event event: events){
-            getExceptionNotFound(event);
-        }
+        events.forEach(this::requiredEventExistence);
         logger.info(format("SAVING... %d EVENTS", events.size()));
         eventDao.saveAll(events);
         logger.info(format("SAVED %d EVENTS SUCCESSFULLY", events.size()));
@@ -113,7 +110,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void updateEvent(Event event) {
         requireNonNull(event);
-        getExceptionNotFound(event);
+        requiredEventExistence(event);
         logger.info(format("UPDATING... %s", event));
         eventDao.updateEvent(event);
         logger.info(format("UPDATED %s SUCCESSFULLY", event));
@@ -129,14 +126,15 @@ public class EventServiceImpl implements EventService {
         return result;
     }
 
-    private void getExceptionNotFound(Event event){ //FixMe: rename, separate to relevant messages, refactor
-        if (!teacherService.existsById(event.getTeacher().getId()) ||
-                !groupService.existsById(event.getGroup().getId()) ||
-                !subjectService.existsById(event.getSubject().getId()) ||
-                !classroomService.existsById(event.getClassroom().getId())) {
-            throw new NotFoundException(format("Teacher by id - %d or Group by id - %d or Subject by id - %d " +
-                            "or Classroom by id - %d not exists", event.getTeacher().getId(), event.getGroup().getId(),
-                    event.getSubject().getId(), event.getClassroom().getId()));
+    private void requiredEventExistence(Event event) {
+        if (!teacherService.existsById(event.getTeacher().getId())) {
+            throw new NotFoundException(format("Teacher by id - %d not exists", event.getTeacher().getId()));
+        } else if (!groupService.existsById(event.getGroup().getId())) {
+            throw new NotFoundException(format("Group by id - %d not exists", event.getGroup().getId()));
+        } else if (!subjectService.existsById(event.getSubject().getId())) {
+            throw new NotFoundException(format("Subject by id - %d not exists", event.getSubject().getId()));
+        } else if (!classroomService.existsById(event.getClassroom().getId())) {
+            throw new NotFoundException(format("Classroom by id - %d not exists", event.getClassroom().getId()));
         }
     }
 }

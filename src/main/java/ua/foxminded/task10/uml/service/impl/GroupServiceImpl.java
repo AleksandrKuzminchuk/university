@@ -121,7 +121,8 @@ public class GroupServiceImpl implements GroupService {
     public void assignStudentToGroup(Integer studentId, Integer groupId) {
         requireNonNull(studentId);
         requireNonNull(groupId);
-        getNotFoundException(studentId, groupId);
+        requiredStudentExistence(studentId);
+        requiredGroupExistence(groupId);
         logger.info(format("ASSIGNING STUDENT BY ID - %d TO GROUP BY ID- %d", studentId, groupId));
         groupDao.assignStudentToGroup(studentId, groupId);
         logger.info(format("ASSIGNED STUDENT BY ID - %d TO GROUP BY ID - %d SUCCESSFULLY", studentId, groupId));
@@ -131,17 +132,22 @@ public class GroupServiceImpl implements GroupService {
     public void assignStudentsToGroup(List<Student> students, Integer groupId) {
         requireNonNull(students);
         requireNonNull(groupId);
-        for (Student student: students){
-            getNotFoundException(student.getId(), groupId);
-        }
+        requiredGroupExistence(groupId);
+        students.forEach(student -> requiredStudentExistence(student.getId()));
         logger.info(format("ASSIGNING STUDENTS %d TO GROUP BY ID - %d", students.size(), groupId));
         groupDao.assignStudentsToGroup(students, groupId);
         logger.info(format("ASSIGNED STUDENTS %d TO GROUP BY ID - %d SUCCESSFULLY", students.size(), groupId));
     }
 
-    private void getNotFoundException(Integer studentId, Integer groupId){
-        if (!studentService.existsById(studentId) || !this.existsById(groupId)){
-            throw new NotFoundException(format("Student by id - %d or Group by id - %d not exists", studentId, groupId));
+    private void requiredStudentExistence(Integer studentId){
+        if (!studentService.existsById(studentId)){
+            throw new NotFoundException(format("Student by id- %d not exists", studentId));
+        }
+    }
+
+    private void requiredGroupExistence(Integer groupId){
+        if (!existsById(groupId)){
+            throw new NotFoundException(format("Group by id - %d not exists", groupId));
         }
     }
 }
