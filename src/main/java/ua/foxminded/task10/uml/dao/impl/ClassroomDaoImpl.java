@@ -60,7 +60,7 @@ public class ClassroomDaoImpl implements ClassroomDao {
             statement.setInt(1, classroom.getNumber());
             return statement;
         }, holder);
-        Integer classroomId = Objects.requireNonNull(holder.getKey()).intValue();
+        Integer classroomId = requireNonNull(holder.getKey()).intValue();
         classroom.setId(classroomId);
         Optional<Classroom> result = Optional.of(classroom);
         logger.info(format("SAVED %s SUCCESSFULLY", result));
