@@ -1,6 +1,4 @@
-package ua.foxminded.task10.uml.model.people;
-
-import ua.foxminded.task10.uml.model.curriculums.Subject;
+package ua.foxminded.task10.uml.model;
 
 import java.util.List;
 import java.util.Objects;

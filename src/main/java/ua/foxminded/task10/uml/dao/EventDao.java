@@ -1,6 +1,6 @@
 package ua.foxminded.task10.uml.dao;
 
-import ua.foxminded.task10.uml.model.curriculums.Event;
+import ua.foxminded.task10.uml.model.Event;
 
 import java.time.LocalDateTime;
 import java.util.List;

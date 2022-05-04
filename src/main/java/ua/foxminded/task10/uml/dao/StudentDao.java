@@ -1,6 +1,6 @@
 package ua.foxminded.task10.uml.dao;
 
-import ua.foxminded.task10.uml.model.people.Student;
+import ua.foxminded.task10.uml.model.Student;
 
 import java.util.List;
 

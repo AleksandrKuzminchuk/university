@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.model.people;
+package ua.foxminded.task10.uml.model;
 
 import java.util.Objects;
 

@@ -1,6 +1,4 @@
-package ua.foxminded.task10.uml.model.people;
-
-import ua.foxminded.task10.uml.model.organization.Group;
+package ua.foxminded.task10.uml.model;
 
 import java.util.Objects;
 

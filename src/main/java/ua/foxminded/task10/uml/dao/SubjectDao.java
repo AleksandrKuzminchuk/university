@@ -1,6 +1,6 @@
 package ua.foxminded.task10.uml.dao;
 
-import ua.foxminded.task10.uml.model.curriculums.Subject;
+import ua.foxminded.task10.uml.model.Subject;
 
 import java.util.List;
 

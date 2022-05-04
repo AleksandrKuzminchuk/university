@@ -1,9 +1,6 @@
-package ua.foxminded.task10.uml.model.organization;
-
-import ua.foxminded.task10.uml.model.people.Student;
+package ua.foxminded.task10.uml.model;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 

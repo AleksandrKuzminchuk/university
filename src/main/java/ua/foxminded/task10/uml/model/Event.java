@@ -1,13 +1,6 @@
-package ua.foxminded.task10.uml.model.curriculums;
+package ua.foxminded.task10.uml.model;
 
-import ua.foxminded.task10.uml.model.organization.Group;
-import ua.foxminded.task10.uml.model.people.Teacher;
-import ua.foxminded.task10.uml.model.place.Classroom;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 public class Event {
