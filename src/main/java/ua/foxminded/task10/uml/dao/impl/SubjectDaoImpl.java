@@ -1,7 +1,7 @@
 package ua.foxminded.task10.uml.dao.impl;
 
-
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 public class SubjectDaoImpl implements SubjectDao {
 
-    private static final Logger logger = Logger.getLogger(SubjectDaoImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(SubjectDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final BeanPropertyRowMapper<Subject> mapper;
@@ -33,7 +33,7 @@ public class SubjectDaoImpl implements SubjectDao {
     @Override
     public Optional<Subject> save(Subject subject) {
         requireNonNull(subject);
-        logger.info(format("SAVING... SUBJECT %s", subject));
+        logger.info("SAVING... SUBJECT {}", subject);
         final String SAVE_SUBJECT = "INSERT INTO subjects(subject_name) VALUES (?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -44,29 +44,29 @@ public class SubjectDaoImpl implements SubjectDao {
         Integer subjectId = requireNonNull(holder.getKey()).intValue();
         subject.setId(subjectId);
         Optional<Subject> result = Optional.of(subject);
-        logger.info(format("SAVED %s SUCCESSFULLY", result));
+        logger.info("SAVED {} SUCCESSFULLY", result);
         return result;
     }
 
     @Override
     public Optional<Subject> findById(Integer id) {
         requireNonNull(id);
-        logger.info(format("FINDING SUBJECT BY ID - %d", id));
+        logger.info("FINDING SUBJECT BY ID - {}", id);
         final String FIND_BY_ID = "SELECT * FROM subjects WHERE subject_id = ?";
         Subject result = jdbcTemplate.queryForObject(FIND_BY_ID,
                 mapper, id);
-        logger.info(format("FOUND %s BY ID - %d SUCCESSFULLY", result, id));
+        logger.info("FOUND {} BY ID - {} SUCCESSFULLY", result, id);
         return Optional.ofNullable(result);
     }
 
     @Override
     public boolean existsById(Integer id) {
         requireNonNull(id);
-        logger.info(format("CHECKING... SUBJECT EXISTS BY ID - %d", id));
+        logger.info("CHECKING... SUBJECT EXISTS BY ID - {}", id);
         final String EXISTS_BY_ID = "SELECT COUNT(*) FROM subjects WHERE subject_id = ?";
         Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
         boolean exists = count != null && count > 0;
-        logger.info(format("SUBJECT BY ID - %d EXISTS - %s", id, exists));
+        logger.info("SUBJECT BY ID - {} EXISTS - {}", id, exists);
         return exists;
     }
 
@@ -75,7 +75,7 @@ public class SubjectDaoImpl implements SubjectDao {
         logger.info("FINDING... ALL SUBJECTS");
         final String FIND_ALL = "SELECT * FROM subjects";
         List<Subject> subjects = jdbcTemplate.query(FIND_ALL, mapper);
-        logger.info(format("FOUND ALL SUBJECTS - %d SUCCESSFULLY", subjects.size()));
+        logger.info("FOUND ALL SUBJECTS - {} SUCCESSFULLY", subjects.size());
         return subjects;
     }
 
@@ -84,26 +84,26 @@ public class SubjectDaoImpl implements SubjectDao {
         logger.info("FINDING... COUNT SUBJECTS");
         final String COUNT = "SELECT COUNT(*) FROM subjects";
         Long count = jdbcTemplate.queryForObject(COUNT, Long.class); 
-        logger.info(format("FOUND COUNT(%d) SUBJECTS SUCCESSFULLY", count));
+        logger.info("FOUND COUNT({}) SUBJECTS SUCCESSFULLY", count);
         return count;
     }
 
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
-        logger.info(format("DELETING SUBJECT BY ID - %d", id));
+        logger.info("DELETING SUBJECT BY ID - {}", id);
         final String DELETE_BY_ID = "DELETE FROM subjects WHERE subject_id = ?";
         jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, mapper);
-        logger.info(format("DELETED SUBJECT BY ID - %d SUCCESSFULLY", id));
+        logger.info("DELETED SUBJECT BY ID - {} SUCCESSFULLY", id);
     }
 
     @Override
     public void delete(Subject subject) {
         requireNonNull(subject);
-        logger.info(format("DELETING %s", subject));
+        logger.info("DELETING {}", subject);
         final String DELETE = "DELETE FROM subject WHERE subject_name = ?";
         jdbcTemplate.update(DELETE, new Object[]{subject.getName()}, mapper);
-        logger.info(format("DELETED %s SUCCESSFULLY", subject));
+        logger.info("DELETED {} SUCCESSFULLY", subject);
     }
 
     @Override
@@ -117,26 +117,26 @@ public class SubjectDaoImpl implements SubjectDao {
     @Override
     public void saveAll(List<Subject> subjects) {
         requireNonNull(subjects);
-        logger.info(format("SAVING SUBJECTS %d", subjects.size()));
+        logger.info("SAVING SUBJECTS {}", subjects.size());
         subjects.forEach(this::save);
-        logger.info(format("SAVED SUBJECTS %d SUCCESSFULLY", subjects.size()));
+        logger.info("SAVED SUBJECTS {} SUCCESSFULLY", subjects.size());
     }
 
     @Override
     public void updateSubject(Subject subject) {
         requireNonNull(subject);
-        logger.info(format("UPDATING... SUBJECT BY ID - %d", subject.getId()));
+        logger.info("UPDATING... SUBJECT BY ID - {}", subject.getId());
         final String UPDATE_SUBJECT = "UPDATE subjects SET subject_name = ? WHERE subject_id = ?";
         jdbcTemplate.update(UPDATE_SUBJECT, new Object[]{
                 subject.getName(), 
                 subject.getId()}, mapper);
-        logger.info(format("UPDATED %s SUCCESSFULLY", subject));
+        logger.info("UPDATED {} SUCCESSFULLY", subject);
     }
 
     @Override
     public List<Subject> findTeacherSubjects(Integer teacherId) {
          requireNonNull(teacherId);
-        logger.info(format("FINDING SUBJECTS TEACHERS' - %s", teacherId));
+        logger.info("FINDING SUBJECTS TEACHERS' - {}", teacherId);
         final String FIND_TEACHER_SUBJECTS = "SELECT " +
                 "t.teacher_id, " +
                 "t.first_name, " +
@@ -149,7 +149,7 @@ public class SubjectDaoImpl implements SubjectDao {
                 "WHERE s.subject_id = ? " +
                 "ORDER BY t.teacher_id";
         List<Subject> subjects = jdbcTemplate.query(FIND_TEACHER_SUBJECTS,                mapper, teacherId);
-        logger.info(format("FOUND SUBJECTS - %d TEACHERS' BY ID - %d", subjects.size(), teacherId));
+        logger.info("FOUND SUBJECTS - {} TEACHERS' BY ID - {}", subjects.size(), teacherId);
         return subjects;
     }
 }

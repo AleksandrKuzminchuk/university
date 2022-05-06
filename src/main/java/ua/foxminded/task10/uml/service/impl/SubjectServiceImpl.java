@@ -1,6 +1,7 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.foxminded.task10.uml.dao.SubjectDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
@@ -14,7 +15,7 @@ import static java.util.Objects.requireNonNull;
 
 public class SubjectServiceImpl implements SubjectService {
 
-    private static final Logger logger = Logger.getLogger(SubjectServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(SubjectServiceImpl.class);
 
     private final SubjectDao subjectDao;
     private final TeacherService teacherService;
@@ -27,27 +28,27 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public Subject save(Subject subject) {
         requireNonNull(subject);
-        logger.info(format("SAVING... %s", subject));
+        logger.info("SAVING... {}", subject);
         Subject result = subjectDao.save(subject).orElseThrow(() -> new NotFoundException(format("Can't save %s", subject)));
-        logger.info(format("SAVED %s SUCCESSFULLY", subject));
+        logger.info("SAVED {} SUCCESSFULLY", subject);
         return result;
     }
 
     @Override
     public Subject findById(Integer id) {
         requireNonNull(id);
-        logger.info(format("FINDING... SUBJECT BY ID - %d", id));
+        logger.info("FINDING... SUBJECT BY ID - {}", id);
         Subject result = subjectDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find subject by id - %d", id)));
-        logger.info(format("FOUND %s BY ID - %d SUCCESSFULLY", result, id));
+        logger.info("FOUND {} BY ID - {} SUCCESSFULLY", result, id);
         return result;
     }
 
     @Override
     public boolean existsById(Integer id) {
         requireNonNull(id);
-        logger.info(format("CHECKING... SUBJECT EXISTS BY ID - %d", id));
+        logger.info("CHECKING... SUBJECT EXISTS BY ID - {}", id);
         boolean result = subjectDao.existsById(id);
-        logger.info(format("SUBJECT BY ID - %d EXISTS - %s", id, result));
+        logger.info("SUBJECT BY ID - {} EXISTS - {}", id, result);
         return result;
     }
 
@@ -55,7 +56,7 @@ public class SubjectServiceImpl implements SubjectService {
     public List<Subject> findAll() {
         logger.info("FINDING... ALL SUBJECTS");
         List<Subject> result = subjectDao.findAll();
-        logger.info(format("FOUND %d SUBJECTS SUCCESSFULLY", result.size()));
+        logger.info("FOUND {} SUBJECTS SUCCESSFULLY", result.size());
         return result;
     }
 
@@ -63,24 +64,24 @@ public class SubjectServiceImpl implements SubjectService {
     public Long count() {
         logger.info("FINDING... COUNT SUBJECTS");
         Long result = subjectDao.count();
-        logger.info(format("FOUND %d SUBJECTS SUCCESSFULLY", result));
+        logger.info("FOUND {} SUBJECTS SUCCESSFULLY", result);
         return result;
     }
 
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
-        logger.info(format("DELETING SUBJECT BY ID - %d", id));
+        logger.info("DELETING SUBJECT BY ID - {}", id);
         subjectDao.deleteById(id);
-        logger.info(format("DELETED SUBJECT BY ID - %d SUCCESSFULLY", id));
+        logger.info("DELETED SUBJECT BY ID - {} SUCCESSFULLY", id);
     }
 
     @Override
     public void delete(Subject subject) {
         requireNonNull(subject);
-        logger.info(format("DELETING... %s", subject));
+        logger.info("DELETING... {}", subject);
         subjectDao.delete(subject);
-        logger.info(format("DELETED %s SUCCESSFULLY", subject));
+        logger.info("DELETED {} SUCCESSFULLY", subject);
     }
 
     @Override
@@ -93,17 +94,17 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public void saveAll(List<Subject> subjects) {
         requireNonNull(subjects);
-        logger.info(format("SAVING %d SUBJECTS", subjects.size()));
+        logger.info("SAVING {} SUBJECTS", subjects.size());
         subjectDao.saveAll(subjects);
-        logger.info(format("SAVED %d SUBJECTS SUCCESSFULLY", subjects.size()));
+        logger.info("SAVED {} SUBJECTS SUCCESSFULLY", subjects.size());
     }
 
     @Override
     public void updateSubject(Subject subject) {
         requireNonNull(subject);
-        logger.info(format("UPDATING... %s", subject));
+        logger.info("UPDATING... {}", subject);
         subjectDao.updateSubject(subject);
-        logger.info(format("UPDATED %s SUCCESSFULLY", subject));
+        logger.info("UPDATED {} SUCCESSFULLY", subject);
     }
 
     @Override
@@ -111,9 +112,9 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(teacherId);
         if (!teacherService.existsById(teacherId))
             throw new NotFoundException(format("Can't find teacher by id - %d", teacherId));
-        logger.info(format("FINDING... SUBJECTS BY TEACHER ID - %d", teacherId));
+        logger.info("FINDING... SUBJECTS BY TEACHER ID - {}", teacherId);
         List<Subject> result = subjectDao.findTeacherSubjects(teacherId);
-        logger.info(format("FOUND %d SUBJECTS BY TEACHER ID - %d", result.size(), teacherId));
+        logger.info("FOUND {} SUBJECTS BY TEACHER ID - {}", result.size(), teacherId);
         return result;
     }
 

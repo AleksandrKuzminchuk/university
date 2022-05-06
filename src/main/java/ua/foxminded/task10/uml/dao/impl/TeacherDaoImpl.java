@@ -1,6 +1,7 @@
 package ua.foxminded.task10.uml.dao.impl;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -20,7 +21,7 @@ import static java.util.Objects.requireNonNull;
 
 public class TeacherDaoImpl implements TeacherDao {
 
-    private static final Logger logger = Logger.getLogger(TeacherDaoImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(TeacherDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final BeanPropertyRowMapper<Teacher> mapper;
@@ -33,7 +34,7 @@ public class TeacherDaoImpl implements TeacherDao {
     @Override
     public Optional<Teacher> save(Teacher teacher) {
         requireNonNull(teacher);
-        logger.info(format("SAVING %s", teacher));
+        logger.info("SAVING {}", teacher);
         final String SAVE_TEACHER = "INSERT INTO teachers (first_name, last_name) VALUES (?, ?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -45,28 +46,28 @@ public class TeacherDaoImpl implements TeacherDao {
         Integer teacherId = requireNonNull(holder.getKey()).intValue();
         teacher.setId(teacherId);
         Optional<Teacher> result = Optional.of(teacher);
-        logger.info(format("%s SAVED SUCCESSFULLY", teacher));
+        logger.info("SAVED {} SUCCESSFULLY", teacher);
         return result;
     }
 
     @Override
     public Optional<Teacher> findById(Integer id) {
         requireNonNull(id);
-        logger.info(format("FINDING TEACHER BY ID - %d", id));
+        logger.info("FINDING TEACHER BY ID - {}", id);
         final String FIND_TEACHER_BY_ID = "SELECT * FROM teachers WHERE teacher_id = ?";
         Teacher result = jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, mapper, id);
-        logger.info(format("FOUND %s BY ID SUCCESSFULLY", result));
+        logger.info("FOUND {} BY ID SUCCESSFULLY", result);
         return Optional.ofNullable(result);
     }
 
     @Override
     public boolean existsById(Integer id) {
         requireNonNull(id);
-        logger.info(format("CHECKING... TEACHER EXISTS BY ID - %d", id));
+        logger.info("CHECKING... TEACHER EXISTS BY ID - {}", id);
         final String EXISTS_BY_ID = "SELECT COUNT(*) FROM teachers WHERE teacher_id = ?";
         Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
         boolean exists = count != null && count > 0;
-        logger.info(format("TEACHER BY ID - %d EXISTS - %s", id, exists));
+        logger.info("TEACHER BY ID - {} EXISTS - {}", id, exists);
         return exists;
     }
 
@@ -75,7 +76,7 @@ public class TeacherDaoImpl implements TeacherDao {
         logger.info("FINDING ALL TEACHERS...");
         final String FIND_ALL = "SELECT * FROM teachers";
         List<Teacher> teachers = jdbcTemplate.query(FIND_ALL, mapper);
-        logger.info(format("FOUND ALL TEACHERS: %s", teachers));
+        logger.info("FOUND ALL TEACHERS: {}", teachers);
         return teachers;
     }
 
@@ -84,26 +85,26 @@ public class TeacherDaoImpl implements TeacherDao {
         logger.info("FIND COUNT ALL TEACHERS...");
         final String COUNT = "SELECT COUNT(*) FROM teachers";
         Long countTeachers = jdbcTemplate.queryForObject(COUNT, Long.class);
-        logger.info(format("FOUND COUNT(%d) TEACHERS SUCCESSFULLY", countTeachers));
+        logger.info("FOUND COUNT({}) TEACHERS SUCCESSFULLY", countTeachers);
         return countTeachers;
     }
 
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
-        logger.info(format("DELETE TEACHER BY ID - %d", id));
+        logger.info("DELETE TEACHER BY ID - {}", id);
         final String DELETE_BY_ID = "DELETE FROM teachers WHERE teacher_id = ?";
         jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, mapper);
-        logger.info(format("DELETED TEACHER BY ID - %d SUCCESSFULLY", id));
+        logger.info("DELETED TEACHER BY ID - {} SUCCESSFULLY", id);
     }
 
     @Override
     public void delete(Teacher teacher) {
         requireNonNull(teacher);
-        logger.info(format("DELETE %s...", teacher));
+        logger.info("DELETE {}...", teacher);
         final String DELETE_TEACHER = "DELETE FROM teachers WHERE first_name = ? AND last_name = ?";
         jdbcTemplate.update(DELETE_TEACHER, new Object[]{teacher.getFirstName(), teacher.getLastName()}, mapper);
-        logger.info(format("DELETED %s SUCCESSFULLY", teacher));
+        logger.info("DELETED {} SUCCESSFULLY", teacher);
     }
 
     @Override
@@ -117,35 +118,35 @@ public class TeacherDaoImpl implements TeacherDao {
     @Override
     public void saveAll(List<Teacher> teachers) {
         requireNonNull(teachers);
-        logger.info(format("SAVING %d TEACHERS", teachers.size()));
+        logger.info("SAVING {} TEACHERS", teachers.size());
         teachers.forEach(this::save);
-        logger.info(format("SAVED %d TEACHERS SUCCESSFULLY", teachers.size()));
+        logger.info("SAVED {} TEACHERS SUCCESSFULLY", teachers.size());
     }
 
     @Override
     public void updateTeacher(Teacher teacher) {
         requireNonNull(teacher);
-        logger.info(format("UPDATING TEACHER BY ID - %d", teacher.getId()));
+        logger.info("UPDATING TEACHER BY ID - {}", teacher.getId());
         final String UPDATE_TEACHER = "UPDATE teachers SET first_name = ?, last_name = ? WHERE teacher_id = ?";
         jdbcTemplate.update(UPDATE_TEACHER, new Object[]{
                 teacher.getFirstName(),
                 teacher.getLastName(),
                 teacher.getId()}, mapper);
-        logger.info(format("UPDATED TEACHER BY ID - %d SUCCESSFULLY", teacher.getId()));
+        logger.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", teacher.getId());
     }
 
     @Override
     public void addTeacherToSubject(Integer teacherId, Integer subjectId) {
         requireNonNull(teacherId);
         requireNonNull(subjectId);
-        logger.info(format("ADDING... TEACHER ID - %d TO SUBJECT ID - %d", teacherId, subjectId));
+        logger.info("ADDING... TEACHER ID - {} TO SUBJECT ID - {}", teacherId, subjectId);
         final String ADD_TEACHER_TO_SUBJECT = "INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (?, ?)";
         jdbcTemplate.update(con -> {
             PreparedStatement statement = con.prepareStatement(ADD_TEACHER_TO_SUBJECT);
             statement.setInt(1, teacherId);
             statement.setInt(2, subjectId);
             statement.executeUpdate();
-            logger.info(format("ADDED TEACHER ID - %d TO SUBJECT ID - %d SUCCESSFULLY", teacherId, subjectId));
+            logger.info("ADDED TEACHER ID - {} TO SUBJECT ID - {} SUCCESSFULLY", teacherId, subjectId);
             return statement;
         });
     }
@@ -154,8 +155,8 @@ public class TeacherDaoImpl implements TeacherDao {
     public void addTeacherToSubjects(Integer teacherId, List<Subject> subjects) {
         requireNonNull(teacherId);
         requireNonNull(subjects);
-        logger.info(format("ADDING... TEACHER ID - %d TO SUBJECTS %d", teacherId, subjects.size()));
+        logger.info("ADDING... TEACHER ID - {} TO SUBJECTS {}", teacherId, subjects.size());
         subjects.forEach(subject -> addTeacherToSubject(teacherId, subject.getId()));
-        logger.info(format("ADDED TEACHER ID - %d TO SUBJECTS %d SUCCESSFULLY", teacherId, subjects.size()));
+        logger.info("ADDED TEACHER ID - {} TO SUBJECTS {} SUCCESSFULLY", teacherId, subjects.size());
     }
 }

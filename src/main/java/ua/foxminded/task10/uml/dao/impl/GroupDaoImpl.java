@@ -1,6 +1,7 @@
 package ua.foxminded.task10.uml.dao.impl;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -21,7 +22,7 @@ import static java.util.Objects.requireNonNull;
 
 public class GroupDaoImpl implements GroupDao {
 
-    private static final Logger logger = Logger.getLogger(GroupDaoImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(GroupDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final BeanPropertyRowMapper<Group> mapper;
@@ -36,7 +37,7 @@ public class GroupDaoImpl implements GroupDao {
     @Override
     public Optional<Group> save(Group group) {
         requireNonNull(group);
-        logger.info(format("SAVING %s...", group));
+        logger.info("SAVING {}...", group);
         final String SAVE_GROUP = "INSERT INTO groups (group_name) VALUES (?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -47,28 +48,28 @@ public class GroupDaoImpl implements GroupDao {
         Integer groupId = requireNonNull(holder.getKey()).intValue();
         group.setId(groupId);
         Optional<Group> result = Optional.of(group);
-        logger.info(format("%s SAVED SUCCESSFULLY", group));
+        logger.info("SAVED {} SUCCESSFULLY", group);
         return result;
     }
 
     @Override
     public Optional<Group> findById(Integer id) {
         requireNonNull(id);
-        logger.info(format("FINDING GROUP BY ID - %d", id));
+        logger.info("FINDING GROUP BY ID - {}", id);
         final String FIND_BY_ID = "SELECT * FROM groups WHERE group_id = ?";
         Group result = jdbcTemplate.queryForObject(FIND_BY_ID, mapper, id);
-        logger.info(format("FOUND %s BY ID - %d", result, id));
+        logger.info("FOUND {} BY ID - {}", result, id);
         return Optional.ofNullable(result);
     }
 
     @Override
     public boolean existsById(Integer id) {
         requireNonNull(id);
-        logger.info(format("CHECKING... GROUP EXISTS BY ID - %d", id));
+        logger.info("CHECKING... GROUP EXISTS BY ID - {}", id);
         final String EXISTS_BY_ID = "SELECT COUNT(*) FROM groups WHERE group_id = ?";
         Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
         boolean exists = count != null && count > 0;
-        logger.info(format("GROUP BY ID - %d EXISTS - %s", id, exists));
+        logger.info("GROUP BY ID - {} EXISTS - {}", id, exists);
         return exists;
     }
 
@@ -77,7 +78,7 @@ public class GroupDaoImpl implements GroupDao {
         logger.info("FINDING ALL GROUPS");
         final String FIND_GROUPS = "SELECT * FROM groups";
         List<Group> groups = jdbcTemplate.query(FIND_GROUPS, mapper);
-        logger.info(format("FOUND ALL GROUPS: %s", groups));
+        logger.info("FOUND ALL GROUPS: {}", groups);
         return groups;
     }
 
@@ -86,26 +87,26 @@ public class GroupDaoImpl implements GroupDao {
         logger.info("FINDING COUNT ALL GROUPS");
         final String COUNT = "SELECT COUNT(*) FROM groups";
         Long count = jdbcTemplate.queryForObject(COUNT, Long.class);
-        logger.info(format("FOUND COUNT(%d) GROUPS SUCCESSFULLY", count));
+        logger.info("FOUND COUNT({}) GROUPS SUCCESSFULLY", count);
         return count;
     }
 
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
-        logger.info(format("DELETE GROUP BY ID - %d", id));
+        logger.info("DELETE GROUP BY ID - {}", id);
         final String DELETE_BY_ID = "DELETE FROM groups WHERE group_id = ?";
         jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, mapper);
-        logger.info(format("DELETED GROUP BY ID - %d", id));
+        logger.info("DELETED GROUP BY ID - {}", id);
     }
 
     @Override
     public void delete(Group group) {
         requireNonNull(group);
-        logger.info(format("DELETE GROUP %s", group));
+        logger.info("DELETE GROUP {}", group);
         final String DELETE_GROUP = "DELETE FROM groups WHERE group_name = ?";
         jdbcTemplate.update(DELETE_GROUP, new Object[]{group.getName()}, mapper);
-        logger.info(format("DELETED GROUP %s", group));
+        logger.info("DELETED GROUP {}", group);
     }
 
     @Override
@@ -119,38 +120,38 @@ public class GroupDaoImpl implements GroupDao {
     @Override
     public void saveAll(List<Group> groups) {
         requireNonNull(groups);
-        logger.info(format("SAVING GROUPS - %d", groups.size()));
+        logger.info("SAVING GROUPS - {}", groups.size());
         groups.forEach(this::save);
-        logger.info(format("SAVED GROUPS - %d SUCCESSFULLY ", groups.size()));
+        logger.info("SAVED GROUPS - {} SUCCESSFULLY ", groups.size());
     }
 
     @Override
     public Optional<Group> findByGroupName(String groupName) {
         requireNonNull(groupName);
-        logger.info(format("FINDING GROUP BY NAME - %s", groupName));
+        logger.info("FINDING GROUP BY NAME - {}", groupName);
         final String FIND_GROUP_BY_NAME = "SELECT * FROM groups WHERE group_name = ?";
         Group group = jdbcTemplate.queryForObject(FIND_GROUP_BY_NAME, mapper, groupName);
-        logger.info(format("FOUND %s BY NAME %s", group, groupName));
+        logger.info("FOUND {} BY NAME {}", group, groupName);
         return Optional.ofNullable(group);
     }
 
     @Override
     public void updateGroup(Group group) {
         requireNonNull(group);
-        logger.info(format("UPDATING GROUP BY ID - %d", group.getId()));
+        logger.info("UPDATING GROUP BY ID - {}", group.getId());
         final String UPDATE_GROUP = "UPDATE groups SET group_name = ? WHERE group_id = ?";
         jdbcTemplate.update(UPDATE_GROUP, new Object[]{group.getName(), group.getId()}, mapper);
-        logger.info(format("UPDATED %s SUCCESSFULLY", group));
+        logger.info("UPDATED {} SUCCESSFULLY", group);
     }
 
     @Override
     public void assignStudentToGroup(Integer studentId, Integer groupId) {
         requireNonNull(studentId);
         requireNonNull(groupId);
-        logger.info(format("ASSIGN %s TO %s", studentId, groupId));
+        logger.info("ASSIGN {} TO {}", studentId, groupId);
         final String ASSIGN_STUDENT_TO_GROUP = "UPDATE students SET group_id = ? WHERE student_id = ?";
         jdbcTemplate.update(ASSIGN_STUDENT_TO_GROUP, mapper, groupId, studentId);
-        logger.info(format("ASSIGNED %s TO %s SUCCESSFULLY", studentId, groupId));
+        logger.info("ASSIGNED {} TO {} SUCCESSFULLY", studentId, groupId);
     }
 
 
@@ -158,8 +159,8 @@ public class GroupDaoImpl implements GroupDao {
     public void assignStudentsToGroup(List<Student> students, Integer groupId) {
         requireNonNull(students);
         requireNonNull(groupId);
-        logger.info(format("ASSIGN %d TO GROUP  - %d", students.size(), groupId));
+        logger.info("ASSIGN {} TO GROUP  - {}", students.size(), groupId);
         students.forEach(student -> assignStudentToGroup(student.getId(), groupId));
-        logger.info(format("ASSIGNED %d TO GROUP - %d SUCCESSFULLY", students.size(), groupId));
+        logger.info("ASSIGNED {} TO GROUP - {} SUCCESSFULLY", students.size(), groupId);
     }
 }
