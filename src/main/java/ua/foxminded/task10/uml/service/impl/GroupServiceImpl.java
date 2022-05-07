@@ -1,8 +1,8 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.foxminded.task10.uml.dao.GroupDao;
-import ua.foxminded.task10.uml.exceptions.ExceptionsHandlingConstants;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
@@ -16,7 +16,7 @@ import static java.util.Objects.requireNonNull;
 
 public class GroupServiceImpl implements GroupService {
 
-    private static final Logger logger = Logger.getLogger(GroupServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);
 
     private final GroupDao groupDao;
     private final StudentService studentService;
@@ -29,27 +29,27 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Group save(Group group) {
         requireNonNull(group);
-        logger.info(format("SAVING... %s", group));
+        logger.info("SAVING... {}", group);
         Group result = groupDao.save(group).orElseThrow(() -> new NotFoundException(format("Can't save %s", group)));
-        logger.info(format("SAVED %s SUCCESSFULLY", group));
+        logger.info("SAVED {} SUCCESSFULLY", group);
         return result;
     }
 
     @Override
     public Group findById(Integer id) {
         requireNonNull(id);
-        logger.info(format("FINDING... GROUP BY ID - %d", id));
+        logger.info("FINDING... GROUP BY ID - {}", id);
         Group result = groupDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find group by id- %d", id)));
-        logger.info(format("FOUND %s BY ID - %d SUCCESSFULLY", result, id));
+        logger.info("FOUND {} BY ID - {} SUCCESSFULLY", result, id);
         return result;
     }
 
     @Override
     public boolean existsById(Integer id) {
         requireNonNull(id);
-        logger.info(format("CHECKING... GROUP EXISTS BY ID - %d", id));
+        logger.info("CHECKING... GROUP EXISTS BY ID - {}", id);
         boolean result = groupDao.existsById(id);
-        logger.info(format("GROUP BY ID - %d EXISTS - %s", id, result));
+        logger.info("GROUP BY ID - {} EXISTS - {}", id, result);
         return result;
     }
 
@@ -57,7 +57,7 @@ public class GroupServiceImpl implements GroupService {
     public List<Group> findAll() {
         logger.info("FINDING... ALL GROUPS");
         List<Group> result = groupDao.findAll();
-        logger.info(format("FOUND %d GROUPS", result.size()));
+        logger.info("FOUND {} GROUPS", result.size());
         return result;
     }
 
@@ -65,24 +65,24 @@ public class GroupServiceImpl implements GroupService {
     public Long count() {
         logger.info("FINDING... COUNT GROUPS");
         Long result = groupDao.count();
-        logger.info(format("FOUND COUNT(%d) GROUPS SUCCESSFULLY", result));
+        logger.info("FOUND COUNT({}) GROUPS SUCCESSFULLY", result);
         return result;
     }
 
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
-        logger.info(format("DELETING... GROUP BY ID- %d", id));
+        logger.info("DELETING... GROUP BY ID- {}", id);
         groupDao.deleteById(id);
-        logger.info(format("DELETED GROUP BY ID - %d SUCCESSFULLY", id));
+        logger.info("DELETED GROUP BY ID - {} SUCCESSFULLY", id);
     }
 
     @Override
     public void delete(Group group) {
         requireNonNull(group);
-        logger.info(format("DELETING... %s", group));
+        logger.info("DELETING... {}", group);
         groupDao.delete(group);
-        logger.info(format("DELETED %s SUCCESSFULLY", group));
+        logger.info("DELETED {} SUCCESSFULLY", group);
     }
 
     @Override
@@ -95,26 +95,26 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void saveAll(List<Group> groups) {
         requireNonNull(groups);
-        logger.info(format("SAVING... %d GROUPS", groups.size()));
+        logger.info("SAVING... {} GROUPS", groups.size());
         groupDao.saveAll(groups);
-        logger.info(format("SAVED %d GROUPS SUCCESSFULLY", groups.size()));
+        logger.info("SAVED {} GROUPS SUCCESSFULLY", groups.size());
     }
 
     @Override
     public Group findByGroupName(String groupName) {
         requireNonNull(groupName);
-        logger.info(format("FINDING... GROUP BY GROUP NAME - %s", groupName));
+        logger.info("FINDING... GROUP BY GROUP NAME - {}", groupName);
         Group result = groupDao.findByGroupName(groupName).orElseThrow(() -> new NotFoundException(format("Can't find group by group name - %s", groupName)));
-        logger.info(format("FOUND %s BY GROUP NAME - %s SUCCESSFULLY", result, groupName));
+        logger.info("FOUND {} BY GROUP NAME - {} SUCCESSFULLY", result, groupName);
         return result;
     }
 
     @Override
     public void updateGroup(Group group) {
         requireNonNull(group);
-        logger.info(format("UPDATING... %s", group));
+        logger.info("UPDATING... {}", group);
         groupDao.updateGroup(group);
-        logger.info(format("UPDATED %s SUCCESSFULLY", group));
+        logger.info("UPDATED {} SUCCESSFULLY", group);
     }
 
     @Override
@@ -123,9 +123,9 @@ public class GroupServiceImpl implements GroupService {
         requireNonNull(groupId);
         requiredStudentExistence(studentId);
         requiredGroupExistence(groupId);
-        logger.info(format("ASSIGNING STUDENT BY ID - %d TO GROUP BY ID- %d", studentId, groupId));
+        logger.info("ASSIGNING STUDENT BY ID - {} TO GROUP BY ID- {}", studentId, groupId);
         groupDao.assignStudentToGroup(studentId, groupId);
-        logger.info(format("ASSIGNED STUDENT BY ID - %d TO GROUP BY ID - %d SUCCESSFULLY", studentId, groupId));
+        logger.info("ASSIGNED STUDENT BY ID - {} TO GROUP BY ID - {} SUCCESSFULLY", studentId, groupId);
     }
 
     @Override
@@ -134,9 +134,9 @@ public class GroupServiceImpl implements GroupService {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
         students.forEach(student -> requiredStudentExistence(student.getId()));
-        logger.info(format("ASSIGNING STUDENTS %d TO GROUP BY ID - %d", students.size(), groupId));
+        logger.info("ASSIGNING STUDENTS {} TO GROUP BY ID - {}", students.size(), groupId);
         groupDao.assignStudentsToGroup(students, groupId);
-        logger.info(format("ASSIGNED STUDENTS %d TO GROUP BY ID - %d SUCCESSFULLY", students.size(), groupId));
+        logger.info("ASSIGNED STUDENTS {} TO GROUP BY ID - {} SUCCESSFULLY", students.size(), groupId);
     }
 
     private void requiredStudentExistence(Integer studentId){

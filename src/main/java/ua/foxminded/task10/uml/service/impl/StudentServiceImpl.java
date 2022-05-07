@@ -1,6 +1,7 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.foxminded.task10.uml.dao.StudentDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Student;
@@ -14,7 +15,7 @@ import static java.util.Objects.requireNonNull;
 
 public class StudentServiceImpl implements StudentService {
 
-    private static final Logger logger = Logger.getLogger(StudentServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(StudentServiceImpl.class);
 
     private final StudentDao studentDao;
     private final GroupService groupService;
@@ -28,27 +29,27 @@ public class StudentServiceImpl implements StudentService {
     public Student save(Student student) {
         requireNonNull(student);
         requiredGroupExistence(student.getGroupId());
-        logger.info(format("SAVING... %s", student));
+        logger.info("SAVING... {}", student);
         Student result = studentDao.save(student).orElseThrow(() -> new NotFoundException(format("Can't save %s", student)));
-        logger.info(format("SAVED %s SUCCESSFULLY", result));
+        logger.info("SAVED {} SUCCESSFULLY", result);
         return result;
     }
 
     @Override
     public Student findById(Integer id) {
         requireNonNull(id);
-        logger.info(format("FINDING... STUDENT BY ID - %d", id));
+        logger.info("FINDING... STUDENT BY ID - {}", id);
         Student result = studentDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find student by id - %d", id)));
-        logger.info(format("FOUND %s BY ID - %d", result, id));
+        logger.info("FOUND {} BY ID - {}", result, id);
         return result;
     }
 
     @Override
     public boolean existsById(Integer id) {
         requireNonNull(id);
-        logger.info(format("CHECKING... STUDENT EXISTS BY ID - %d", id));
+        logger.info("CHECKING... STUDENT EXISTS BY ID - {}", id);
         boolean result = studentDao.existsById(id);
-        logger.info(format("STUDENT BY ID - %d EXISTS - %s", id, result));
+        logger.info("STUDENT BY ID - {} EXISTS - {}", id, result);
         return result;
     }
 
@@ -56,7 +57,7 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> findAll() {
         logger.info("FINDING... ALL STUDENTS");
         List<Student> result = studentDao.findAll();
-        logger.info(format("FOUND %d STUDENTS", result.size()));
+        logger.info("FOUND {} STUDENTS", result.size());
         return result;
     }
 
@@ -64,24 +65,24 @@ public class StudentServiceImpl implements StudentService {
     public Long count() {
         logger.info("FINDING... COUNT STUDENTS");
         Long result = studentDao.count();
-        logger.info(format("FOUND %d STUDENTS SUCCESSFULLY", result));
+        logger.info("FOUND {} STUDENTS SUCCESSFULLY", result);
         return result;
     }
 
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
-        logger.info(format("DELETING... STUDENT BY ID - %d", id));
+        logger.info("DELETING... STUDENT BY ID - {}", id);
         studentDao.deleteById(id);
-        logger.info(format("DELETED STUDENT BY ID - %d SUCCESSFULLY", id));
+        logger.info("DELETED STUDENT BY ID - {} SUCCESSFULLY", id);
     }
 
     @Override
     public void delete(Student student) {
         requireNonNull(student);
-        logger.info(format("DELETING... %s", student));
+        logger.info("DELETING... {}", student);
         studentDao.delete(student);
-        logger.info(format("DELETED %s SUCCESSFULLY", student));
+        logger.info("DELETED {} SUCCESSFULLY", student);
     }
 
     @Override
@@ -95,17 +96,17 @@ public class StudentServiceImpl implements StudentService {
     public void saveAll(List<Student> students) {
         requireNonNull(students);
         students.forEach(student -> requiredGroupExistence(student.getGroupId()));
-        logger.info(format("SAVING... %d STUDENTS", students.size()));
+        logger.info("SAVING... {} STUDENTS", students.size());
         studentDao.saveAll(students);
-        logger.info(format("SAVED %d STUDENTS SUCCESSFULLY", students.size()));
+        logger.info("SAVED {} STUDENTS SUCCESSFULLY", students.size());
     }
 
     @Override
     public List<Student> findByCourseNumber(Integer courseNumber) {
         requireNonNull(courseNumber);
-        logger.info(format("FINDING... STUDENTS BY COURSE NUMBER - %d", courseNumber));
+        logger.info("FINDING... STUDENTS BY COURSE NUMBER - {}", courseNumber);
         List<Student> result = studentDao.findByCourseNumber(courseNumber);
-        logger.info(format("FOUND %d STUDENTS BY COURSE NUMBER - %d SUCCESSFULLY", result.size(), courseNumber));
+        logger.info("FOUND {} STUDENTS BY COURSE NUMBER - {} SUCCESSFULLY", result.size(), courseNumber);
         return result;
     }
 
@@ -113,18 +114,18 @@ public class StudentServiceImpl implements StudentService {
     public void updateStudent(Student student) {
         requireNonNull(student);
         requiredGroupExistence(student.getGroupId());
-        logger.info(format("UPDATING STUDENT BY ID - %d", student.getId()));
+        logger.info("UPDATING STUDENT BY ID - {}", student.getId());
         studentDao.updateStudent(student);
-        logger.info(format("UPDATED STUDENT BY ID - %d SUCCESSFULLY", student.getId()));
+        logger.info("UPDATED STUDENT BY ID - {} SUCCESSFULLY", student.getId());
     }
 
     @Override
     public List<Student> findStudentsByGroupId(Integer groupId) {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
-        logger.info(format("FINDING... STUDENTS BY ID GROUP - %d", groupId));
+        logger.info("FINDING... STUDENTS BY ID GROUP - {}", groupId);
         List<Student> result = studentDao.findStudentsByGroupId(groupId);
-        logger.info(format("FOUND %d STUDENTS BY ID GROUP ID - %d", result.size(), groupId));
+        logger.info("FOUND {} STUDENTS BY ID GROUP ID - {}", result.size(), groupId);
         return result;
     }
 

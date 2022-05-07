@@ -1,6 +1,7 @@
 package ua.foxminded.task10.uml.dao.impl;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -12,7 +13,6 @@ import javax.sql.DataSource;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import static java.lang.String.format;
@@ -20,7 +20,7 @@ import static java.util.Objects.requireNonNull;
 
 public class ClassroomDaoImpl implements ClassroomDao {
 
-    private static final Logger logger = Logger.getLogger(ClassroomDaoImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClassroomDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
     private final BeanPropertyRowMapper<Classroom> mapper;
@@ -33,26 +33,26 @@ public class ClassroomDaoImpl implements ClassroomDao {
     @Override
     public void saveAll(List<Classroom> classrooms) {
         requireNonNull(classrooms);
-        logger.info(format("SAVING CLASSROOMS (count = %d)", classrooms.size()));
+        logger.info("SAVING CLASSROOMS (count = {})", classrooms.size());
         classrooms.forEach(this::save);
-        logger.info(format("SAVED %d SUCCESSFULLY", classrooms.size()));
+        logger.info("SAVED {} SUCCESSFULLY", classrooms.size());
     }
 
     @Override
     public void updateClassroom(Classroom classroom) {
         requireNonNull(classroom);
-        logger.info(format("UPDATING... CLASSROOM BY ID - %d", classroom.getId()));
+        logger.info("UPDATING... CLASSROOM BY ID - {}", classroom.getId());
         final String UPDATE_CLASSROOM = "UPDATE classrooms SET room_number = ? WHERE classroom_id = ?";
         jdbcTemplate.update(UPDATE_CLASSROOM, new Object[]{
                 classroom.getNumber(),
                 classroom.getId()}, mapper);
-        logger.info(format("UPDATED CLASSROOM - %s SUCCESSFULLY", classroom));
+        logger.info("UPDATED CLASSROOM - {} SUCCESSFULLY", classroom);
     }
 
     @Override
     public Optional<Classroom> save(Classroom classroom) {
         requireNonNull(classroom);
-        logger.info(format("SAVING... %s", classroom));
+        logger.info("SAVING... {}", classroom);
         final String SAVE_CLASSROOM = "INSERT INTO classrooms(room_number) VALUES (?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
@@ -63,28 +63,28 @@ public class ClassroomDaoImpl implements ClassroomDao {
         Integer classroomId = requireNonNull(holder.getKey()).intValue();
         classroom.setId(classroomId);
         Optional<Classroom> result = Optional.of(classroom);
-        logger.info(format("SAVED %s SUCCESSFULLY", result));
+        logger.info("SAVED {} SUCCESSFULLY", result);
         return result;
     }
 
     @Override
     public Optional<Classroom> findById(Integer id) {
         requireNonNull(id);
-        logger.info(format("FINDING... CLASSROOM BY ID - %d", id));
+        logger.info("FINDING... CLASSROOM BY ID - {}", id);
         final String FIND_BY_ID = "SELECT * FROM classrooms WHERE classroom_id = ?";
         Classroom classroom = jdbcTemplate.queryForObject(FIND_BY_ID, mapper, id);
-        logger.info(format("FOUND SUCCESSFULLY %s BY ID - %d", classroom, id));
+        logger.info("FOUND SUCCESSFULLY {} BY ID - {}", classroom, id);
         return Optional.ofNullable(classroom);
     }
 
     @Override
     public boolean existsById(Integer id) {
         requireNonNull(id);
-        logger.info(format("CHECKING CLASSROOM EXISTS BY ID - %d", id));
+        logger.info("CHECKING CLASSROOM EXISTS BY ID - {}", id);
         final String EXISTS_BY_ID = "SELECT COUNT(*) FROM classrooms WHERE classroom_id = ?";
         Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
         boolean exists = count != null && count > 0;
-        logger.info(format("CLASSROOM BY ID - %d EXISTS - %s", id, exists));
+        logger.info("CLASSROOM BY ID - {} EXISTS - {}", id, exists);
         return exists;
     }
 
@@ -93,7 +93,7 @@ public class ClassroomDaoImpl implements ClassroomDao {
         logger.info("FINDING... ALL CLASSROOMS");
         final String FIND_ALL = "SELECT * FROM classrooms";
         List<Classroom> classrooms = jdbcTemplate.query(FIND_ALL, mapper);
-        logger.info(format("FOUND ALL SUCCESSFULLY %s", classrooms));
+        logger.info("FOUND ALL SUCCESSFULLY {}", classrooms);
         return classrooms;
     }
 
@@ -102,26 +102,26 @@ public class ClassroomDaoImpl implements ClassroomDao {
         logger.info("FINDING COUNT CLASSROOMS");
         final String COUNT = "SELECT COUNT(*) FROM classrooms";
         Long count = jdbcTemplate.queryForObject(COUNT, Long.class);
-        logger.info(format("FOUND COUNT(%d) CLASSROOMS SUCCESSFULLY", count));
+        logger.info("FOUND COUNT({}) CLASSROOMS SUCCESSFULLY", count);
         return count;
     }
 
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
-        logger.info(format("DELETING... CLASSROOM BY ID - %d", id));
+        logger.info("DELETING... CLASSROOM BY ID - {}", id);
         final String DELETE_BY_ID = "DELETE FROM classrooms WHERE classrooms_id = ?";
         jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, mapper);
-        logger.info(format("DELETED SUCCESSFULLY CLASSROOM BY ID - %d", id));
+        logger.info("DELETED SUCCESSFULLY CLASSROOM BY ID - {}", id);
     }
 
     @Override
     public void delete(Classroom classroom) {
         requireNonNull(classroom);
-        logger.info(format("DELETING... %s", classroom));
+        logger.info("DELETING... {}", classroom);
         final String DELETE_CLASSROOM = "DELETE FROM classrooms WHERE room_number = ?";
         jdbcTemplate.update(DELETE_CLASSROOM, new Object[]{classroom.getNumber()}, mapper);
-        logger.info(format("DELETED %s SUCCESSFULLY", classroom));
+        logger.info("DELETED {} SUCCESSFULLY", classroom);
     }
 
     @Override

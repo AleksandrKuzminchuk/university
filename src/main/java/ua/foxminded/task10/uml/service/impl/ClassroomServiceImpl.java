@@ -1,8 +1,8 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ua.foxminded.task10.uml.dao.ClassroomDao;
-import ua.foxminded.task10.uml.exceptions.ExceptionsHandlingConstants;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Classroom;
 import ua.foxminded.task10.uml.service.ClassroomService;
@@ -14,7 +14,7 @@ import static java.util.Objects.requireNonNull;
 
 public class ClassroomServiceImpl implements ClassroomService {
 
-    private static final Logger logger = Logger.getLogger(ClassroomServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClassroomServiceImpl.class);
 
     private final ClassroomDao classroomDao;
 
@@ -25,43 +25,43 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public void saveAll(List<Classroom> classrooms) {
         requireNonNull(classrooms);
-        logger.info(format("SAVING... %d CLASSROOMS", classrooms.size()));
+        logger.info("SAVING... {} CLASSROOMS", classrooms.size());
         classroomDao.saveAll(classrooms);
-        logger.info(format("SAVED %d CLASSROOMS SUCCESSFULLY", classrooms.size()));
+        logger.info("SAVED {} CLASSROOMS SUCCESSFULLY", classrooms.size());
     }
 
     @Override
     public void updateClassroom(Classroom classroom) {
         requireNonNull(classroom);
-        logger.info(format("UPDATING... %s", classroom));
+        logger.info("UPDATING... {}", classroom);
         classroomDao.updateClassroom(classroom);
-        logger.info(format("UPDATED %s SUCCESSFULLY", classroom));
+        logger.info("UPDATED {} SUCCESSFULLY", classroom);
     }
 
     @Override
     public Classroom save(Classroom classroom) {
         requireNonNull(classroom);
-        logger.info(format("SAVING... %s", classroom));
+        logger.info("SAVING... {}", classroom);
         Classroom result = classroomDao.save(classroom).orElseThrow(() -> new NotFoundException(format("Can't save %s", classroom)));
-        logger.info(format("SAVED %s SUCCESSFULLY", classroom));
+        logger.info("SAVED {} SUCCESSFULLY", classroom);
         return result;
     }
 
     @Override
     public Classroom findById(Integer id) {
         requireNonNull(id);
-        logger.info(format("FINDING... CLASSROOM BY ID- %d", id));
+        logger.info("FINDING... CLASSROOM BY ID- {}", id);
         Classroom result = classroomDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find classroom by id - %d", id)));
-        logger.info(format("FOUND CLASSROOM BY ID - %d SUCCESSFULLY", id));
+        logger.info("FOUND CLASSROOM BY ID - {} SUCCESSFULLY", id);
         return result;
     }
 
     @Override
     public boolean existsById(Integer id) {
         requireNonNull(id);
-        logger.info(format("CHECKING... CLASSROOM EXISTS BY ID - %d", id));
+        logger.info("CHECKING... CLASSROOM EXISTS BY ID - {}", id);
         boolean result = classroomDao.existsById(id);
-        logger.info(format("CLASSROOM BY ID - %d EXISTS - %s", id, result));
+        logger.info("CLASSROOM BY ID - {} EXISTS - {}", id, result);
         return result;
     }
 
@@ -69,7 +69,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     public List<Classroom> findAll() {
         logger.info("FINDING... ALL CLASSROOMS");
         List<Classroom> result = classroomDao.findAll();
-        logger.info(format("FOUND %d CLASSROOMS", result.size()));
+        logger.info("FOUND {} CLASSROOMS", result.size());
         return result;
     }
 
@@ -77,24 +77,24 @@ public class ClassroomServiceImpl implements ClassroomService {
     public Long count() {
         logger.info("FINDING... COUNT CLASSROOMS");
         Long result = classroomDao.count();
-        logger.info(format("FOUND COUNT(%d) CLASSROOMS", result));
+        logger.info("FOUND COUNT({}) CLASSROOMS", result);
         return result;
     }
 
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
-        logger.info(format("DELETING... CLASSROOM BY ID- %d", id));
+        logger.info("DELETING... CLASSROOM BY ID- {}", id);
         classroomDao.deleteById(id);
-        logger.info(format("DELETED CLASSROOMS BY ID - %d SUCCESSFULLY", id));
+        logger.info("DELETED CLASSROOMS BY ID - {} SUCCESSFULLY", id);
     }
 
     @Override
     public void delete(Classroom classroom) {
         requireNonNull(classroom);
-        logger.info(format("DELETING... %s", classroom));
+        logger.info("DELETING... {}", classroom);
         classroomDao.delete(classroom);
-        logger.info(format("DELETED %s SUCCESSFULLY", classroom));
+        logger.info("DELETED {} SUCCESSFULLY", classroom);
     }
 
     @Override
