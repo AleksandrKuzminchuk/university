@@ -14,6 +14,11 @@ public class Classroom {
         this.number = number;
     }
 
+    public Classroom(Integer id, Integer number) {
+        this.id = id;
+        this.number = number;
+    }
+
     public Integer getId() {
         return id;
     }

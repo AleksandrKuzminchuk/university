@@ -14,8 +14,8 @@ public interface GroupDao extends CrudRepositoryDao<Group, Integer> {
 
     void updateGroup(Group group);
 
-    void assignStudentToGroup(Integer studentId, Integer groupId);
+    void assignStudentToGroup(Student studentId, Group groupId);
 
-    void assignStudentsToGroup(List<Student> students, Integer groupId);
+    void assignStudentsToGroup(List<Student> students, Group groupId);
 }
 

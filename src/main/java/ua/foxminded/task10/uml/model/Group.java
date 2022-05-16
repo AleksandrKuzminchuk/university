@@ -13,9 +13,18 @@ public class Group {
     public Group() {
     }
 
+    public Group(Integer id) {
+        this.id = id;
+    }
+
     public Group(String name) {
         this.name = name;
         this.students = new ArrayList<>();
+    }
+
+    public Group(Integer id, String name) {
+        this.id = id;
+        this.name = name;
     }
 
     public Group(String name, List<Student> students) {

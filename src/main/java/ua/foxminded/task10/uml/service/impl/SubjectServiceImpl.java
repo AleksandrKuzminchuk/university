@@ -2,7 +2,10 @@ package ua.foxminded.task10.uml.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.SubjectDao;
+import ua.foxminded.task10.uml.dao.TeacherDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.service.SubjectService;
@@ -13,16 +16,18 @@ import java.util.List;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
+@Component
 public class SubjectServiceImpl implements SubjectService {
 
     private static final Logger logger = LoggerFactory.getLogger(SubjectServiceImpl.class);
 
     private final SubjectDao subjectDao;
-    private final TeacherService teacherService;
+    private final TeacherDao teacherDao;
 
-    public SubjectServiceImpl(SubjectDao subjectDao, TeacherService teacherService) {
+    @Autowired
+    public SubjectServiceImpl(SubjectDao subjectDao, TeacherDao teacherDao) {
         this.subjectDao = subjectDao;
-        this.teacherService = teacherService;
+        this.teacherDao = teacherDao;
     }
 
     @Override
@@ -37,6 +42,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public Subject findById(Integer id) {
         requireNonNull(id);
+        requiredSubjectExistence(id);
         logger.info("FINDING... SUBJECT BY ID - {}", id);
         Subject result = subjectDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find subject by id - %d", id)));
         logger.info("FOUND {} BY ID - {} SUCCESSFULLY", result, id);
@@ -71,6 +77,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
+        requiredSubjectExistence(id);
         logger.info("DELETING SUBJECT BY ID - {}", id);
         subjectDao.deleteById(id);
         logger.info("DELETED SUBJECT BY ID - {} SUCCESSFULLY", id);
@@ -79,6 +86,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public void delete(Subject subject) {
         requireNonNull(subject);
+        requiredSubjectExistence(subject.getId());
         logger.info("DELETING... {}", subject);
         subjectDao.delete(subject);
         logger.info("DELETED {} SUCCESSFULLY", subject);
@@ -102,6 +110,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public void updateSubject(Subject subject) {
         requireNonNull(subject);
+        requiredSubjectExistence(subject.getId());
         logger.info("UPDATING... {}", subject);
         subjectDao.updateSubject(subject);
         logger.info("UPDATED {} SUCCESSFULLY", subject);
@@ -110,12 +119,17 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public List<Subject> findTeacherSubjects(Integer teacherId) {
         requireNonNull(teacherId);
-        if (!teacherService.existsById(teacherId))
+        if (!teacherDao.existsById(teacherId))
             throw new NotFoundException(format("Can't find teacher by id - %d", teacherId));
         logger.info("FINDING... SUBJECTS BY TEACHER ID - {}", teacherId);
         List<Subject> result = subjectDao.findTeacherSubjects(teacherId);
-        logger.info("FOUND {} SUBJECTS BY TEACHER ID - {}", result.size(), teacherId);
+        logger.info("FOUND {} SUBJECTS BY TEACHER ID - {}", result, teacherId);
         return result;
     }
+    private void requiredSubjectExistence(Integer subjectId) {
+        if (!subjectDao.existsById(subjectId))
+            throw new NotFoundException(format("Subject by id - %d not exists", subjectId));
+    }
+
 
 }

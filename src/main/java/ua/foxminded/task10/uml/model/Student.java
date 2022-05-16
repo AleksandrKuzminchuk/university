@@ -10,14 +10,28 @@ public class Student extends Person{
     public Student() {
     }
 
-    public Student(Integer id, String firstName, String lastName) {
-        super(id, firstName, lastName);
+    public Student(Integer id) {
+        super(id);
+    }
+
+    public Student(String firstName, String lastName) {
+        super(firstName, lastName);
+    }
+
+    public Student(String firstName, String lastName, Integer course) {
+        super(firstName, lastName);
+        this.course = course;
     }
 
     public Student(Integer id, String firstName, String lastName, Integer course, Integer groupId) {
         super(id, firstName, lastName);
         this.course = course;
         this.groupId = groupId;
+    }
+
+    public Student(Integer id, String firstName, String lastName, Integer course) {
+        super(id, firstName, lastName);
+        this.course = course;
     }
 
     public Integer getCourse() {
@@ -52,6 +66,6 @@ public class Student extends Person{
 
     @Override
     public String toString() {
-        return "Student{" + getFirstName() + " " + getLastName() + " " + course + "}";
+        return "Student{" + getId() + " " + getFirstName() + " " + getLastName() + " " + course + " " + groupId + "}";
     }
 }

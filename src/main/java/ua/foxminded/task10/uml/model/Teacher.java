@@ -10,6 +10,14 @@ public class Teacher extends Person{
     public Teacher() {
     }
 
+    public Teacher(Integer id) {
+        super(id);
+    }
+
+    public Teacher(String firstName, String lastName) {
+        super(firstName, lastName);
+    }
+
     public Teacher(Integer id, String firstName, String lastName) {
         super(id, firstName, lastName);
     }

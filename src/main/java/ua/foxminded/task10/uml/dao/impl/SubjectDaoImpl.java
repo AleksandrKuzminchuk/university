@@ -2,11 +2,14 @@ package ua.foxminded.task10.uml.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.SubjectDao;
+import ua.foxminded.task10.uml.dao.impl.mapper.SubjectRowMapper;
 import ua.foxminded.task10.uml.model.Subject;
 
 import javax.sql.DataSource;
@@ -15,19 +18,20 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
+@Component
 public class SubjectDaoImpl implements SubjectDao {
 
     private static final Logger logger = LoggerFactory.getLogger(SubjectDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
-    private final BeanPropertyRowMapper<Subject> mapper;
+    private final SubjectRowMapper mapper;
 
+    @Autowired
     public SubjectDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.mapper = new BeanPropertyRowMapper<>(Subject.class);
+        this.mapper = new SubjectRowMapper();
     }
 
     @Override
@@ -37,7 +41,7 @@ public class SubjectDaoImpl implements SubjectDao {
         final String SAVE_SUBJECT = "INSERT INTO subjects(subject_name) VALUES (?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement(SAVE_SUBJECT, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement statement = con.prepareStatement(SAVE_SUBJECT, new String[]{"subject_id"});
             statement.setString(1, subject.getName());
             return statement;
         }, holder);
@@ -83,7 +87,7 @@ public class SubjectDaoImpl implements SubjectDao {
     public Long count() {
         logger.info("FINDING... COUNT SUBJECTS");
         final String COUNT = "SELECT COUNT(*) FROM subjects";
-        Long count = jdbcTemplate.queryForObject(COUNT, Long.class); 
+        Long count = jdbcTemplate.queryForObject(COUNT, Long.class);
         logger.info("FOUND COUNT({}) SUBJECTS SUCCESSFULLY", count);
         return count;
     }
@@ -101,7 +105,7 @@ public class SubjectDaoImpl implements SubjectDao {
     public void delete(Subject subject) {
         requireNonNull(subject);
         logger.info("DELETING {}", subject);
-        final String DELETE = "DELETE FROM subject WHERE subject_name = ?";
+        final String DELETE = "DELETE FROM subjects WHERE subject_name = ?";
         jdbcTemplate.update(DELETE, new Object[]{subject.getName()}, mapper);
         logger.info("DELETED {} SUCCESSFULLY", subject);
     }
@@ -128,27 +132,23 @@ public class SubjectDaoImpl implements SubjectDao {
         logger.info("UPDATING... SUBJECT BY ID - {}", subject.getId());
         final String UPDATE_SUBJECT = "UPDATE subjects SET subject_name = ? WHERE subject_id = ?";
         jdbcTemplate.update(UPDATE_SUBJECT, new Object[]{
-                subject.getName(), 
+                subject.getName(),
                 subject.getId()}, mapper);
         logger.info("UPDATED {} SUCCESSFULLY", subject);
     }
 
     @Override
     public List<Subject> findTeacherSubjects(Integer teacherId) {
-         requireNonNull(teacherId);
+        requireNonNull(teacherId);
         logger.info("FINDING SUBJECTS TEACHERS' - {}", teacherId);
-        final String FIND_TEACHER_SUBJECTS = "SELECT " +
-                "t.teacher_id, " +
-                "t.first_name, " +
-                "t.last_name, " +
-                "s.subject_id, " +
-                "subject_name " +
-                "FROM  teachers_subjects ts " +
-                "JOIN teachers t ON (ts.teacher_id = t.teacher_id) " +
-                "JOIN subjects s ON (ts.subject_id = s.subject_id)" +
-                "WHERE s.subject_id = ? " +
-                "ORDER BY t.teacher_id";
-        List<Subject> subjects = jdbcTemplate.query(FIND_TEACHER_SUBJECTS,                mapper, teacherId);
+        final String FIND_TEACHER_SUBJECTS =
+                "SELECT s.subject_id, s.subject_name " +
+                "FROM teachers_subjects ts " +
+                "JOIN subjects s on s.subject_id = ts.subject_id " +
+                "JOIN teachers t on t.teacher_id = ts.teacher_id " +
+                "WHERE t.teacher_id = ? " +
+                "ORDER BY s.subject_id";
+        List<Subject> subjects = jdbcTemplate.query(FIND_TEACHER_SUBJECTS, mapper, teacherId);
         logger.info("FOUND SUBJECTS - {} TEACHERS' BY ID - {}", subjects.size(), teacherId);
         return subjects;
     }

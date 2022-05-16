@@ -11,8 +11,8 @@ public interface TeacherDao extends CrudRepositoryDao<Teacher, Integer> {
 
     void updateTeacher(Teacher teacher);
 
-    void addTeacherToSubject(Integer teacherId, Integer subjectId);
+    void addTeacherToSubject(Teacher teacherId, Subject subjectId);
 
-    void addTeacherToSubjects(Integer teacherId, List<Subject> subjects);
+    void addTeacherToSubjects(Teacher teacherId, List<Subject> subjects);
 
 }

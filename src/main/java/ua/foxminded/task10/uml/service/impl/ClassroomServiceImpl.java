@@ -2,6 +2,8 @@ package ua.foxminded.task10.uml.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.ClassroomDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Classroom;
@@ -12,12 +14,14 @@ import java.util.List;
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
+@Component
 public class ClassroomServiceImpl implements ClassroomService {
 
     private static final Logger logger = LoggerFactory.getLogger(ClassroomServiceImpl.class);
 
     private final ClassroomDao classroomDao;
 
+    @Autowired
     public ClassroomServiceImpl(ClassroomDao classroomDao) {
         this.classroomDao = classroomDao;
     }
@@ -33,6 +37,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public void updateClassroom(Classroom classroom) {
         requireNonNull(classroom);
+        requiredClassroomExistence(classroom.getId());
         logger.info("UPDATING... {}", classroom);
         classroomDao.updateClassroom(classroom);
         logger.info("UPDATED {} SUCCESSFULLY", classroom);
@@ -50,6 +55,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public Classroom findById(Integer id) {
         requireNonNull(id);
+        requiredClassroomExistence(id);
         logger.info("FINDING... CLASSROOM BY ID- {}", id);
         Classroom result = classroomDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find classroom by id - %d", id)));
         logger.info("FOUND CLASSROOM BY ID - {} SUCCESSFULLY", id);
@@ -84,6 +90,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
+        requiredClassroomExistence(id);
         logger.info("DELETING... CLASSROOM BY ID- {}", id);
         classroomDao.deleteById(id);
         logger.info("DELETED CLASSROOMS BY ID - {} SUCCESSFULLY", id);
@@ -92,6 +99,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public void delete(Classroom classroom) {
         requireNonNull(classroom);
+        requiredClassroomExistence(classroom.getId());
         logger.info("DELETING... {}", classroom);
         classroomDao.delete(classroom);
         logger.info("DELETED {} SUCCESSFULLY", classroom);
@@ -102,5 +110,10 @@ public class ClassroomServiceImpl implements ClassroomService {
         logger.info("DELETING... ALL CLASSROOMS");
         classroomDao.deleteAll();
         logger.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
+    }
+
+    private void requiredClassroomExistence(Integer classroomId) {
+        if (!existsById(classroomId))
+            throw new NotFoundException(format("Classroom by id - %d not exists", classroomId));
     }
 }

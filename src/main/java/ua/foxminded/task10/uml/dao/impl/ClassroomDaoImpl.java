@@ -2,11 +2,14 @@ package ua.foxminded.task10.uml.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.ClassroomDao;
+import ua.foxminded.task10.uml.dao.impl.mapper.ClassroomRowMapper;
 import ua.foxminded.task10.uml.model.Classroom;
 
 import javax.sql.DataSource;
@@ -15,19 +18,20 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
+@Component
 public class ClassroomDaoImpl implements ClassroomDao {
 
     private static final Logger logger = LoggerFactory.getLogger(ClassroomDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
-    private final BeanPropertyRowMapper<Classroom> mapper;
+    private final ClassroomRowMapper mapper;
 
+    @Autowired
     public ClassroomDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.mapper = new BeanPropertyRowMapper<>(Classroom.class);
+        this.mapper = new ClassroomRowMapper();
     }
 
     @Override
@@ -43,9 +47,7 @@ public class ClassroomDaoImpl implements ClassroomDao {
         requireNonNull(classroom);
         logger.info("UPDATING... CLASSROOM BY ID - {}", classroom.getId());
         final String UPDATE_CLASSROOM = "UPDATE classrooms SET room_number = ? WHERE classroom_id = ?";
-        jdbcTemplate.update(UPDATE_CLASSROOM, new Object[]{
-                classroom.getNumber(),
-                classroom.getId()}, mapper);
+        jdbcTemplate.update(UPDATE_CLASSROOM, classroom.getNumber(), classroom.getId());
         logger.info("UPDATED CLASSROOM - {} SUCCESSFULLY", classroom);
     }
 
@@ -56,7 +58,7 @@ public class ClassroomDaoImpl implements ClassroomDao {
         final String SAVE_CLASSROOM = "INSERT INTO classrooms(room_number) VALUES (?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement(SAVE_CLASSROOM, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement statement = con.prepareStatement(SAVE_CLASSROOM, new String[]{"classroom_id"});
             statement.setInt(1, classroom.getNumber());
             return statement;
         }, holder);
@@ -110,8 +112,8 @@ public class ClassroomDaoImpl implements ClassroomDao {
     public void deleteById(Integer id) {
         requireNonNull(id);
         logger.info("DELETING... CLASSROOM BY ID - {}", id);
-        final String DELETE_BY_ID = "DELETE FROM classrooms WHERE classrooms_id = ?";
-        jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, mapper);
+        final String DELETE_BY_ID = "DELETE FROM classrooms WHERE classroom_id = ?";
+        jdbcTemplate.update(DELETE_BY_ID, id);
         logger.info("DELETED SUCCESSFULLY CLASSROOM BY ID - {}", id);
     }
 
@@ -120,7 +122,7 @@ public class ClassroomDaoImpl implements ClassroomDao {
         requireNonNull(classroom);
         logger.info("DELETING... {}", classroom);
         final String DELETE_CLASSROOM = "DELETE FROM classrooms WHERE room_number = ?";
-        jdbcTemplate.update(DELETE_CLASSROOM, new Object[]{classroom.getNumber()}, mapper);
+        jdbcTemplate.update(DELETE_CLASSROOM, classroom.getNumber());
         logger.info("DELETED {} SUCCESSFULLY", classroom);
     }
 
@@ -128,7 +130,7 @@ public class ClassroomDaoImpl implements ClassroomDao {
     public void deleteAll() {
         logger.info("DELETING ALL CLASSROOMS");
         final String DELETE_ALL = "DELETE FROM classrooms";
-        jdbcTemplate.update(DELETE_ALL, mapper);
+        jdbcTemplate.update(DELETE_ALL);
         logger.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
     }
 }

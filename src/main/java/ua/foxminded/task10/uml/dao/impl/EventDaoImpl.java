@@ -2,10 +2,12 @@ package ua.foxminded.task10.uml.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.EventDao;
 import ua.foxminded.task10.uml.model.Event;
 
@@ -17,10 +19,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
 
+@Component
 public class EventDaoImpl implements EventDao {
 
     private static final Logger logger = LoggerFactory.getLogger(EventDaoImpl.class);
@@ -28,6 +30,7 @@ public class EventDaoImpl implements EventDao {
     private final JdbcTemplate jdbcTemplate;
     private final BeanPropertyRowMapper<Event> mapper;
 
+    @Autowired
     public EventDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.mapper = new BeanPropertyRowMapper<>(Event.class);
@@ -40,7 +43,7 @@ public class EventDaoImpl implements EventDao {
         final String SAVE_LESSON = "INSERT INTO events (date_time, subject_id, classroom_id, teacher_id, group_id) VALUES(?,?,?,?,?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement(SAVE_LESSON, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement statement = con.prepareStatement(SAVE_LESSON, new String[]{"event_id"});
             statement.setObject(1, Timestamp.valueOf(event.getLocalDateTime()));
             statement.setInt(2, event.getSubject().getId());
             statement.setInt(3, event.getClassroom().getId());
@@ -166,10 +169,11 @@ public class EventDaoImpl implements EventDao {
                 "subject_name " +
                 "FROM events ev " +
                 "JOIN  teachers teach ON (ev.teacher_id = teach.teacher_id) " +
-                "JOIN teachers_subjects ts ON (teach.teacher_id = ts._teacher_id) " +
+                "JOIN teachers_subjects ts ON (teach.teacher_id = ts.teacher_id) " +
                 "JOIN subjects subj ON (ts.subject_id = subj.subject_id) " +
                 "JOIN groups gr ON (ev.group_id = gr.group_id) " +
                 "JOIN students st (gr.group_id = st.group_id) " +
+                "JOIN classrooms c on c.classroom_id = ev.classroom_id " +
                 "WHERE date_time BETWEEN '?' AND '?'";
         List<Event> events = jdbcTemplate.query(FIND_EVENTS, mapper, from.format(formatter), to.format(formatter));
         logger.info("FOUND {} FROM {} TO {}", events.size(), from.format(formatter), to.format(formatter));

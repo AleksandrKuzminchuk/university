@@ -2,11 +2,14 @@ package ua.foxminded.task10.uml.dao.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.TeacherDao;
+import ua.foxminded.task10.uml.dao.impl.mapper.TeacherRowMapper;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 
@@ -16,19 +19,20 @@ import java.sql.Statement;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
+@Component
 public class TeacherDaoImpl implements TeacherDao {
 
     private static final Logger logger = LoggerFactory.getLogger(TeacherDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
-    private final BeanPropertyRowMapper<Teacher> mapper;
+    private final TeacherRowMapper mapper;
 
+    @Autowired
     public TeacherDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.mapper = new BeanPropertyRowMapper<>(Teacher.class);
+        this.mapper = new TeacherRowMapper();
     }
 
     @Override
@@ -38,7 +42,7 @@ public class TeacherDaoImpl implements TeacherDao {
         final String SAVE_TEACHER = "INSERT INTO teachers (first_name, last_name) VALUES (?, ?)";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement(SAVE_TEACHER, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement statement = con.prepareStatement(SAVE_TEACHER, new String[]{"teacher_id"});
             statement.setString(1, teacher.getFirstName());
             statement.setString(2, teacher.getLastName());
             return statement;
@@ -94,7 +98,7 @@ public class TeacherDaoImpl implements TeacherDao {
         requireNonNull(id);
         logger.info("DELETE TEACHER BY ID - {}", id);
         final String DELETE_BY_ID = "DELETE FROM teachers WHERE teacher_id = ?";
-        jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, mapper);
+        jdbcTemplate.update(DELETE_BY_ID, id);
         logger.info("DELETED TEACHER BY ID - {} SUCCESSFULLY", id);
     }
 
@@ -103,7 +107,7 @@ public class TeacherDaoImpl implements TeacherDao {
         requireNonNull(teacher);
         logger.info("DELETE {}...", teacher);
         final String DELETE_TEACHER = "DELETE FROM teachers WHERE first_name = ? AND last_name = ?";
-        jdbcTemplate.update(DELETE_TEACHER, new Object[]{teacher.getFirstName(), teacher.getLastName()}, mapper);
+        jdbcTemplate.update(DELETE_TEACHER, teacher.getFirstName(), teacher.getLastName());
         logger.info("DELETED {} SUCCESSFULLY", teacher);
     }
 
@@ -111,7 +115,7 @@ public class TeacherDaoImpl implements TeacherDao {
     public void deleteAll() {
         logger.info("DELETE ALL TEACHERS...");
         final String DELETE_ALL = "DELETE FROM teachers";
-        jdbcTemplate.update(DELETE_ALL, mapper);
+        jdbcTemplate.update(DELETE_ALL);
         logger.info("DELETED ALL TEACHERS SUCCESSFULLY");
     }
 
@@ -128,35 +132,33 @@ public class TeacherDaoImpl implements TeacherDao {
         requireNonNull(teacher);
         logger.info("UPDATING TEACHER BY ID - {}", teacher.getId());
         final String UPDATE_TEACHER = "UPDATE teachers SET first_name = ?, last_name = ? WHERE teacher_id = ?";
-        jdbcTemplate.update(UPDATE_TEACHER, new Object[]{
-                teacher.getFirstName(),
+        jdbcTemplate.update(UPDATE_TEACHER, teacher.getFirstName(),
                 teacher.getLastName(),
-                teacher.getId()}, mapper);
+                teacher.getId());
         logger.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", teacher.getId());
     }
 
     @Override
-    public void addTeacherToSubject(Integer teacherId, Integer subjectId) {
+    public void addTeacherToSubject(Teacher teacherId, Subject subjectId) {
         requireNonNull(teacherId);
         requireNonNull(subjectId);
         logger.info("ADDING... TEACHER ID - {} TO SUBJECT ID - {}", teacherId, subjectId);
         final String ADD_TEACHER_TO_SUBJECT = "INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (?, ?)";
         jdbcTemplate.update(con -> {
             PreparedStatement statement = con.prepareStatement(ADD_TEACHER_TO_SUBJECT);
-            statement.setInt(1, teacherId);
-            statement.setInt(2, subjectId);
-            statement.executeUpdate();
+            statement.setInt(1, teacherId.getId());
+            statement.setInt(2, subjectId.getId());
             logger.info("ADDED TEACHER ID - {} TO SUBJECT ID - {} SUCCESSFULLY", teacherId, subjectId);
             return statement;
         });
     }
 
     @Override
-    public void addTeacherToSubjects(Integer teacherId, List<Subject> subjects) {
+    public void addTeacherToSubjects(Teacher teacherId, List<Subject> subjects) {
         requireNonNull(teacherId);
         requireNonNull(subjects);
         logger.info("ADDING... TEACHER ID - {} TO SUBJECTS {}", teacherId, subjects.size());
-        subjects.forEach(subject -> addTeacherToSubject(teacherId, subject.getId()));
+        subjects.forEach(subject -> addTeacherToSubject(teacherId, subject));
         logger.info("ADDED TEACHER ID - {} TO SUBJECTS {} SUCCESSFULLY", teacherId, subjects.size());
     }
 }
