@@ -101,8 +101,8 @@ public class EventDaoImpl implements EventDao {
     public void deleteById(Integer id) {
         requireNonNull(id);
         logger.info("DELETING EVENTS BY ID - {}", id);
-        final String DELETE_BY_ID = "DELETE FROM events WHERE events_id = ?";
-        jdbcTemplate.update(DELETE_BY_ID, new Object[]{id}, mapper);
+        final String DELETE_BY_ID = "DELETE FROM events WHERE event_id = ?";
+        jdbcTemplate.update(DELETE_BY_ID, id);
         logger.info("DELETED EVENTS BY ID - {} SUCCESSFULLY", id);
     }
 
@@ -126,7 +126,7 @@ public class EventDaoImpl implements EventDao {
     public void deleteAll() {
         logger.info("DELETING ALL EVENTS");
         final String DELETE_ALL = "DELETE FROM events";
-        jdbcTemplate.update(DELETE_ALL, mapper);
+        jdbcTemplate.update(DELETE_ALL);
         logger.info("DELETED ALL EVENTS SUCCESSFULLY");
     }
 
@@ -141,13 +141,12 @@ public class EventDaoImpl implements EventDao {
                 "teacher_id = ?, " +
                 "group_id = ? " +
                 "WHERE event_id = ?";
-        jdbcTemplate.update(UPDATE_LESSON, new Object[]{
-                Timestamp.valueOf(event.getLocalDateTime()),
+        jdbcTemplate.update(UPDATE_LESSON, Timestamp.valueOf(event.getLocalDateTime()),
                 event.getSubject().getId(),
                 event.getClassroom().getId(),
                 event.getTeacher().getId(),
                 event.getGroup().getId(),
-                event.getId()}, mapper);
+                event.getId());
         logger.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", event.getId());
     }
 
