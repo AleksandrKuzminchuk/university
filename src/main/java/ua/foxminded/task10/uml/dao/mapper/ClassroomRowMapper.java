@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.dao.impl.mapper;
+package ua.foxminded.task10.uml.dao.mapper;
 
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;

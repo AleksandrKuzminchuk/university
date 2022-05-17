@@ -1,6 +1,5 @@
 package ua.foxminded.task10.uml.configuration;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -8,34 +7,33 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
-import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 
 import javax.sql.DataSource;
 
 @Configuration
 @EnableWebMvc
 @ComponentScan("ua.foxminded.task10.uml")
-public class SpringConfig implements WebMvcConfigurer {
+public class SpringConfig {
+    public static final String PROPERTIES_FILE = "src/resources/db.properties";
+    public static final String DRIVER = "db.driver";
+    public static final String URL = "db.url";
+    public static final String USER = "db.user";
+    public static final String PASSWORD = "db.password";
 
-    private final ApplicationContext applicationContext;
 
-    @Autowired
-    public SpringConfig(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    @Bean
+    public PropertyManager getPropertyManager(){
+        return new PropertyManager(PROPERTIES_FILE);
     }
 
     @Bean
-    public DataSource dataSource(){
-        PropertyManager propertyManager = new PropertyManager(PropertyManager.PROPERTIES_FILE);
-
-        String driver = propertyManager.getProperty(PropertyManager.DRIVER);
-        String url = propertyManager.getProperty(PropertyManager.URL);
-        String user = propertyManager.getProperty(PropertyManager.USER);
-        String password = propertyManager.getProperty(PropertyManager.PASSWORD);
+    public DataSource dataSource(PropertyManager propertyManager){
+        String driver = propertyManager.getProperty(DRIVER);
+        String url = propertyManager.getProperty(URL);
+        String user = propertyManager.getProperty(USER);
+        String password = propertyManager.getProperty(PASSWORD);
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName(driver);
@@ -47,12 +45,12 @@ public class SpringConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(){
-        return new JdbcTemplate(dataSource());
+    public JdbcTemplate jdbcTemplate(DataSource dataSource){
+        return new JdbcTemplate(dataSource);
     }
 
     @Bean
-    public SpringResourceTemplateResolver templateResolver(){
+    public SpringResourceTemplateResolver templateResolver(ApplicationContext applicationContext){
         SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
         templateResolver.setApplicationContext(applicationContext);
         templateResolver.setPrefix("/templates");
@@ -61,18 +59,11 @@ public class SpringConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public SpringTemplateEngine templateEngine(){
+    public SpringTemplateEngine templateEngine(SpringResourceTemplateResolver templateResolver){
         SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver());
+        templateEngine.setTemplateResolver(templateResolver);
         templateEngine.setEnableSpringELCompiler(true);
         return templateEngine;
-    }
-
-    @Override
-    public void configureViewResolvers(ViewResolverRegistry registry){
-        ThymeleafViewResolver resolver = new ThymeleafViewResolver();
-        resolver.setTemplateEngine(templateEngine());
-        registry.viewResolver(resolver);
     }
 
 

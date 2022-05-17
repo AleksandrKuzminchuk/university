@@ -7,11 +7,9 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
-import ua.foxminded.task10.uml.dao.GroupDao;
 import ua.foxminded.task10.uml.dao.StudentDao;
-import ua.foxminded.task10.uml.dao.impl.mapper.GroupRowMapper;
-import ua.foxminded.task10.uml.dao.impl.mapper.StudentRowMapper;
-import ua.foxminded.task10.uml.model.Group;
+import ua.foxminded.task10.uml.dao.mapper.GroupRowMapper;
+import ua.foxminded.task10.uml.dao.mapper.StudentRowMapper;
 import ua.foxminded.task10.uml.model.Student;
 
 import javax.sql.DataSource;

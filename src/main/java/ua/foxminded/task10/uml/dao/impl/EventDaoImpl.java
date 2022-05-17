@@ -5,15 +5,17 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.EventDao;
+import ua.foxminded.task10.uml.dao.mapper.EventRowMapper;
 import ua.foxminded.task10.uml.model.Event;
+import ua.foxminded.task10.uml.model.Student;
 
 import javax.sql.DataSource;
 import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,12 +30,12 @@ public class EventDaoImpl implements EventDao {
     private static final Logger logger = LoggerFactory.getLogger(EventDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
-    private final BeanPropertyRowMapper<Event> mapper;
+    private final EventRowMapper mapper;
 
     @Autowired
-    public EventDaoImpl(DataSource dataSource) {
+    public EventDaoImpl(DataSource dataSource, EventRowMapper rowMapper) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.mapper = new BeanPropertyRowMapper<>(Event.class);
+        this.mapper = rowMapper;
     }
 
     @Override

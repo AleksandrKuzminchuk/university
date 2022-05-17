@@ -4,6 +4,8 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import ua.foxminded.task10.uml.configuration.PropertyManager;
 import ua.foxminded.task10.uml.dao.*;
 import ua.foxminded.task10.uml.dao.impl.*;
+import ua.foxminded.task10.uml.dao.mapper.EventRowMapper;
+import ua.foxminded.task10.uml.dao.mapper.SubjectRowMapper;
 import ua.foxminded.task10.uml.model.*;
 import ua.foxminded.task10.uml.service.*;
 import ua.foxminded.task10.uml.service.impl.*;
@@ -13,14 +15,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
+    public static final String PROPERTIES_FILE = "src/resources/db.properties";
+    public static final String DRIVER = "db.driver";
+    public static final String URL = "db.url";
+    public static final String USER = "db.user";
+    public static final String PASSWORD = "db.password";
 
-    public static DataSource dataSource() {
-        PropertyManager propertyManager = new PropertyManager(PropertyManager.PROPERTIES_FILE);
+    public DataSource dataSource;
 
-//        String driver = propertyManager.getProperty(PropertyManager.DRIVER_CLASS_NAME);
-        String url = propertyManager.getProperty(PropertyManager.URL);
-        String user = propertyManager.getProperty(PropertyManager.USER);
-        String password = propertyManager.getProperty(PropertyManager.PASSWORD);
+    public DataSource dataSource() {
+        if (dataSource != null) return dataSource;
+        PropertyManager propertyManager = new PropertyManager(PROPERTIES_FILE);
+
+//        String driver = propertyManager.getProperty(DRIVER);
+        String url = propertyManager.getProperty(URL);
+        String user = propertyManager.getProperty(USER);
+        String password = propertyManager.getProperty(PASSWORD);
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 //        dataSource.setDriverClassName(driver);
@@ -31,18 +41,21 @@ public class Main {
         return dataSource;
     }
 
-    public static void main(String[] args) throws NoSuchMethodException {
-        StudentDao studentDao = new StudentDaoImpl(dataSource());
-        GroupDao groupDao = new GroupDaoImpl(dataSource());
-        TeacherDao teacherDao = new TeacherDaoImpl(dataSource());
-        SubjectDao subjectDao = new SubjectDaoImpl(dataSource());
-        ClassroomDao classroomDao = new ClassroomDaoImpl(dataSource());
+    public static void main(String[] args) {
+        DataSource dataSource = new Main().dataSource();
+        StudentDao studentDao = new StudentDaoImpl(dataSource);
+        GroupDao groupDao = new GroupDaoImpl(dataSource);
+        TeacherDao teacherDao = new TeacherDaoImpl(dataSource);
+        SubjectDao subjectDao = new SubjectDaoImpl(dataSource);
+        ClassroomDao classroomDao = new ClassroomDaoImpl(dataSource);
+        EventDao eventDao = new EventDaoImpl(dataSource, new EventRowMapper(new SubjectRowMapper()));
 
         StudentService studentService = new StudentServiceImpl(studentDao, groupDao);
         GroupService groupService = new GroupServiceImpl(groupDao, studentDao);
         TeacherService teacherService = new TeacherServiceImpl(teacherDao, subjectDao);
         SubjectService subjectService = new SubjectServiceImpl(subjectDao, teacherDao);
         ClassroomService classroomService = new ClassroomServiceImpl(classroomDao);
+        EventService eventService = new EventServiceImpl(eventDao, teacherDao, groupDao, subjectDao, classroomDao);
 
 
         List<Student> students = new ArrayList<>();
@@ -76,7 +89,8 @@ public class Main {
         classrooms.add(new Classroom(54));
         classrooms.add(new Classroom(65));
 
-        classroomService.count();
+        eventService.findAll();
+        // classroomService.count();
 
 //
 //       List<Subject> subjects1 = subjectService.findAll();
@@ -86,7 +100,6 @@ public class Main {
 //        teacherService.addTeacherToSubjects(new Teacher(7), subjects1);
 
 
-
         // studentService.findStudentsByGroupId(6);
 
 //       groupService.save(new Group("chemistry"));
@@ -94,11 +107,8 @@ public class Main {
 //        studentService.findStudentsByGroupName(groupService.findByGroupName("sport").getId());
 
 
-
-
 //        studentService.saveAll(students);
 //studentService.findByCourseNumber(2);
-
 
 
 //        groupService.assignStudentsToGroup(s, new Group(8));

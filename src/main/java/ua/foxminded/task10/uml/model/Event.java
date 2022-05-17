@@ -6,7 +6,7 @@ import java.util.Objects;
 public class Event {
 
     private Integer id;
-    private LocalDateTime localDateTime;
+    private LocalDateTime localDateTime; //FixMe: смени название на нормальное! (см. кодКонвеншн)
     private Subject subject;
     private Classroom classroom;
     private Group group;

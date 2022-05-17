@@ -1,7 +1,5 @@
 package ua.foxminded.task10.uml.configuration;
 
-
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.foxminded.task10.uml.exceptions.ExceptionsHandlingConstants;
@@ -13,13 +11,6 @@ import java.util.Properties;
 public class PropertyManager {
 
     private static final Logger logger = LoggerFactory.getLogger(PropertyManager.class);
-
-    public static final String PROPERTIES_FILE = "src/resources/db.properties";
-    public static final String DRIVER = "db.driver";
-    public static final String URL = "db.url";
-    public static final String USER = "db.user";
-    public static final String PASSWORD = "db.password";
-
     private final Properties properties;
 
     public PropertyManager(String propertiesPath){
@@ -29,6 +20,7 @@ public class PropertyManager {
         properties = new Properties();
         try{
             properties.load(new FileInputStream(propertiesPath));
+            logger.info("Properties from path '{}' successfully loaded", propertiesPath);
         }catch (IOException e){
             logger.error(e.getLocalizedMessage());
             throw new RuntimeException(e.getLocalizedMessage());
@@ -36,6 +28,7 @@ public class PropertyManager {
     }
 
     public String getProperty(String propertyKey){
+        logger.info("getting property '{}'", propertyKey);
         return properties.getProperty(propertyKey);
     }
 }
