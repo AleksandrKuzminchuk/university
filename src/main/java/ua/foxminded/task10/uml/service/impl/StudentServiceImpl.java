@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.GroupDao;
 import ua.foxminded.task10.uml.dao.StudentDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
-import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.service.StudentService;
 
@@ -141,8 +140,8 @@ public class StudentServiceImpl implements StudentService {
         }
     }
 
-    private void requiredStudentExistence(Integer studentId){
-        if (!studentDao.existsById(studentId)){
+    private void requiredStudentExistence(Integer studentId) {
+        if (!studentDao.existsById(studentId)) {
             throw new NotFoundException(format("Student by id- %d not exists", studentId));
         }
     }

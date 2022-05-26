@@ -1,35 +1,32 @@
 package ua.foxminded.task10.uml.configuration;
 
-import org.springframework.context.ApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.web.servlet.config.annotation.EnableWebMvc;
-import org.thymeleaf.spring5.SpringTemplateEngine;
-import org.thymeleaf.spring5.templateresolver.SpringResourceTemplateResolver;
 
 import javax.sql.DataSource;
 
 @Configuration
-@EnableWebMvc
-@ComponentScan("ua.foxminded.task10.uml")
 public class SpringConfig {
-    public static final String PROPERTIES_FILE = "src/resources/db.properties";
+    public static final String PROPERTIES_FILE = "db.properties";
     public static final String DRIVER = "db.driver";
     public static final String URL = "db.url";
     public static final String USER = "db.user";
     public static final String PASSWORD = "db.password";
-
+    private static final Logger logger = LoggerFactory.getLogger(SpringConfig.class);
 
     @Bean
-    public PropertyManager getPropertyManager(){
-        return new PropertyManager(PROPERTIES_FILE);
+    public PropertyManager getPropertyManager() {
+        PropertyManager propertyManager = new PropertyManager(PROPERTIES_FILE);
+        logger.info("[PropertyManager] -> created");
+        return propertyManager;
     }
 
     @Bean
-    public DataSource dataSource(PropertyManager propertyManager){
+    public DataSource dataSource(PropertyManager propertyManager) throws ClassNotFoundException {
         String driver = propertyManager.getProperty(DRIVER);
         String url = propertyManager.getProperty(URL);
         String user = propertyManager.getProperty(USER);
@@ -40,33 +37,15 @@ public class SpringConfig {
         dataSource.setUrl(url);
         dataSource.setUsername(user);
         dataSource.setPassword(password);
-
+        logger.info("[DataSource] -> created");
         return dataSource;
     }
 
     @Bean
-    public JdbcTemplate jdbcTemplate(DataSource dataSource){
-        return new JdbcTemplate(dataSource);
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
+        logger.info("[JdbcTemplate] -> created");
+        return jdbcTemplate;
     }
-
-    @Bean
-    public SpringResourceTemplateResolver templateResolver(ApplicationContext applicationContext){
-        SpringResourceTemplateResolver templateResolver = new SpringResourceTemplateResolver();
-        templateResolver.setApplicationContext(applicationContext);
-        templateResolver.setPrefix("/templates");
-        templateResolver.setSuffix(".html");
-        return templateResolver;
-    }
-
-    @Bean
-    public SpringTemplateEngine templateEngine(SpringResourceTemplateResolver templateResolver){
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver);
-        templateEngine.setEnableSpringELCompiler(true);
-        return templateEngine;
-    }
-
-
-
 
 }

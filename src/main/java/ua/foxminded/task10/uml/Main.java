@@ -1,3 +1,4 @@
+/*
 package ua.foxminded.task10.uml;
 
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
@@ -116,3 +117,4 @@ public class Main {
 
     }
 }
+*/
