@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>GROUPS TABLE</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+</head>
+<body>
+<div th:fragment="groups">
+    <section>
+        <h1>LIST GROUPS</h1>
+        <h1 th:text="${count}">COUNT ALL GROUPS</h1>
+        <div class="tbl-header">
+            <table cellpadding="0" cellspacing="0" border="0">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Show students</th>
+                    <th>Update</th>
+                    <th>Delete</th>
+                </tr>
+                </thead>
+            </table>
+        </div>
+        <div class="tbl-content">
+            <table cellpadding="0" cellspacing="0" border="0">
+                <tbody>
+                <tr th:each="group: ${groups}">
+                    <td th:text="${#strings.toUpperCase(group.name)}"/>
+                    <td>
+                        <form class="login-form" th:method="GET" th:action="@{/{groupId}/found_students_by_group(groupId=${group.id})}">
+                            <button type="submit">Show students</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form class="login-form" th:method="GET" th:action="@{/{groupId}/update_group(groupId=${group.id})}">
+                            <button type="submit">update</button>
+                        </form>
+                    </td>
+                    <td>
+                        <form class="login-form" th:method="DELETE" th:action="@{/{groupId}/delete_group(groupId=${group.id})}">
+                            <button type="submit">delete</button>
+                        </form>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+    </table>
+</div>

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.GroupDao;
 import ua.foxminded.task10.uml.dao.StudentDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
+import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.service.StudentService;
 
@@ -22,6 +23,7 @@ public class StudentServiceImpl implements StudentService {
 
     private final StudentDao studentDao;
     private final GroupDao groupDao;
+
 
     @Autowired
     public StudentServiceImpl(StudentDao studentDao, GroupDao groupDao) {
@@ -45,6 +47,15 @@ public class StudentServiceImpl implements StudentService {
         logger.info("FINDING... STUDENT BY ID - {}", id);
         Student result = studentDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find student by id - %d", id)));
         logger.info("FOUND {} BY ID - {}", result, id);
+        return result;
+    }
+
+    @Override
+    public Student findStudentByNameSurname(Student student) {
+        requireNonNull(student);
+        logger.info("FINDING... STUDENT {}", student);
+        Student result = studentDao.findStudentByNameSurname(student).orElseThrow(() -> new NotFoundException(format("Can't find student %s", student)));
+        logger.info("FOUND STUDENT - {}", result);
         return result;
     }
 
@@ -83,9 +94,26 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    public void deleteStudentsByCourseNumber(Integer courseNumber) {
+        requireNonNull(courseNumber);
+        logger.info("DELETING... STUDENTS BY COURSE NUMBER - {}", courseNumber);
+        studentDao.deleteStudentsByCourseNumber(courseNumber);
+        logger.info("DELETED STUDENTS BY COURSE NUMBER - {} SUCCESSFULLY", courseNumber);
+    }
+
+    @Override
+    public void deleteStudentsByGroupId(Integer groupId) {
+        requireNonNull(groupId);
+        requiredGroupExistence(groupId);
+        logger.info("DELETING... STUDENTS BY GROUP ID {}", groupId);
+        studentDao.deleteStudentsByGroupId(groupId);
+        logger.info("DELETED STUDENTS BY GROUP ID {}", groupId);
+    }
+
+    @Override
     public void delete(Student student) {
         requireNonNull(student);
-        requiredStudentExistence(student.getId());
+        requiredStudentExistence(student);
         logger.info("DELETING... {}", student);
         studentDao.delete(student);
         logger.info("DELETED {} SUCCESSFULLY", student);
@@ -116,33 +144,68 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void updateStudent(Student student) {
-        requireNonNull(student);
-        requiredStudentExistence(student.getId());
-        logger.info("UPDATING STUDENT BY ID - {}", student.getId());
-        studentDao.updateStudent(student);
-        logger.info("UPDATED STUDENT BY ID - {} SUCCESSFULLY", student.getId());
+    public void updateStudent(Integer studentId, Student updatedStudent) {
+        requireNonNull(updatedStudent);
+        requireNonNull(studentId);
+        requiredStudentExistence(studentId);
+        logger.info("UPDATING STUDENT BY ID - {}", studentId);
+        studentDao.updateStudent(studentId, updatedStudent);
+        logger.info("UPDATED STUDENT BY ID - {} SUCCESSFULLY", studentId);
     }
 
     @Override
-    public List<Student> findStudentsByGroupName(Integer groupId) {
+    public void updateTheStudentGroup(Integer groupId, Integer studentId) {
         requireNonNull(groupId);
+        requireNonNull(studentId);
         requiredGroupExistence(groupId);
-        logger.info("FINDING... STUDENTS BY ID GROUP - {}", groupId);
-        List<Student> result = studentDao.findStudentsByGroupName(groupId);
-        logger.info("FOUND {} STUDENTS BY ID GROUP ID - {}", result.size(), groupId);
+        requiredStudentExistence(studentId);
+        logger.info("UPDATING... THE STUDENTS' BY ID - {} GROUP BY ID - {}", studentId, groupId);
+        studentDao.updateTheStudentGroup(groupId, studentId);
+        logger.info("UPDATED THE STUDENTS' BY ID - {} GROUP BY ID - {}", studentId, groupId);
+    }
+
+    @Override
+    public void deleteTheStudentGroup(Integer studentId) {
+        requireNonNull(studentId);
+        requiredStudentExistence(studentId);
+        logger.info("UPDATING... STUDENTS' BY ID - {} GROUP", studentId);
+        studentDao.deleteTheStudentGroup(studentId);
+        logger.info("UPDATED THE STUDENTS' BY ID - {} GROUP SUCCESSFULLY", studentId);
+    }
+
+    @Override
+    public List<Student> findStudentsByGroupName(Group groupName) {
+        requireNonNull(groupName.getName());
+        requiredGroupExistence(groupName);
+        logger.info("FINDING... STUDENTS BY NAME GROUP - {}", groupName.getName());
+        List<Student> result = studentDao.findStudentsByGroupName(groupName);
+        logger.info("FOUND {} STUDENTS BY ID GROUP NAME - {}", result.size(), groupName.getName());
         return result;
+    }
+
+    private void requiredGroupExistence(Group group) {
+        if (!groupDao.existsById(groupDao.findByGroupName(group.getName()).orElseThrow(
+                () -> new NotFoundException(format("Can't find group by name %s", group.getName()))
+        ).getId())) {
+            throw new NotFoundException(format("Group by id - %d not exists", group.getId()));
+        }
     }
 
     private void requiredGroupExistence(Integer groupId) {
         if (!groupDao.existsById(groupId)) {
-            throw new NotFoundException(format("Group by id - %d not exists", groupId));
+            throw new NotFoundException(format("Group by id - %s not exists", groupId));
         }
     }
 
     private void requiredStudentExistence(Integer studentId) {
         if (!studentDao.existsById(studentId)) {
             throw new NotFoundException(format("Student by id- %d not exists", studentId));
+        }
+    }
+
+    private void requiredStudentExistence(Student student) {
+        if (!studentDao.existsById(findStudentByNameSurname(student).getId())) {
+            throw new NotFoundException(format("Student by id- %s not exists", student));
         }
     }
 }

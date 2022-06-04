@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>SAVE STUDENT</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+</head>
+<body>
+
+<div th:insert="~{university :: copy}"></div>
+
+
+<div class="login-page">
+    <div class="form">
+        <form class="login-form" th:method="POST" th:action="@{/saved_student}" th:object="${newStudent}">
+            <input type="text" th:field="*{firstName}" id="name" placeholder="name"/>
+            <input type="text" th:field="*{lastName}" id="surname" placeholder="surname"/>
+            <input type="text" th:field="*{course}" id="course" placeholder="course"/>
+            <button type="submit">save</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

@@ -86,7 +86,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void delete(Group group) {
         requireNonNull(group);
-        requiredGroupExistence(group.getId());
+        requiredGroupExistence(group);
         logger.info("DELETING... {}", group);
         groupDao.delete(group);
         logger.info("DELETED {} SUCCESSFULLY", group);
@@ -117,12 +117,13 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void updateGroup(Group group) {
+    public void updateGroup(Integer groupId, Group group) {
         requireNonNull(group);
-        requiredGroupExistence(group.getId());
-        logger.info("UPDATING... {}", group);
-        groupDao.updateGroup(group);
-        logger.info("UPDATED {} SUCCESSFULLY", group);
+        requireNonNull(groupId);
+        requiredGroupExistence(groupId);
+        logger.info("UPDATING... GROUP BY ID - {}", groupId);
+        groupDao.updateGroup(groupId, group);
+        logger.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", groupId);
     }
 
     @Override
@@ -158,4 +159,10 @@ public class GroupServiceImpl implements GroupService {
             throw new NotFoundException(format("Group by id - %d not exists", groupId));
         }
     }
+    private void requiredGroupExistence(Group group){
+        if (!existsById(findByGroupName(group.getName()).getId())){
+            throw new NotFoundException(format("Group by name - %s not exists", group.getName()));
+        }
+    }
+
 }

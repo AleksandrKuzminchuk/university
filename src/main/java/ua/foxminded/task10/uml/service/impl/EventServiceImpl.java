@@ -116,12 +116,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void updateEvent(Event event) {
+    public void updateEvent(Integer eventId, Event event) {
         requireNonNull(event);
-        requiredEventExistence(event);
-        logger.info("UPDATING... {}", event);
-        eventDao.updateEvent(event);
-        logger.info("UPDATED {} SUCCESSFULLY", event);
+        requireNonNull(eventId);
+        requiredEventByIdExistence(eventId);
+        logger.info("UPDATING... EVENT BY ID - {}", eventId);
+        eventDao.updateEvent(eventId, event);
+        logger.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventId);
     }
 
     @Override

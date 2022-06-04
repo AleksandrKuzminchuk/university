@@ -9,6 +9,7 @@ import java.sql.SQLException;
 
 @Component
 public class SubjectRowMapper implements RowMapper<Subject> {
+
     @Override
     public Subject mapRow(ResultSet rs, int rowNum) throws SQLException {
         Subject subject = new Subject();

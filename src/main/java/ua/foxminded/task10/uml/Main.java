@@ -1,12 +1,11 @@
-/*
 package ua.foxminded.task10.uml;
+
 
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import ua.foxminded.task10.uml.configuration.PropertyManager;
 import ua.foxminded.task10.uml.dao.*;
 import ua.foxminded.task10.uml.dao.impl.*;
-import ua.foxminded.task10.uml.dao.mapper.EventRowMapper;
-import ua.foxminded.task10.uml.dao.mapper.SubjectRowMapper;
+import ua.foxminded.task10.uml.dao.mapper.*;
 import ua.foxminded.task10.uml.model.*;
 import ua.foxminded.task10.uml.service.*;
 import ua.foxminded.task10.uml.service.impl.*;
@@ -26,18 +25,18 @@ public class Main {
 
     public DataSource dataSource() {
         if (dataSource != null) return dataSource;
-        PropertyManager propertyManager = new PropertyManager(PROPERTIES_FILE);
+//        PropertyManager propertyManager = new PropertyManager(PROPERTIES_FILE);
 
 //        String driver = propertyManager.getProperty(DRIVER);
-        String url = propertyManager.getProperty(URL);
-        String user = propertyManager.getProperty(USER);
-        String password = propertyManager.getProperty(PASSWORD);
+//        String url = propertyManager.getProperty(URL);
+//        String user = propertyManager.getProperty(USER);
+//        String password = propertyManager.getProperty(PASSWORD);
 
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
 //        dataSource.setDriverClassName(driver);
-        dataSource.setUrl(url);
-        dataSource.setUsername(user);
-        dataSource.setPassword(password);
+        dataSource.setUrl("jdbc:postgresql://localhost:5432/postgres");
+        dataSource.setUsername("postgres");
+        dataSource.setPassword("1234");
 
         return dataSource;
     }
@@ -49,10 +48,12 @@ public class Main {
         TeacherDao teacherDao = new TeacherDaoImpl(dataSource);
         SubjectDao subjectDao = new SubjectDaoImpl(dataSource);
         ClassroomDao classroomDao = new ClassroomDaoImpl(dataSource);
-        EventDao eventDao = new EventDaoImpl(dataSource, new EventRowMapper(new SubjectRowMapper()));
+        EventDao eventDao = new EventDaoImpl(dataSource, new EventRowMapper(new SubjectRowMapper(), new ClassroomRowMapper(),
+                new TeacherRowMapper(), new GroupRowMapper()));
 
-        StudentService studentService = new StudentServiceImpl(studentDao, groupDao);
+
         GroupService groupService = new GroupServiceImpl(groupDao, studentDao);
+        StudentService studentService = new StudentServiceImpl(studentDao, groupDao);
         TeacherService teacherService = new TeacherServiceImpl(teacherDao, subjectDao);
         SubjectService subjectService = new SubjectServiceImpl(subjectDao, teacherDao);
         ClassroomService classroomService = new ClassroomServiceImpl(classroomDao);
@@ -90,6 +91,8 @@ public class Main {
         classrooms.add(new Classroom(54));
         classrooms.add(new Classroom(65));
 
+//subjectService.deleteAll();
+
         eventService.findAll();
         // classroomService.count();
 
@@ -101,15 +104,15 @@ public class Main {
 //        teacherService.addTeacherToSubjects(new Teacher(7), subjects1);
 
 
-        // studentService.findStudentsByGroupId(6);
+//         studentService.deleteStudentsByCourseNumber(3);
 
-//       groupService.save(new Group("chemistry"));
+//       groupService.assignStudentToGroup(new Student(43), new Group(5));
 
 //        studentService.findStudentsByGroupName(groupService.findByGroupName("sport").getId());
 
 
 //        studentService.saveAll(students);
-//studentService.findByCourseNumber(2);
+//studentService.findAll();
 
 
 //        groupService.assignStudentsToGroup(s, new Group(8));
@@ -117,4 +120,6 @@ public class Main {
 
     }
 }
-*/
+
+
+

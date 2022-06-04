@@ -24,12 +24,12 @@ public class ClassroomDaoImpl implements ClassroomDao {
     private static final Logger logger = LoggerFactory.getLogger(ClassroomDaoImpl.class);
 
     private final JdbcTemplate jdbcTemplate;
-    private final ClassroomRowMapper mapper;
+    private final ClassroomRowMapper classroomRowMapper;
 
     @Autowired
     public ClassroomDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.mapper = new ClassroomRowMapper();
+        this.classroomRowMapper = new ClassroomRowMapper();
     }
 
     @Override
@@ -41,11 +41,12 @@ public class ClassroomDaoImpl implements ClassroomDao {
     }
 
     @Override
-    public void updateClassroom(Classroom classroom) {
+    public void updateClassroom(Integer classroomId, Classroom classroom) {
         requireNonNull(classroom);
-        logger.info("UPDATING... CLASSROOM BY ID - {}", classroom.getId());
+        requireNonNull(classroomId);
+        logger.info("UPDATING... CLASSROOM BY ID - {}", classroomId);
         final String UPDATE_CLASSROOM = "UPDATE classrooms SET room_number = ? WHERE classroom_id = ?";
-        jdbcTemplate.update(UPDATE_CLASSROOM, classroom.getNumber(), classroom.getId());
+        jdbcTemplate.update(UPDATE_CLASSROOM, classroom.getNumber(), classroomId);
         logger.info("UPDATED CLASSROOM - {} SUCCESSFULLY", classroom);
     }
 
@@ -72,7 +73,7 @@ public class ClassroomDaoImpl implements ClassroomDao {
         requireNonNull(id);
         logger.info("FINDING... CLASSROOM BY ID - {}", id);
         final String FIND_BY_ID = "SELECT * FROM classrooms WHERE classroom_id = ?";
-        Classroom classroom = jdbcTemplate.queryForObject(FIND_BY_ID, mapper, id);
+        Classroom classroom = jdbcTemplate.queryForObject(FIND_BY_ID, classroomRowMapper, id);
         logger.info("FOUND SUCCESSFULLY {} BY ID - {}", classroom, id);
         return Optional.ofNullable(classroom);
     }
@@ -92,8 +93,8 @@ public class ClassroomDaoImpl implements ClassroomDao {
     public List<Classroom> findAll() {
         logger.info("FINDING... ALL CLASSROOMS");
         final String FIND_ALL = "SELECT * FROM classrooms";
-        List<Classroom> classrooms = jdbcTemplate.query(FIND_ALL, mapper);
-        logger.info("FOUND ALL SUCCESSFULLY {}", classrooms);
+        List<Classroom> classrooms = jdbcTemplate.query(FIND_ALL, classroomRowMapper);
+        logger.info("FOUND ALL SUCCESSFULLY {}", classrooms.size());
         return classrooms;
     }
 
@@ -130,5 +131,15 @@ public class ClassroomDaoImpl implements ClassroomDao {
         final String DELETE_ALL = "DELETE FROM classrooms";
         jdbcTemplate.update(DELETE_ALL);
         logger.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
+    }
+
+    @Override
+    public Optional<Classroom> findClassroomByNumber(Integer classroomNumber) {
+        requireNonNull(classroomNumber);
+        logger.info("FIND CLASSROOM BY NUMBER - {}", classroomNumber);
+        final String FIND_BY_NUMBER = "SELECT * FROM classrooms WHERE room_number = ?";
+        Classroom classroom = jdbcTemplate.queryForObject(FIND_BY_NUMBER, classroomRowMapper, classroomNumber);
+        logger.info("FOUND CLASSROOM BY NUMBER - {} SUCCESSFULLY", classroomNumber);
+        return Optional.ofNullable(classroom);
     }
 }

@@ -12,7 +12,7 @@ public interface GroupDao extends CrudRepositoryDao<Group, Integer> {
 
     Optional<Group> findByGroupName(String groupName);
 
-    void updateGroup(Group group);
+    void updateGroup(Integer groupId, Group group);
 
     void assignStudentToGroup(Student studentId, Group groupId);
 

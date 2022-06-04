@@ -1,0 +1,30 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>STUDENTS BY GROUP NAME</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+
+</head>
+<body>
+
+<div th:insert="~{university :: copy}"></div>
+
+<div style="text-align: center;">
+    <h1 th:text="'GROUP ' + ${group.name}"></h1>
+</div>
+
+<div th:insert="~{students/studentTable :: students}"></div>
+
+<div class="form">
+    <form class="login-form" th:method="PATCH" th:action="@{/{groupId}/delete_students_by_group(groupId=${groupId})}">
+        <button type="submit">DELETE THESE STUDENTS FROM GROUP</button>
+    </form>
+</div>
+
+</body>
+</html>
+

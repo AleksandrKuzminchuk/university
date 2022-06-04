@@ -9,7 +9,7 @@ public interface EventDao extends CrudRepositoryDao<Event, Integer> {
 
     void saveAll(List<Event> lessons);
 
-    void updateEvent(Event event);
+    void updateEvent(Integer eventId, Event event);
 
     List<Event> findEvents(LocalDateTime from, LocalDateTime to);
 

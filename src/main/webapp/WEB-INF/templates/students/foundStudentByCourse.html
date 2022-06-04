@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>STUDENTS BY COURSE NUMBER</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+
+</head>
+<body>
+
+<div th:insert="~{university :: copy}"></div>
+
+<div style="text-align: center;">
+    <h1 th:text="'COURSE NUMBER ' + ${courseNumber}"></h1>
+</div>
+
+<div th:insert="~{students/studentTable :: students}"></div>
+
+<div class="form">
+    <form class="login-form" th:method="DELETE" th:action="@{/{course}/delete_students_by_course(course=${courseNumber})}">
+        <button type="submit">DELETE THESE STUDENTS</button>
+    </form>
+</div>
+
+
+</body>
+</html>
+

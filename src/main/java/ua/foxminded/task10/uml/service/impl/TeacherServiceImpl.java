@@ -9,6 +9,7 @@ import ua.foxminded.task10.uml.dao.TeacherDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
+import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.service.TeacherService;
 
 import java.util.List;
@@ -67,6 +68,15 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public Teacher findTeacherByNameSurname(Teacher teacher) {
+        requireNonNull(teacher);
+        logger.info("FINDING... TEACHER {}", teacher);
+        Teacher result = teacherDao.findTeacherByNameSurname(teacher).orElseThrow(() -> new NotFoundException(format("Can't find teacher %s", teacher)));
+        logger.info("FOUND TEACHER {} SUCCESSFULLY", teacher);
+        return result;
+    }
+
+    @Override
     public Long count() {
         logger.info("FINDING... COUNT TEACHERS");
         Long result = teacherDao.count();
@@ -86,7 +96,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public void delete(Teacher teacher) {
         requireNonNull(teacher);
-        requiredTeacherExistence(teacher.getId());
+        requiredTeacherExistence(teacher);
         logger.info("DELETING... {}", teacher);
         teacherDao.delete(teacher);
         logger.info("DELETED {} SUCCESSFULLY", teacher);
@@ -100,6 +110,17 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public void deleteTheTeacherSubject(Integer teacherId, Integer subjectId) {
+        requireNonNull(teacherId);
+        requireNonNull(subjectId);
+        requiredTeacherExistence(teacherId);
+        requiredSubjectExistence(subjectId);
+        logger.info("DELETING... THE TEACHERS' BY ID - {} SUBJECT BY ID - {}", teacherId, subjectId);
+        teacherDao.deleteTheTeacherSubject(teacherId, subjectId);
+        logger.info("DELETED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} SUCCESSFULLY", teacherId, subjectId);
+    }
+
+    @Override
     public void saveAll(List<Teacher> teachers) {
         requireNonNull(teachers);
         logger.info("SAVING... {} TEACHERS", teachers.size());
@@ -108,12 +129,26 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void updateTeacher(Teacher teacher) {
+    public void updateTeacher(Integer teacherId, Teacher teacher) {
         requireNonNull(teacher);
-        requiredTeacherExistence(teacher.getId());
-        logger.info("UPDATING... {}", teacher);
-        teacherDao.updateTeacher(teacher);
-        logger.info("UPDATED {} SUCCESSFULLY", teacher);
+        requireNonNull(teacherId);
+        requiredTeacherExistence(teacherId);
+        logger.info("UPDATING... TEACHER BY ID - {}", teacherId);
+        teacherDao.updateTeacher(teacherId, teacher);
+        logger.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", teacherId);
+    }
+
+    @Override
+    public void updateTheTeacherSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId) {
+        requireNonNull(teacherId);
+        requireNonNull(oldSubjectId);
+        requireNonNull(newSubjectId);
+        requiredTeacherExistence(teacherId);
+        requiredSubjectExistence(newSubjectId);
+        requiredSubjectExistence(oldSubjectId);
+        logger.info("UPDATING... THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {}", teacherId, oldSubjectId, newSubjectId);
+        teacherDao.updateTheTeacherSubject(teacherId, oldSubjectId, newSubjectId);
+        logger.info("UPDATED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacherId, oldSubjectId, newSubjectId);
     }
 
     @Override
@@ -138,9 +173,24 @@ public class TeacherServiceImpl implements TeacherService {
         logger.info("ADDED TEACHER BY ID - {} TO SUBJECTS {} SUCCESSFULLY", teacherId.getId(), subjects.size());
     }
 
+    @Override
+    public List<Subject> findSubjectsByTeacherId(Integer teacherId) {
+        requireNonNull(teacherId);
+        requiredTeacherExistence(teacherId);
+        logger.info("FINDING... SUBJECTS BY TEACHER ID - {}", teacherId);
+        List<Subject> subjects = teacherDao.findSubjectsByTeacherId(teacherId);
+        logger.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", subjects.size(), teacherId);
+        return subjects;
+     }
+
     private void requiredTeacherExistence(Integer teacherId) {
         if (!existsById(teacherId))
             throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
+    }
+
+    private void requiredTeacherExistence(Teacher teacher) {
+        if (!existsById(findTeacherByNameSurname(teacher).getId()))
+            throw new NotFoundException(format("Teacher - %s not exists", teacher));
     }
 
     private void requiredSubjectExistence(Integer subjectId) {

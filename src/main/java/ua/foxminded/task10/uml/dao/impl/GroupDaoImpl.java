@@ -27,20 +27,18 @@ public class GroupDaoImpl implements GroupDao {
 
     private final JdbcTemplate jdbcTemplate;
     private final GroupRowMapper groupMapper;
-    private final StudentRowMapper studentMapper;
 
     @Autowired
     public GroupDaoImpl(DataSource dataSource) {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.groupMapper = new GroupRowMapper();
-        this.studentMapper = new StudentRowMapper();
     }
 
     @Override
     public Optional<Group> save(Group group) {
         requireNonNull(group);
         logger.info("SAVING {}...", group);
-        final String SAVE_GROUP = "INSERT INTO groups (group_name) VALUES (?)";
+        final String SAVE_GROUP = "INSERT INTO groups (group_name) VALUES (UPPER(?))";
         KeyHolder holder = new GeneratedKeyHolder();
         jdbcTemplate.update(con -> {
             PreparedStatement statement = con.prepareStatement(SAVE_GROUP, new String[]{"group_id"});
@@ -80,7 +78,7 @@ public class GroupDaoImpl implements GroupDao {
         logger.info("FINDING ALL GROUPS");
         final String FIND_GROUPS = "SELECT * FROM groups";
         List<Group> groups = jdbcTemplate.query(FIND_GROUPS, groupMapper);
-        logger.info("FOUND ALL GROUPS: {}", groups);
+        logger.info("FOUND ALL GROUPS: {}", groups.size());
         return groups;
     }
 
@@ -106,7 +104,7 @@ public class GroupDaoImpl implements GroupDao {
     public void delete(Group group) {
         requireNonNull(group);
         logger.info("DELETE GROUP {}", group);
-        final String DELETE_GROUP = "DELETE FROM groups WHERE group_name = ?";
+        final String DELETE_GROUP = "DELETE FROM groups WHERE group_name = UPPER(?)";
         jdbcTemplate.update(DELETE_GROUP, group.getName());
         logger.info("DELETED GROUP {}", group);
     }
@@ -131,18 +129,19 @@ public class GroupDaoImpl implements GroupDao {
     public Optional<Group> findByGroupName(String groupName) {
         requireNonNull(groupName);
         logger.info("FINDING GROUP BY NAME - {}", groupName);
-        final String FIND_GROUP_BY_NAME = "SELECT * FROM groups WHERE group_name = ?";
+        final String FIND_GROUP_BY_NAME = "SELECT * FROM groups WHERE group_name = UPPER(?)";
         Group group = jdbcTemplate.queryForObject(FIND_GROUP_BY_NAME, groupMapper, groupName);
         logger.info("FOUND {} BY NAME {}", group, groupName);
         return Optional.ofNullable(group);
     }
 
     @Override
-    public void updateGroup(Group group) {
+    public void updateGroup(Integer groupId, Group group) {
         requireNonNull(group);
+        requireNonNull(groupId);
         logger.info("UPDATING GROUP BY ID - {}", group.getId());
-        final String UPDATE_GROUP = "UPDATE groups SET group_name = ? WHERE group_id = ?";
-        jdbcTemplate.update(UPDATE_GROUP, group.getName(), group.getId());
+        final String UPDATE_GROUP = "UPDATE groups SET group_name = UPPER(?) WHERE group_id = ?";
+        jdbcTemplate.update(UPDATE_GROUP, group.getName(), groupId);
         logger.info("UPDATED {} SUCCESSFULLY", group);
     }
 

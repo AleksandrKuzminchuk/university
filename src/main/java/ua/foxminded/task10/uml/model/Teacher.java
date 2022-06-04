@@ -3,7 +3,7 @@ package ua.foxminded.task10.uml.model;
 import java.util.List;
 import java.util.Objects;
 
-public class Teacher extends Person{
+public class Teacher extends Person {
 
     private List<Subject> teacherSubject;
 

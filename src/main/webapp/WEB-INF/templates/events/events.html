@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>Students List</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+
+</head>
+
+<body>
+
+<div th:insert="~{university :: copy}"></div>
+
+<div th:insert="~{events/eventTable :: events}"></div>
+
+<div class="form">
+    <form class="login-form" th:method="DELETE" th:action="@{/delete_all_events}">
+        <button type="submit">DELETE ALL EVENTS</button>
+    </form>
+</div>
+</body>
+</html>
+

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DELETE GROUP BY NAME</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+</head>
+<body>
+
+<div th:insert="~{university :: copy}"></div>
+
+
+<div class="login-page">
+    <div class="form">
+        <form class="login-form"
+              th:action="@{/deleted_group_by_name}"
+              th:object="${group}"
+              th:method="DELETE">
+            <input type="text" th:field="*{name}" id="name" placeholder="name group"/>
+            <button type="submit">delete</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

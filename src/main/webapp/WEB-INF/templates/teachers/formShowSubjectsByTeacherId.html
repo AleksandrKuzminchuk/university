@@ -1,0 +1,83 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+
+<head>
+    <meta charset="UTF-8"/>
+    <title>Subject List by teacher id</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+
+</head>
+
+<body>
+
+<div th:insert="~{university :: copy}"></div>
+
+<div style="text-align: center;">
+    <h1 th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></h1>
+</div>
+
+<section>
+    <h1>LIST SUBJECTS</h1>
+    <h1 th:text="${count}">COUNT ALL SUBJECTS</h1>
+    <div class="tbl-header">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <thead>
+            <tr>
+                <th>Name</th>
+                <th>Update</th>
+                <th>Delete</th>
+                <th>Add to teacher</th>
+                <th>Show teachers</th>
+                <th>Update subject</th>
+                <th>Delete subject</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="tbl-content">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tbody>
+            <tr th:each="subject: ${subjects}">
+                <td th:text="${#strings.toUpperCase(subject.name)}"/>
+                <td>
+                    <form class="login-form" th:method="GET" th:action="@{/{id}/update_subject(id=${subject.id})}">
+                        <button type="submit">update</button>
+                    </form>
+                </td>
+                <td>
+                    <form class="login-form" th:method="DELETE" th:action="@{/{id}/delete_subject(id=${subject.id})}">
+                        <button type="submit">delete</button>
+                    </form>
+                </td>
+                <td>
+                    <form class="login-form" th:method="GET" th:action="@{/{id}/add_subject_to_teacher(id=${subject.id})}">
+                        <button type="submit">add to teacher</button>
+                    </form>
+                </td>
+                <td>
+                    <form class="login-form" th:method="GET" th:action="@{/{id}/show_teachers_to_subject(id=${subject.id})}">
+                        <button type="submit">show teachers</button>
+                    </form>
+                </td>
+                <td>
+                    <form class="login-form" th:method="GET" th:action="'/' + ${teacher.id} + '/update_the_teacher/' + ${subject.id} + '/subject'">
+                        <button type="submit">update subject</button>
+                    </form>
+                </td>
+                <td>
+                    <form class="login-form" th:method="DELETE" th:action="'/' + ${teacher.id} + '/delete_the_teacher/' + ${subject.id} + '/subject'">
+                        <button type="submit">delete subject</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+</div>
+</body>
+</html>
+

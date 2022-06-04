@@ -4,32 +4,23 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Students List</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+
 </head>
 
 <body>
 
-<h1>Students List</h1>
+<div th:insert="~{university :: copy}"></div>
 
-<table style="width:100%" border="1">
-    <thead>
-    <tr>
-        <th>ID</th>
-        <th>First name</th>
-        <th>Last name</th>
-        <th>Course</th>
-        <th>Group</th>
-    </tr>
-    </thead>
-    <tbody>
-    <tr th:each="student: ${students}">
-        <td th:text="${student.id}"/>
-        <td th:text="${student.firstName}"/>
-        <td th:text="${student.lastName}"/>
-        <td th:text="${student.course}"/>
-        <td th:text="${student.groupId}"/>
-    </tr>
-    </tbody>
+<div th:insert="~{students/studentTable :: students}"></div>
 
-</table>
+    <div class="form">
+        <form class="login-form" th:method="DELETE" th:action="@{/delete_all_students}">
+            <button type="submit">DELETE ALL STUDENTS</button>
+        </form>
+</div>
 </body>
 </html>
+
