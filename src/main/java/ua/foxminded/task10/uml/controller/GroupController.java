@@ -138,6 +138,7 @@ public class GroupController {
         List<Student> students = studentService.findStudentsByGroupName(group);
         model.addAttribute("students", students);
         model.addAttribute("group", group);
+        logger.info("FOUND {} STUDENTS BY GROUP ID - {} SUCCESSFULLY", students.size(), groupId);
         return "groups/formForFoundStudentsByGroupId";
     }
 }

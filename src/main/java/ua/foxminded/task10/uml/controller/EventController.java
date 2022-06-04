@@ -54,18 +54,14 @@ public class EventController {
     @ResponseStatus(HttpStatus.OK)
     public String saveEvent(Model model, @ModelAttribute Event event) {
         logger.info("requested-> [POST]-'saved_event'");
-        Subject subject = subjectService.findSubjectByName(event.getSubject());
-        Classroom classroom = classroomService.findClassroomByNumber(event.getClassroom().getNumber());
-        Teacher teacher = teacherService.findTeacherByNameSurname(event.getTeacher());
-        Group group = groupService.findByGroupName(event.getGroup().getName());
-        Event newEvent = new Event();
-        newEvent.setSubject(subject);
-        newEvent.setClassroom(classroom);
-        newEvent.setTeacher(teacher);
-        newEvent.setGroup(group);
-        newEvent.setDateTime(event.getDateTime());
-        Event savedEvent = eventService.save(newEvent);
+        Event savedEvent = eventService.save(new Event(
+                subjectService.findSubjectByName(event.getSubject()),
+                classroomService.findClassroomByNumber(event.getClassroom().getNumber()),
+                groupService.findByGroupName(event.getGroup().getName()),
+                teacherService.findTeacherByNameSurname(event.getTeacher()),
+                event.getDateTime()));
         model.addAttribute("event", savedEvent);
+        logger.info("SAVED {} EVENT SUCCESSFULLY", savedEvent);
         return "events/fromSavedEvent";
     }
 
@@ -84,6 +80,7 @@ public class EventController {
     public String updateEvent(Model model, @ModelAttribute Event event, @PathVariable("eventId") Integer eventId) {
         logger.info("requested-> [PATCH]-'{eventId}/updated_event'");
         Event newEvent = eventService.findById(eventId);
+        newEvent.setDateTime(event.getDateTime());
         newEvent.getTeacher().setId(teacherService.findTeacherByNameSurname(event.getTeacher()).getId());
         newEvent.getClassroom().setId(classroomService.findClassroomByNumber(event.getClassroom().getNumber()).getId());
         newEvent.getSubject().setId(subjectService.findSubjectByName(event.getSubject()).getId());
@@ -97,7 +94,7 @@ public class EventController {
 
     @DeleteMapping("{eventId}/delete_event")
     @ResponseStatus(HttpStatus.OK)
-    public String deleteEventById(Model model, @PathVariable("eventId") Integer eventId){
+    public String deleteEventById(Model model, @PathVariable("eventId") Integer eventId) {
         logger.info("requested-> [DELETE]-'{eventId}/delete_event'");
         Event event = eventService.findById(eventId);
         eventService.deleteById(eventId);
@@ -108,14 +105,14 @@ public class EventController {
 
     @GetMapping("find_events")
     @ResponseStatus(HttpStatus.OK)
-    public String createFormForFindEvents(@ModelAttribute("event") Event event){
+    public String createFormForFindEvents(@ModelAttribute("event") Event event) {
         logger.info("requested-> [GET]-'find_events'");
         return "events/formForFindEvents";
     }
 
     @GetMapping("found_events")
     @ResponseStatus(HttpStatus.OK)
-    public String findEvents(Model model, @ModelAttribute Event event){
+    public String findEvents(Model model, @ModelAttribute Event event) {
         logger.info("requested-> [GET]->'/found_events'");
         List<Event> events = eventService.findEvents(event.getStartDateTime(), event.getEndDateTime());
         model.addAttribute("events", events);
@@ -127,7 +124,7 @@ public class EventController {
 
     @DeleteMapping("delete_all_events")
     @ResponseStatus(HttpStatus.OK)
-    public String deleteAllEvents(){
+    public String deleteAllEvents() {
         logger.info("requested-> [DELETE]-'delete_all_events'");
         eventService.deleteAll();
         logger.info("DELETED ALL EVENTS SUCCESSFULLY");

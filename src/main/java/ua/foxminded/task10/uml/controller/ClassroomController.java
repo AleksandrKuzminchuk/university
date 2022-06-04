@@ -79,6 +79,7 @@ public class ClassroomController {
         Classroom classroom = classroomService.findById(classroomId);
         classroomService.deleteById(classroomId);
         model.addAttribute("deleteClassroom", classroom);
+        logger.info("DELETED CLASSROOM BY ID - {} SUCCESSFULLY", classroomId);
         return "classrooms/formDeletedClassroom";
     }
 
