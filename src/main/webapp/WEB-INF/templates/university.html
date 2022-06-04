@@ -97,10 +97,62 @@
                 <a th:href="@{/university}">main page</a>
             </div>
         </div>
-
     </div>
 </div>
 </div>
+
+<section>
+    <h1 style="text-align: center;" th:text="${'LIST EVENTS TODAY ' + #temporals.format(day, 'yyyy-MM-dd')}"></h1>
+    <h1 th:text="${count}">COUNT ALL EVENTS</h1>
+    <div class="tbl-header">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <thead>
+            <tr>
+                <th>Date and Time</th>
+                <th>Subject</th>
+                <th>Classroom</th>
+                <th>Teacher</th>
+                <th>Group</th>
+                <th>Show students</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="tbl-content">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tbody>
+            <tr th:each="event: ${events}">
+                <td aria-sort="ascending" th:text="${#temporals.format(event.dateTime, 'yyyy-MM-dd HH:mm')}"/>
+                <td th:text="${event.subject.name}"/>
+                <td th:text="${event.classroom.number}"/>
+                <td th:text="${event.teacher.firstName + ' ' + event.teacher.lastName}"/>
+                <td th:text="${event.group.name}"/>
+                <td>
+                    <form class="login-form" th:method="GET"
+                          th:action="@{/{groupId}/found_students_by_group_id(groupId=${event.group.id})}">
+                        <button type="submit">show students</button>
+                    </form>
+                </td>
+                <td>
+                    <form class="login-form" th:method="GET"
+                          th:action="@{/{eventId}/update_event(eventId=${event.id})}">
+                        <button type="submit">update</button>
+                    </form>
+                </td>
+                <td>
+                    <form class="login-form" th:method="DELETE"
+                          th:action="@{/{eventId}/delete_event(eventId=${event.id})}">
+                        <button type="submit">delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
 </body>
 </html>
 
