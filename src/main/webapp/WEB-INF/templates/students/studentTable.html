@@ -39,27 +39,27 @@
         <td th:text="${student.course}"/>
         <td th:text="${#strings.toUpperCase(student.getGroup().getName())}"/>
         <td>
-          <form class="login-form" th:method="GET" th:action="@{/{studentId}/update_student(studentId=${student.id})}">
+          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/update(studentId=${student.id})}">
             <button type="submit">update</button>
           </form>
         </td>
         <td>
-          <form class="login-form" th:method="DELETE" th:action="@{/{studentId}/delete_student(studentId=${student.id})}">
+          <form class="login-form" th:method="DELETE" th:action="@{/students/{studentId}/delete(studentId=${student.id})}">
             <button type="submit">delete</button>
           </form>
         </td>
         <td>
-          <form class="login-form" th:method="GET" th:action="@{/{studentId}/assign_student_to_group(studentId=${student.id})}">
+          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/assign_student_to_group(studentId=${student.id})}">
             <button type="submit">assign to group</button>
           </form>
         </td>
         <td>
-          <form class="login-form" th:method="GET" th:action="@{/{studentId}/update_the_student_group(studentId=${student.id})}">
+          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/update_the_student_group(studentId=${student.id})}">
             <button type="submit">change group</button>
           </form>
         </td>
         <td>
-          <form class="login-form" th:method="PATCH" th:action="@{/{studentId}/delete_student_from_group(studentId=${student.id})}">
+          <form class="login-form" th:method="PATCH" th:action="@{/students/students/{studentId}/delete_student_from_group(studentId=${student.id})}">
             <button type="submit">delete from group</button>
           </form>
         </td>

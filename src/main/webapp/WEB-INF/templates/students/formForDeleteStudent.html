@@ -15,7 +15,7 @@
 <div class="login-page">
     <div class="form">
         <form class="login-form"
-              th:action="@{/delete_student_by_first_and_last_name}"
+              th:action="@{/students/delete_student_by_first_and_last_name}"
               th:object="${student}"
               th:method="DELETE">
             <input type="text" th:field="*{firstName}" id="name" placeholder="name"/>

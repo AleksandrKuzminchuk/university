@@ -20,7 +20,7 @@
 <div th:insert="~{students/studentTable :: students}"></div>
 
 <div class="form">
-    <form class="login-form" th:method="DELETE" th:action="@{/{course}/delete_students_by_course(course=${courseNumber})}">
+    <form class="login-form" th:method="DELETE" th:action="@{/students/{course}/delete_students_by_course(course=${courseNumber})}">
         <button type="submit">DELETE THESE STUDENTS</button>
     </form>
 </div>

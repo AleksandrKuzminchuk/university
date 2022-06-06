@@ -17,7 +17,7 @@
 <div th:insert="~{students/studentTable :: students}"></div>
 
     <div class="form">
-        <form class="login-form" th:method="DELETE" th:action="@{/delete_all_students}">
+        <form class="login-form" th:method="DELETE" th:action="@{/students/delete/all}">
             <button type="submit">DELETE ALL STUDENTS</button>
         </form>
 </div>
