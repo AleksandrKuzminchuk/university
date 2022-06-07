@@ -49,17 +49,17 @@
           </form>
         </td>
         <td>
-          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/assign_student_to_group(studentId=${student.id})}">
+          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/to_group(studentId=${student.id})}">
             <button type="submit">assign to group</button>
           </form>
         </td>
         <td>
-          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/update_the_student_group(studentId=${student.id})}">
+          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/update/group(studentId=${student.id})}">
             <button type="submit">change group</button>
           </form>
         </td>
         <td>
-          <form class="login-form" th:method="PATCH" th:action="@{/students/students/{studentId}/delete_student_from_group(studentId=${student.id})}">
+          <form class="login-form" th:method="PATCH" th:action="@{/students/{studentId}/delete/from_group(studentId=${student.id})}">
             <button type="submit">delete from group</button>
           </form>
         </td>

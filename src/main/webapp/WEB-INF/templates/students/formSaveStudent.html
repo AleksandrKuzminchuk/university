@@ -14,7 +14,7 @@
 
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="POST" th:action="@{/students/saved_student}" th:object="${newStudent}">
+        <form class="login-form" th:method="POST" th:action="@{/students/saved}" th:object="${newStudent}">
             <input type="text" th:field="*{firstName}" id="name" placeholder="name"/>
             <input type="text" th:field="*{lastName}" id="surname" placeholder="surname"/>
             <input type="text" th:field="*{course}" id="course" placeholder="course"/>

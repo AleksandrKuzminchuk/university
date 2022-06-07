@@ -14,7 +14,7 @@
 
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:action="@{/students/found_students_by_group}" th:object="${groupName}" th:method="GET">
+        <form class="login-form" th:action="@{/students/found/by_group}" th:object="${groupName}" th:method="GET">
             <input type="text" th:field="*{name}" id="name" placeholder="group name"/>
             <button type="submit">find</button>
         </form>

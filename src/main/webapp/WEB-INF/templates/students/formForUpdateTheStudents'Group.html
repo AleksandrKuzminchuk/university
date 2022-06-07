@@ -11,7 +11,7 @@
 <div th:insert="~{university :: copy}"></div>
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="PATCH" th:action="@{/students/{studentId}/updated_the_student_group(studentId=${student.id})}">
+        <form class="login-form" th:method="PATCH" th:action="@{/students/{studentId}/updated/group(studentId=${student.id})}">
             <input type="text" th:field="${group.name}" id="name" placeholder="group name"/>
             <button type="submit">update</button>
         </form>
