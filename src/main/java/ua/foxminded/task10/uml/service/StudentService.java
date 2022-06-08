@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.service;
 
+import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
 
 import java.util.List;
@@ -10,7 +11,19 @@ public interface StudentService extends CrudRepositoryService<Student, Integer> 
 
     List<Student> findByCourseNumber(Integer courseNumber);
 
-    void updateStudent(Student student);
+    void updateStudent(Integer studentId, Student updatedStudent);
+
+    List<Student> findStudentsByGroupName(Group groupName);
+
+    void deleteStudentsByCourseNumber(Integer courseNumber);
+
+    void deleteStudentsByGroupId(Integer groupId);
+
+    List<Student> findStudentsByNameOrSurname(Student student);
+
+    void deleteTheStudentGroup(Integer studentId);
+
+    void updateTheStudentGroup(Integer groupId, Integer studentId);
 
     List<Student> findStudentsByGroupId(Integer groupId);
 }

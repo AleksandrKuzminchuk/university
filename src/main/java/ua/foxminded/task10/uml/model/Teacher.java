@@ -3,11 +3,19 @@ package ua.foxminded.task10.uml.model;
 import java.util.List;
 import java.util.Objects;
 
-public class Teacher extends Person{
+public class Teacher extends Person {
 
     private List<Subject> teacherSubject;
 
     public Teacher() {
+    }
+
+    public Teacher(Integer id) {
+        super(id);
+    }
+
+    public Teacher(String firstName, String lastName) {
+        super(firstName, lastName);
     }
 
     public Teacher(Integer id, String firstName, String lastName) {

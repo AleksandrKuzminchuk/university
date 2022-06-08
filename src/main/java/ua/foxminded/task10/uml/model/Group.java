@@ -13,14 +13,29 @@ public class Group {
     public Group() {
     }
 
+    public Group(Integer id) {
+        this.id = id;
+    }
+
     public Group(String name) {
         this.name = name;
         this.students = new ArrayList<>();
     }
 
+    public Group(Integer id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
     public Group(String name, List<Student> students) {
         this.name = name;
         this.students = new ArrayList<>();
+    }
+
+    public Group(Integer id, String name, List<Student> students) {
+        this.id = id;
+        this.name = name;
+        this.students = students;
     }
 
     public Integer getId() {
@@ -66,6 +81,7 @@ public class Group {
         return "Group{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", students=" + students +
                 '}';
     }
 }

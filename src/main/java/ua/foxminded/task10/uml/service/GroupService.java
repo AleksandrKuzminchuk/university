@@ -11,9 +11,9 @@ public interface GroupService extends CrudRepositoryService<Group, Integer>{
 
     Group findByGroupName(String groupName);
 
-    void updateGroup(Group group);
+    void updateGroup(Integer groupId, Group group);
 
-    void assignStudentToGroup(Integer studentId, Integer groupId);
+    void assignStudentToGroup(Student studentId, Group groupId);
 
-    void assignStudentsToGroup(List<Student> students, Integer groupId);
+    void assignStudentsToGroup(List<Student> students, Group groupId);
 }

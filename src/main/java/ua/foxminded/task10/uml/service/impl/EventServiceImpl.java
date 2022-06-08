@@ -2,7 +2,9 @@ package ua.foxminded.task10.uml.service.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ua.foxminded.task10.uml.dao.EventDao;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import ua.foxminded.task10.uml.dao.*;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Event;
 import ua.foxminded.task10.uml.service.*;
@@ -14,22 +16,24 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
 
+@Component
 public class EventServiceImpl implements EventService {
 
     private static final Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
 
     private final EventDao eventDao;
-    private final TeacherService teacherService;
-    private final GroupService groupService;
-    private final SubjectService subjectService;
-    private final ClassroomService classroomService;
+    private final TeacherDao teacherDao;
+    private final GroupDao groupDao;
+    private final SubjectDao subjectDao;
+    private final ClassroomDao classroomDao;
 
-    public EventServiceImpl(EventDao eventDao, TeacherService teacherService, GroupService groupService, SubjectService subjectService, ClassroomService classroomService) {
+    @Autowired
+    public EventServiceImpl(EventDao eventDao, TeacherDao teacherDao, GroupDao groupDao, SubjectDao subjectDao, ClassroomDao classroomDao) {
         this.eventDao = eventDao;
-        this.teacherService = teacherService;
-        this.groupService = groupService;
-        this.subjectService = subjectService;
-        this.classroomService = classroomService;
+        this.teacherDao = teacherDao;
+        this.groupDao = groupDao;
+        this.subjectDao = subjectDao;
+        this.classroomDao = classroomDao;
     }
 
     @Override
@@ -45,6 +49,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public Event findById(Integer id) {
         requireNonNull(id);
+        requiredEventByIdExistence(id);
         logger.info("FINDING... EVENT BY ID - {}", id);
         Event result = eventDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find event by id - %d", id)));
         logger.info("FOUND {} BY ID - {}", result, id);
@@ -79,6 +84,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
+        requiredEventByIdExistence(id);
         logger.info("DELETING... EVENT BY ID - {}", id);
         eventDao.deleteById(id);
         logger.info("DELETED EVENT BY ID - {} SUCCESSFULLY", id);
@@ -87,6 +93,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public void delete(Event event) {
         requireNonNull(event);
+        requiredEventExistence(event);
         logger.info("DELETING... {}", event);
         eventDao.deleteById(event.getId());
         logger.info("DELETED {} SUCCESSFULLY", event);
@@ -109,12 +116,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void updateEvent(Event event) {
+    public void updateEvent(Integer eventId, Event event) {
         requireNonNull(event);
-        requiredEventExistence(event);
-        logger.info("UPDATING... {}", event);
-        eventDao.updateEvent(event);
-        logger.info("UPDATED {} SUCCESSFULLY", event);
+        requireNonNull(eventId);
+        requiredEventByIdExistence(eventId);
+        logger.info("UPDATING... EVENT BY ID - {}", eventId);
+        eventDao.updateEvent(eventId, event);
+        logger.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventId);
     }
 
     @Override
@@ -128,14 +136,20 @@ public class EventServiceImpl implements EventService {
     }
 
     private void requiredEventExistence(Event event) {
-        if (!teacherService.existsById(event.getTeacher().getId())) {
+        if (!teacherDao.existsById(event.getTeacher().getId())) {
             throw new NotFoundException(format("Teacher by id - %d not exists", event.getTeacher().getId()));
-        } else if (!groupService.existsById(event.getGroup().getId())) {
+        } else if (!groupDao.existsById(event.getGroup().getId())) {
             throw new NotFoundException(format("Group by id - %d not exists", event.getGroup().getId()));
-        } else if (!subjectService.existsById(event.getSubject().getId())) {
+        } else if (!subjectDao.existsById(event.getSubject().getId())) {
             throw new NotFoundException(format("Subject by id - %d not exists", event.getSubject().getId()));
-        } else if (!classroomService.existsById(event.getClassroom().getId())) {
+        } else if (!classroomDao.existsById(event.getClassroom().getId())) {
             throw new NotFoundException(format("Classroom by id - %d not exists", event.getClassroom().getId()));
+        }
+    }
+
+    private void requiredEventByIdExistence(Integer eventId){
+        if (!eventDao.existsById(eventId)){
+            throw new NotFoundException(format("Event by id- %d not exists", eventId));
         }
     }
 }

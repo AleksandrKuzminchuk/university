@@ -1,12 +1,24 @@
 package ua.foxminded.task10.uml.model;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDateTime;
 import java.util.Objects;
+
 
 public class Event {
 
     private Integer id;
-    private LocalDateTime localDateTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime dateTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime startDateTime;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    private LocalDateTime endDateTime;
+
     private Subject subject;
     private Classroom classroom;
     private Group group;
@@ -24,7 +36,7 @@ public class Event {
         this.classroom = classroom;
         this.group = group;
         this.teacher = teacher;
-        this.localDateTime = localDateTime;
+        this.dateTime = localDateTime;
     }
 
     public Event(Integer id, Subject subject, Classroom classroom, Group group, Teacher teacher, LocalDateTime localDateTime) {
@@ -33,7 +45,7 @@ public class Event {
         this.classroom = classroom;
         this.group = group;
         this.teacher = teacher;
-        this.localDateTime = localDateTime;
+        this.dateTime = localDateTime;
     }
 
     public Integer getId() {
@@ -76,36 +88,54 @@ public class Event {
         this.teacher = teacher;
     }
 
-    public LocalDateTime getLocalDateTime() {
-        return localDateTime;
+    public LocalDateTime getDateTime() {
+        return dateTime;
     }
 
-    public void setLocalDateTime(LocalDateTime localDateTime) {
-        this.localDateTime = localDateTime;
+    public void setDateTime(LocalDateTime dateTime) {
+        this.dateTime = dateTime;
+    }
+
+    public LocalDateTime getStartDateTime() {
+        return startDateTime;
+    }
+
+    public void setStartDateTime(LocalDateTime startDateTime) {
+        this.startDateTime = startDateTime;
+    }
+
+    public LocalDateTime getEndDateTime() {
+        return endDateTime;
+    }
+
+    public void setEndDateTime(LocalDateTime endDateTime) {
+        this.endDateTime = endDateTime;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Event lesson = (Event) o;
-        return Objects.equals(id, lesson.id) && Objects.equals(subject, lesson.subject) && Objects.equals(classroom, lesson.classroom) && Objects.equals(group, lesson.group) && Objects.equals(teacher, lesson.teacher) && Objects.equals(localDateTime, lesson.localDateTime);
+        Event event = (Event) o;
+        return Objects.equals(id, event.id) && Objects.equals(dateTime, event.dateTime) && Objects.equals(startDateTime, event.startDateTime) && Objects.equals(endDateTime, event.endDateTime) && Objects.equals(subject, event.subject) && Objects.equals(classroom, event.classroom) && Objects.equals(group, event.group) && Objects.equals(teacher, event.teacher);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, subject, classroom, group, teacher, localDateTime);
+        return Objects.hash(id, dateTime, startDateTime, endDateTime, subject, classroom, group, teacher);
     }
 
     @Override
     public String toString() {
-        return "Lesson{" +
+        return "Event{" +
                 "id=" + id +
+                ", dateTime=" + dateTime +
+                ", startDateTime=" + startDateTime +
+                ", endDateTime=" + endDateTime +
                 ", subject=" + subject +
                 ", classroom=" + classroom +
-                ", groups=" + group +
+                ", group=" + group +
                 ", teacher=" + teacher +
-                ", date=" + localDateTime +
                 '}';
     }
 }

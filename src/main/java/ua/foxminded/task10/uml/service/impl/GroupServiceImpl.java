@@ -1,29 +1,34 @@
 package ua.foxminded.task10.uml.service.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.GroupDao;
+import ua.foxminded.task10.uml.dao.StudentDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.service.GroupService;
-import ua.foxminded.task10.uml.service.StudentService;
 
 import java.util.List;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
+@Component
 public class GroupServiceImpl implements GroupService {
 
     private static final Logger logger = LoggerFactory.getLogger(GroupServiceImpl.class);
 
     private final GroupDao groupDao;
-    private final StudentService studentService;
+    private final StudentDao studentDao;
 
-    public GroupServiceImpl(GroupDao groupDao, StudentService studentService) {
+    @Autowired
+    public GroupServiceImpl(GroupDao groupDao, StudentDao studentDao) {
         this.groupDao = groupDao;
-        this.studentService = studentService;
+        this.studentDao = studentDao;
     }
 
     @Override
@@ -38,6 +43,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Group findById(Integer id) {
         requireNonNull(id);
+        requiredGroupExistence(id);
         logger.info("FINDING... GROUP BY ID - {}", id);
         Group result = groupDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find group by id- %d", id)));
         logger.info("FOUND {} BY ID - {} SUCCESSFULLY", result, id);
@@ -72,6 +78,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
+        requiredGroupExistence(id);
         logger.info("DELETING... GROUP BY ID- {}", id);
         groupDao.deleteById(id);
         logger.info("DELETED GROUP BY ID - {} SUCCESSFULLY", id);
@@ -79,10 +86,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public void delete(Group group) {
-        requireNonNull(group);
-        logger.info("DELETING... {}", group);
-        groupDao.delete(group);
-        logger.info("DELETED {} SUCCESSFULLY", group);
+        throw new NotImplementedException("The method delete not implemented");
     }
 
     @Override
@@ -110,29 +114,31 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void updateGroup(Group group) {
+    public void updateGroup(Integer groupId, Group group) {
         requireNonNull(group);
-        logger.info("UPDATING... {}", group);
-        groupDao.updateGroup(group);
-        logger.info("UPDATED {} SUCCESSFULLY", group);
+        requireNonNull(groupId);
+        requiredGroupExistence(groupId);
+        logger.info("UPDATING... GROUP BY ID - {}", groupId);
+        groupDao.updateGroup(groupId, group);
+        logger.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", groupId);
     }
 
     @Override
-    public void assignStudentToGroup(Integer studentId, Integer groupId) {
+    public void assignStudentToGroup(Student studentId, Group groupId) {
         requireNonNull(studentId);
         requireNonNull(groupId);
-        requiredStudentExistence(studentId);
-        requiredGroupExistence(groupId);
+        requiredStudentExistence(studentId.getId());
+        requiredGroupExistence(groupId.getId());
         logger.info("ASSIGNING STUDENT BY ID - {} TO GROUP BY ID- {}", studentId, groupId);
         groupDao.assignStudentToGroup(studentId, groupId);
         logger.info("ASSIGNED STUDENT BY ID - {} TO GROUP BY ID - {} SUCCESSFULLY", studentId, groupId);
     }
 
     @Override
-    public void assignStudentsToGroup(List<Student> students, Integer groupId) {
+    public void assignStudentsToGroup(List<Student> students, Group groupId) {
         requireNonNull(students);
         requireNonNull(groupId);
-        requiredGroupExistence(groupId);
+        requiredGroupExistence(groupId.getId());
         students.forEach(student -> requiredStudentExistence(student.getId()));
         logger.info("ASSIGNING STUDENTS {} TO GROUP BY ID - {}", students.size(), groupId);
         groupDao.assignStudentsToGroup(students, groupId);
@@ -140,7 +146,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     private void requiredStudentExistence(Integer studentId){
-        if (!studentService.existsById(studentId)){
+        if (!studentDao.existsById(studentId)){
             throw new NotFoundException(format("Student by id- %d not exists", studentId));
         }
     }
@@ -150,4 +156,10 @@ public class GroupServiceImpl implements GroupService {
             throw new NotFoundException(format("Group by id - %d not exists", groupId));
         }
     }
+    private void requiredGroupExistence(Group group){
+        if (!existsById(findByGroupName(group.getName()).getId())){
+            throw new NotFoundException(format("Group by name - %s not exists", group.getName()));
+        }
+    }
+
 }

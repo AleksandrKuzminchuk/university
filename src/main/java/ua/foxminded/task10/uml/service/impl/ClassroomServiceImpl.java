@@ -1,23 +1,29 @@
 package ua.foxminded.task10.uml.service.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.dao.ClassroomDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Classroom;
 import ua.foxminded.task10.uml.service.ClassroomService;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
+@Component
 public class ClassroomServiceImpl implements ClassroomService {
 
     private static final Logger logger = LoggerFactory.getLogger(ClassroomServiceImpl.class);
 
     private final ClassroomDao classroomDao;
 
+    @Autowired
     public ClassroomServiceImpl(ClassroomDao classroomDao) {
         this.classroomDao = classroomDao;
     }
@@ -31,10 +37,12 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public void updateClassroom(Classroom classroom) {
+    public void updateClassroom(Integer classroomId, Classroom classroom) {
         requireNonNull(classroom);
-        logger.info("UPDATING... {}", classroom);
-        classroomDao.updateClassroom(classroom);
+        requireNonNull(classroomId);
+        requiredClassroomExistence(classroomId);
+        logger.info("UPDATING... CLASSROOM BY ID - {}", classroomId);
+        classroomDao.updateClassroom(classroomId, classroom);
         logger.info("UPDATED {} SUCCESSFULLY", classroom);
     }
 
@@ -50,6 +58,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public Classroom findById(Integer id) {
         requireNonNull(id);
+        requiredClassroomExistence(id);
         logger.info("FINDING... CLASSROOM BY ID- {}", id);
         Classroom result = classroomDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find classroom by id - %d", id)));
         logger.info("FOUND CLASSROOM BY ID - {} SUCCESSFULLY", id);
@@ -84,6 +93,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public void deleteById(Integer id) {
         requireNonNull(id);
+        requiredClassroomExistence(id);
         logger.info("DELETING... CLASSROOM BY ID- {}", id);
         classroomDao.deleteById(id);
         logger.info("DELETED CLASSROOMS BY ID - {} SUCCESSFULLY", id);
@@ -91,10 +101,7 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     @Override
     public void delete(Classroom classroom) {
-        requireNonNull(classroom);
-        logger.info("DELETING... {}", classroom);
-        classroomDao.delete(classroom);
-        logger.info("DELETED {} SUCCESSFULLY", classroom);
+        throw new NotImplementedException("The method delete not implemented");
     }
 
     @Override
@@ -102,5 +109,24 @@ public class ClassroomServiceImpl implements ClassroomService {
         logger.info("DELETING... ALL CLASSROOMS");
         classroomDao.deleteAll();
         logger.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
+    }
+
+    @Override
+    public Classroom findClassroomByNumber(Integer classroomNumber) {
+        requireNonNull(classroomNumber);
+        logger.info("FINDING... CLASSROOM BY NUMBER - {}", classroomNumber);
+        Classroom classroom = classroomDao.findClassroomByNumber(classroomNumber).orElseThrow(() -> new NotFoundException(format("Can't find classroom by number - %d", classroomNumber)));
+        logger.info("FOUND CLASSROOM BY NUMBER - {} SUCCESSFULLY", classroom);
+        return classroom;
+    }
+
+    private void requiredClassroomExistence(Integer classroomId) {
+        if (!existsById(classroomId))
+            throw new NotFoundException(format("Classroom by id - %d not exists", classroomId));
+    }
+
+    private void requiredClassroomExistence(Classroom classroom) {
+        if (!existsById(findClassroomByNumber(classroom.getNumber()).getId()))
+            throw new NotFoundException(format("Classroom by number %d not exists", classroom.getNumber()));
     }
 }

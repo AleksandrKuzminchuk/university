@@ -4,14 +4,23 @@ import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface TeacherService extends CrudRepositoryService<Teacher, Integer>{
 
     void saveAll(List<Teacher> teachers);
 
-    void updateTeacher(Teacher teacher);
+    void updateTeacher(Integer teacherId, Teacher teacher);
 
-    void addTeacherToSubject(Integer teacherId, Integer subjectId);
+    void addTeacherToSubject(Teacher teacherId, Subject subjectId);
 
-    void addTeacherToSubjects(Integer teacherId, List<Subject> subjects);
+    void addTeacherToSubjects(Teacher teacherId, List<Subject> subjects);
+
+    Teacher findTeacherByNameSurname(Teacher teacher);
+
+    List<Subject> findSubjectsByTeacherId(Integer teacherId);
+
+    void updateTheTeacherSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId);
+
+    void deleteTheTeacherSubject(Integer teacherId, Integer subjectId);
 }
