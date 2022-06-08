@@ -17,7 +17,7 @@
 <div th:insert="~{events/eventTable :: events}"></div>
 
 <div class="form">
-    <form class="login-form" th:method="DELETE" th:action="@{/delete_all_events}">
+    <form class="login-form" th:method="DELETE" th:action="@{/events/deleted/all}">
         <button type="submit">DELETE ALL EVENTS</button>
     </form>
 </div>

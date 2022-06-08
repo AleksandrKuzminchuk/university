@@ -44,7 +44,7 @@
           </form>
         </td>
         <td>
-          <form class="login-form" th:method="DELETE" th:action="@{/students/{studentId}/delete(studentId=${student.id})}">
+          <form class="login-form" th:method="DELETE" th:action="@{/students/{studentId}/deleted(studentId=${student.id})}">
             <button type="submit">delete</button>
           </form>
         </td>

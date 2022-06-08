@@ -14,7 +14,7 @@
 
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="POST" th:action="@{/saved_subject}" th:object="${newSubject}">
+        <form class="login-form" th:method="POST" th:action="@{/subjects/saved}" th:object="${newSubject}">
             <input type="text" th:field="*{name}" id="name" placeholder="name subject"/>
             <button type="submit">save</button>
         </form>

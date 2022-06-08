@@ -40,19 +40,19 @@
                     <td th:text="${event.group.name}"/>
                     <td>
                         <form class="login-form" th:method="GET"
-                              th:action="@{/{groupId}/found_students_by_group_id(groupId=${event.group.id})}">
+                              th:action="@{/students/found/by_group/{groupId}(groupId=${event.group.id})}">
                             <button type="submit">show students</button>
                         </form>
                     </td>
                     <td>
                         <form class="login-form" th:method="GET"
-                              th:action="@{/{eventId}/update_event(eventId=${event.id})}">
+                              th:action="@{/events/{eventId}/update(eventId=${event.id})}">
                             <button type="submit">update</button>
                         </form>
                     </td>
                     <td>
                         <form class="login-form" th:method="DELETE"
-                              th:action="@{/{eventId}/delete_event(eventId=${event.id})}">
+                              th:action="@{/events/{eventId}/deleted(eventId=${event.id})}">
                             <button type="submit">delete</button>
                         </form>
                     </td>

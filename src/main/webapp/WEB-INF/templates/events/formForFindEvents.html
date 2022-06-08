@@ -11,7 +11,7 @@
 <div th:insert="~{university :: copy}"></div>
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="GET" th:action="@{/found_events}">
+        <form class="login-form" th:method="GET" th:action="@{/events/found}">
             <input type="text" th:field="${event.startDateTime}" id="start date time" placeholder="from date time"/>
             <input type="text" th:field="${event.endDateTime}" id="end date time" placeholder="to date time"/>
             <button type="submit">find events</button>

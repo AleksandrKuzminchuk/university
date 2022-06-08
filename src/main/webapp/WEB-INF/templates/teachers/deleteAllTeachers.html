@@ -12,7 +12,7 @@
 <div class="login-page">
     <div class="form">
         <form class="login-form" th:action="@{/teachers}">
-            <b th:text="'All teachers deleted SUCCESSFULLY'"></b>
+            <b th:text="'All teachers {' + ${teachers} + '} deleted SUCCESSFULLY'"></b>
             <button type="submit">return to teachers page</button>
             <p class="message">main page <a th:href="@{/university}">UNIVERSITY</a></p>
         </form>

@@ -25,7 +25,7 @@
                 <a th:href="@{/students/new}">Save Student</a>
                 <a th:href="@{/students/find/by_course}">Find students by course</a>
                 <a th:href="@{/students/find/by_group}">Find students by group</a>
-                <a th:href="@{/students/find/by_name_surname}">Find students by name/surname</a>
+                <a th:href="@{/students/find/by_name_surname}">Find students by name or surname</a>
             </div>
         </div>
 
@@ -35,9 +35,8 @@
             </button>
             <div class="dropdown-content">
                 <a th:href="@{/teachers}">Teachers</a>
-                <a th:href="@{/new_teacher}">Save teacher</a>
-                <a th:href="@{/find_teacher_by_name_surname}">Find teacher by name/surname</a>
-                <a th:href="@{/delete_teacher_by_name_surname}">Delete teacher by name/surname</a>
+                <a th:href="@{/teachers/new}">Save teacher</a>
+                <a th:href="@{/teachers/find/by_name_surname}">Find teacher by name/surname</a>
             </div>
         </div>
 
@@ -47,9 +46,8 @@
             </button>
             <div class="dropdown-content">
                 <a th:href="@{/groups}">Groups</a>
-                <a th:href="@{/new_group}">Save group</a>
-                <a th:href="@{/find_group_by_name}">Find group by name</a>
-                <a th:href="@{/delete_group_by_name}">Delete group by name</a>
+                <a th:href="@{/groups/new}">Save group</a>
+                <a th:href="@{/groups/find/by_name}">Find group by name</a>
             </div>
         </div>
 
@@ -59,9 +57,8 @@
             </button>
             <div class="dropdown-content">
                 <a th:href="@{/subjects}">Subjects</a>
-                <a th:href="@{/new_subject}">Save subject</a>
-                <a th:href="@{/find_subject_by_name}">Find subject by name</a>
-                <a th:href="@{/delete_subject_by_name}">Delete subject by name</a>
+                <a th:href="@{/subjects/new}">Save subject</a>
+                <a th:href="@{/subjects/find/by_name}">Find subject by name</a>
             </div>
         </div>
 
@@ -71,9 +68,8 @@
             </button>
             <div class="dropdown-content">
                 <a th:href="@{/classrooms}">Classrooms</a>
-                <a th:href="@{/new_classroom}">Save classroom</a>
-                <a th:href="@{/find_classroom_by_number}">Find classroom by number</a>
-                <a th:href="@{/delete_classroom_by_number}">Delete classroom by number</a>
+                <a th:href="@{/classrooms/new}">Save classroom</a>
+                <a th:href="@{/classrooms/find/by_number}">Find classroom by number</a>
             </div>
         </div>
 
@@ -83,8 +79,8 @@
             </button>
             <div class="dropdown-content">
                 <a th:href="@{/events}">Events</a>
-                <a th:href="@{/new_event}">Create Event</a>
-                <a th:href="@{/find_events}">Find events for period</a>
+                <a th:href="@{/events/new}">Create Event</a>
+                <a th:href="@{/events/find}">Find events for period</a>
             </div>
         </div>
 
@@ -136,13 +132,13 @@
                 </td>
                 <td>
                     <form class="login-form" th:method="GET"
-                          th:action="@{/{eventId}/update_event(eventId=${event.id})}">
+                          th:action="@{events/{eventId}/update(eventId=${event.id})}">
                         <button type="submit">update</button>
                     </form>
                 </td>
                 <td>
                     <form class="login-form" th:method="DELETE"
-                          th:action="@{/{eventId}/delete_event(eventId=${event.id})}">
+                          th:action="@{events/{eventId}/deleted(eventId=${event.id})}">
                         <button type="submit">delete</button>
                     </form>
                 </td>

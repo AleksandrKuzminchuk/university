@@ -17,7 +17,7 @@
 <div th:insert="~{groups/groupTable :: groups}"></div>
 
 <div class="form">
-    <form class="login-form" th:method="DELETE" th:action="@{/delete_all_groups}">
+    <form class="login-form" th:method="DELETE" th:action="@{/groups/delete/all}">
         <button type="submit">DELETE ALL GROUPS</button>
     </form>
 </div>

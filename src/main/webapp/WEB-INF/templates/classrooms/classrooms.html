@@ -16,11 +16,11 @@
 
 <div th:insert="~{classrooms/classroomTable :: classrooms}"></div>
 
-<!--<div class="form">-->
-<!--    <form class="login-form" th:method="DELETE" th:action="@{/delete_all_groups}">-->
-<!--        <button type="submit">DELETE ALL GROUPS</button>-->
-<!--    </form>-->
-<!--</div>-->
+<div class="form">
+    <form class="login-form" th:method="DELETE" th:action="@{/classrooms/deleted/all}">
+        <button type="submit">DELETE ALL CLASSROOMS</button>
+    </form>
+</div>
 </body>
 </html>
 

@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.dao.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,11 +103,7 @@ public class GroupDaoImpl implements GroupDao {
 
     @Override
     public void delete(Group group) {
-        requireNonNull(group);
-        logger.info("DELETE GROUP {}", group);
-        final String DELETE_GROUP = "DELETE FROM groups WHERE group_name = UPPER(?)";
-        jdbcTemplate.update(DELETE_GROUP, group.getName());
-        logger.info("DELETED GROUP {}", group);
+        throw new NotImplementedException("The method delete not implemented");
     }
 
     @Override

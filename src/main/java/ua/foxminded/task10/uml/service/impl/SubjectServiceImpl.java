@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.service.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,11 +96,7 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public void delete(Subject subject) {
-        requireNonNull(subject);
-        requiredSubjectExistence(subject);
-        logger.info("DELETING... {}", subject);
-        subjectDao.delete(subject);
-        logger.info("DELETED {} SUCCESSFULLY", subject);
+        throw new NotImplementedException("The method delete not implemented");
     }
 
     @Override
@@ -152,7 +149,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public List<Teacher> findTeachersBySubject(Integer subjectId){
+    public List<Teacher> findTeachersBySubject(Integer subjectId) {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         logger.info("FINDING... TEACHERS BY SUBJECT ID - {}", subjectId);
@@ -202,7 +199,6 @@ public class SubjectServiceImpl implements SubjectService {
         if (!teacherDao.existsById(teacherId))
             throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
     }
-
 
 
 }

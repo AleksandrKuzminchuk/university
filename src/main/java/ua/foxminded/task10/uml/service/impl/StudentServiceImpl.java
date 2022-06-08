@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.service.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,11 +52,11 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Student findStudentByNameSurname(Student student) {
+    public List<Student> findStudentsByNameOrSurname(Student student) {
         requireNonNull(student);
-        logger.info("FINDING... STUDENT {}", student);
-        Student result = studentDao.findStudentByNameSurname(student).orElseThrow(() -> new NotFoundException(format("Can't find student %s", student)));
-        logger.info("FOUND STUDENT - {}", result);
+        logger.info("FINDING... STUDENTS BY NAME OR SURNAME");
+        List<Student> result = studentDao.findStudentsByNameOrSurname(student);
+        logger.info("FOUND STUDENTS {} BY NAME OR SURNAME", result.size());
         return result;
     }
 
@@ -112,11 +113,7 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public void delete(Student student) {
-        requireNonNull(student);
-        requiredStudentExistence(student);
-        logger.info("DELETING... {}", student);
-        studentDao.delete(student);
-        logger.info("DELETED {} SUCCESSFULLY", student);
+        throw new NotImplementedException("The method delete not implemented");
     }
 
     @Override
@@ -124,6 +121,16 @@ public class StudentServiceImpl implements StudentService {
         logger.info("DELETING... ALL STUDENTS");
         studentDao.deleteAll();
         logger.info("DELETED ALL STUDENTS SUCCESSFULLY");
+    }
+
+    @Override
+    public List<Student> findStudentsByGroupId(Integer groupId) {
+        requireNonNull(groupId);
+        requiredGroupExistence(groupId);
+        logger.info("FINDING... STUDENTS BY GROUP ID - {}", groupId);
+        List<Student> students = studentDao.findStudentsByGroupId(groupId);
+        logger.info("FOUND {} STUDENTS BY GROUP ID - {} SUCCESSFULLY", students.size(), groupId);
+        return students;
     }
 
     @Override
@@ -200,12 +207,6 @@ public class StudentServiceImpl implements StudentService {
     private void requiredStudentExistence(Integer studentId) {
         if (!studentDao.existsById(studentId)) {
             throw new NotFoundException(format("Student by id- %d not exists", studentId));
-        }
-    }
-
-    private void requiredStudentExistence(Student student) {
-        if (!studentDao.existsById(findStudentByNameSurname(student).getId())) {
-            throw new NotFoundException(format("Student by id- %s not exists", student));
         }
     }
 }

@@ -12,6 +12,7 @@
 <div class="login-page">
     <div class="form">
         <form class="login-form" th:action="@{/groups}">
+            <b th:text="'All groups {' + ${groups} + '} deleted SUCCESSFULLY'"></b>
             <button type="submit">return to groups page</button>
             <p class="message">main page <a th:href="@{/university}">UNIVERSITY</a></p>
         </form>

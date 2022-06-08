@@ -14,7 +14,7 @@
 
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="POST" th:action="@{/saved_event}" th:object="${newEvent}">
+        <form class="login-form" th:method="POST" th:action="@{/events/saved}" th:object="${newEvent}">
             <input type="text" th:field="*{dateTime}" id="date time" placeholder="date time"/>
             <input type="text" th:field="*{subject.name}" id="subject" placeholder="subject name"/>
             <input type="text" th:field="*{classroom.number}" id="classroom" placeholder="classroom number"/>

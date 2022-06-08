@@ -17,7 +17,7 @@
 <div th:insert="~{teachers/teacherTable :: teachers}"></div>
 
 <div class="form">
-    <form class="login-form" th:method="DELETE" th:action="@{/delete_all_teachers}">
+    <form class="login-form" th:method="DELETE" th:action="@{/teachers/deleted/all}">
         <button type="submit">DELETE ALL TEACHERS</button>
     </form>
 </div>

@@ -20,9 +20,11 @@ public interface StudentDao extends CrudRepositoryDao<Student, Integer> {
 
     void deleteStudentsByGroupId(Integer groupId);
 
-    Optional<Student> findStudentByNameSurname(Student student);
+    List<Student> findStudentsByNameOrSurname(Student student);
 
     void deleteTheStudentGroup(Integer studentId);
 
     void updateTheStudentGroup(Integer groupId, Integer studentId);
-}
+
+    List<Student> findStudentsByGroupId(Integer groupId);
+ }

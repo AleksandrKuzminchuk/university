@@ -13,7 +13,7 @@
 
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="POST" th:action="@{/saved_classroom}" th:object="${newClassroom}">
+        <form class="login-form" th:method="POST" th:action="@{/classrooms/saved}" th:object="${newClassroom}">
             <input type="text" th:field="*{number}" id="number" placeholder="number classroom"/>
             <button type="submit">save</button>
         </form>

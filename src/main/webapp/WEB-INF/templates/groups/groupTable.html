@@ -30,17 +30,17 @@
                 <tr th:each="group: ${groups}">
                     <td th:text="${#strings.toUpperCase(group.name)}"/>
                     <td>
-                        <form class="login-form" th:method="GET" th:action="@{/{groupId}/found_students_by_group(groupId=${group.id})}">
+                        <form class="login-form" th:method="GET" th:action="@{/groups/{groupId}/found/students(groupId=${group.id})}">
                             <button type="submit">Show students</button>
                         </form>
                     </td>
                     <td>
-                        <form class="login-form" th:method="GET" th:action="@{/{groupId}/update_group(groupId=${group.id})}">
+                        <form class="login-form" th:method="GET" th:action="@{/groups/{groupId}/update(groupId=${group.id})}">
                             <button type="submit">update</button>
                         </form>
                     </td>
                     <td>
-                        <form class="login-form" th:method="DELETE" th:action="@{/{groupId}/delete_group(groupId=${group.id})}">
+                        <form class="login-form" th:method="DELETE" th:action="@{/groups/{groupId}/deleted(groupId=${group.id})}">
                             <button type="submit">delete</button>
                         </form>
                     </td>

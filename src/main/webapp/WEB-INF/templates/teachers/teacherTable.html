@@ -34,22 +34,22 @@
                     <td th:text="${#strings.capitalize(teacher.firstName)}"/>
                     <td th:text="${#strings.capitalize(teacher.lastName)}"/>
                     <td>
-                        <form class="login-form" th:method="GET" th:action="@{/{teacherId}/update_teacher(teacherId=${teacher.id})}">
+                        <form class="login-form" th:method="GET" th:action="@{/teachers/{teacherId}/update(teacherId=${teacher.id})}">
                             <button type="submit">update</button>
                         </form>
                     </td>
                     <td>
-                        <form class="login-form" th:method="DELETE" th:action="@{/{teacherId}/delete_teacher(teacherId=${teacher.id})}">
+                        <form class="login-form" th:method="DELETE" th:action="@{/teachers/{teacherId}/deleted(teacherId=${teacher.id})}">
                             <button type="submit">delete</button>
                         </form>
                     </td>
                     <td>
-                        <form class="login-form" th:method="GET" th:action="@{/{teacherId}/add_teacher_to_subject(teacherId=${teacher.id})}">
+                        <form class="login-form" th:method="GET" th:action="@{/teachers/{teacherId}/add/subject(teacherId=${teacher.id})}">
                             <button type="submit">add to subject</button>
                         </form>
                     </td>
                     <td>
-                        <form class="login-form" th:method="GET" th:action="@{/{teacherId}/show_subjects_by_teacher(teacherId=${teacher.id})}">
+                        <form class="login-form" th:method="GET" th:action="@{/teachers/{teacherId}/show/subjects(teacherId=${teacher.id})}">
                             <button type="submit">show subjects</button>
                         </form>
                     </td>

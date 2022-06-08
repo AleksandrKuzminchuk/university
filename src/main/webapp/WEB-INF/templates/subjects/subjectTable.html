@@ -31,22 +31,22 @@
                 <tr th:each="subject: ${subjects}">
                     <td th:text="${#strings.toUpperCase(subject.name)}"/>
                     <td>
-                        <form class="login-form" th:method="GET" th:action="@{/{subjectId}/update_subject(subjectId=${subject.id})}">
+                        <form class="login-form" th:method="GET" th:action="@{/subjects/{subjectId}/update(subjectId=${subject.id})}">
                             <button type="submit">update</button>
                         </form>
                     </td>
                     <td>
-                        <form class="login-form" th:method="DELETE" th:action="@{/{subjectId}/delete_subject(subjectId=${subject.id})}">
+                        <form class="login-form" th:method="DELETE" th:action="@{/subjects/{subjectId}/deleted(subjectId=${subject.id})}">
                             <button type="submit">delete</button>
                         </form>
                     </td>
                     <td>
-                        <form class="login-form" th:method="GET" th:action="@{/{subjectId}/add_subject_to_teacher(subjectId=${subject.id})}">
+                        <form class="login-form" th:method="GET" th:action="@{/subjects/{subjectId}/add/teacher(subjectId=${subject.id})}">
                             <button type="submit">add to teacher</button>
                         </form>
                     </td>
                     <td>
-                        <form class="login-form" th:method="GET" th:action="@{/{subjectId}/show_teachers_to_subject(subjectId=${subject.id})}">
+                        <form class="login-form" th:method="GET" th:action="@{/subjects/{subjectId}/show/teachers(subjectId=${subject.id})}">
                             <button type="submit">show teachers</button>
                         </form>
                     </td>

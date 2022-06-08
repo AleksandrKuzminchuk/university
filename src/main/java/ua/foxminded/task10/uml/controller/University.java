@@ -29,7 +29,6 @@ public class University {
     }
 
     @GetMapping
-    @ResponseStatus(HttpStatus.OK)
     public String showUniversity(Model model) {
         logger.info("University home page");
         List<Event> eventList = eventService.findEvents(LocalDateTime.of(LocalDate.now(), LocalTime.MIN),

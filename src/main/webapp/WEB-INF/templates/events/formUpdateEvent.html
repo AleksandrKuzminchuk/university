@@ -11,7 +11,7 @@
 <div th:insert="~{university :: copy}"></div>
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="PATCH" th:action="@{/{eventId}/updated_event(eventId=${event.id})}" th:object="${event}">
+        <form class="login-form" th:method="PATCH" th:action="@{/events/{eventId}/updated(eventId=${event.id})}" th:object="${event}">
             <input type="text" th:field="*{dateTime}" id="date time" placeholder="date time"/>
             <input type="text" th:field="*{subject.name}" id="subject" placeholder="subject name"/>
             <input type="text" th:field="*{classroom.number}" id="classroom" placeholder="classroom number"/>

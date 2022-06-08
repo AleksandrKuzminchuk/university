@@ -13,7 +13,7 @@ import ua.foxminded.task10.uml.service.*;
 import java.util.List;
 
 @Controller
-@RequestMapping("/")
+@RequestMapping("/events")
 public class EventController {
     private static final Logger logger = LoggerFactory.getLogger(EventController.class);
 
@@ -32,7 +32,7 @@ public class EventController {
         this.classroomService = classroomService;
     }
 
-    @GetMapping("events")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public String findAllEvents(Model model) {
         logger.info("requested-> [GET]-'/events'");
@@ -43,17 +43,17 @@ public class EventController {
         return "events/events";
     }
 
-    @GetMapping("new_event")
+    @GetMapping("/new")
     @ResponseStatus(HttpStatus.OK)
     public String createFormForSaveEvent(@ModelAttribute("newEvent") Event event) {
-        logger.info("requested-> [GET]-'new_event'");
+        logger.info("requested-> [GET]-'/new'");
         return "events/formSaveEvent";
     }
 
-    @PostMapping("saved_event")
+    @PostMapping("/saved")
     @ResponseStatus(HttpStatus.OK)
     public String saveEvent(Model model, @ModelAttribute Event event) {
-        logger.info("requested-> [POST]-'saved_event'");
+        logger.info("requested-> [POST]-'/saved'");
         Event savedEvent = eventService.save(new Event(
                 subjectService.findSubjectByName(event.getSubject()),
                 classroomService.findClassroomByNumber(event.getClassroom().getNumber()),
@@ -65,20 +65,20 @@ public class EventController {
         return "events/fromSavedEvent";
     }
 
-    @GetMapping("{eventId}/update_event")
+    @GetMapping("/{eventId}/update")
     @ResponseStatus(HttpStatus.OK)
     public String createFormForUpdateEvent(Model model, @PathVariable("eventId") Integer eventId) {
-        logger.info("requested-> [GET]-'{eventId}/update_event'");
+        logger.info("requested-> [GET]-'/{eventId}/update'");
         Event event = eventService.findById(eventId);
         model.addAttribute("event", event);
         logger.info("UPDATING... {}", event);
         return "events/formUpdateEvent";
     }
 
-    @PatchMapping("{eventId}/updated_event")
+    @PatchMapping("/{eventId}/updated")
     @ResponseStatus(HttpStatus.OK)
     public String updateEvent(Model model, @ModelAttribute Event event, @PathVariable("eventId") Integer eventId) {
-        logger.info("requested-> [PATCH]-'{eventId}/updated_event'");
+        logger.info("requested-> [PATCH]-'/{eventId}/updated'");
         Event newEvent = eventService.findById(eventId);
         newEvent.setDateTime(event.getDateTime());
         newEvent.getTeacher().setId(teacherService.findTeacherByNameSurname(event.getTeacher()).getId());
@@ -92,10 +92,10 @@ public class EventController {
         return "events/formUpdatedEvent";
     }
 
-    @DeleteMapping("{eventId}/delete_event")
+    @DeleteMapping("/{eventId}/deleted")
     @ResponseStatus(HttpStatus.OK)
     public String deleteEventById(Model model, @PathVariable("eventId") Integer eventId) {
-        logger.info("requested-> [DELETE]-'{eventId}/delete_event'");
+        logger.info("requested-> [DELETE]-'/{eventId}/deleted'");
         Event event = eventService.findById(eventId);
         eventService.deleteById(eventId);
         model.addAttribute("event", event);
@@ -103,17 +103,17 @@ public class EventController {
         return "events/formDeletedEvent";
     }
 
-    @GetMapping("find_events")
+    @GetMapping("/find")
     @ResponseStatus(HttpStatus.OK)
     public String createFormForFindEvents(@ModelAttribute("event") Event event) {
-        logger.info("requested-> [GET]-'find_events'");
+        logger.info("requested-> [GET]-'/find'");
         return "events/formForFindEvents";
     }
 
-    @GetMapping("found_events")
+    @GetMapping("/found")
     @ResponseStatus(HttpStatus.OK)
     public String findEvents(Model model, @ModelAttribute Event event) {
-        logger.info("requested-> [GET]->'/found_events'");
+        logger.info("requested-> [GET]->'/found'");
         List<Event> events = eventService.findEvents(event.getStartDateTime(), event.getEndDateTime());
         model.addAttribute("events", events);
         model.addAttribute("event", event);
@@ -122,11 +122,13 @@ public class EventController {
         return "events/formFoundEvents";
     }
 
-    @DeleteMapping("delete_all_events")
+    @DeleteMapping("/deleted/all")
     @ResponseStatus(HttpStatus.OK)
-    public String deleteAllEvents() {
+    public String deleteAllEvents(Model model) {
         logger.info("requested-> [DELETE]-'delete_all_events'");
+        List<Event> events = eventService.findAll();
         eventService.deleteAll();
+        model.addAttribute("events", events.size());
         logger.info("DELETED ALL EVENTS SUCCESSFULLY");
         return "events/formDeleteAllEvents";
     }

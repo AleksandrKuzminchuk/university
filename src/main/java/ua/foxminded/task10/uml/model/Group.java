@@ -32,6 +32,12 @@ public class Group {
         this.students = new ArrayList<>();
     }
 
+    public Group(Integer id, String name, List<Student> students) {
+        this.id = id;
+        this.name = name;
+        this.students = students;
+    }
+
     public Integer getId() {
         return id;
     }
@@ -75,6 +81,7 @@ public class Group {
         return "Group{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
+                ", students=" + students +
                 '}';
     }
 }

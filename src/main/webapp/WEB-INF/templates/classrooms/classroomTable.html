@@ -29,12 +29,12 @@
                 <tr th:each="classroom: ${classrooms}">
                     <td th:text="${classroom.number}"/>
                     <td>
-                        <form class="login-form" th:method="GET" th:action="@{/{classroomId}/update_classroom(classroomId=${classroom.id})}">
+                        <form class="login-form" th:method="GET" th:action="@{/classrooms/{classroomId}/update(classroomId=${classroom.id})}">
                             <button type="submit">update</button>
                         </form>
                     </td>
                     <td>
-                        <form class="login-form" th:method="DELETE" th:action="@{/{classroomId}/delete_classroom(classroomId=${classroom.id})}">
+                        <form class="login-form" th:method="DELETE" th:action="@{/classrooms/{classroomId}/deleted(classroomId=${classroom.id})}">
                             <button type="submit">delete</button>
                         </form>
                     </td>

@@ -31,6 +31,7 @@ public class EventDaoImpl implements EventDao {
             "LEFT JOIN subjects s on ev.subject_id = s.subject_id " +
             "LEFT JOIN teachers t on t.teacher_id = ev.teacher_id " +
             "LEFT JOIN groups g on ev.group_id = g.group_id ";
+    private static final String GENERATE_TEMPLATE_ORDER_BY = "ORDER BY date_time";
 
     private final JdbcTemplate jdbcTemplate;
     private final EventRowMapper eventRowMapper;
@@ -87,7 +88,7 @@ public class EventDaoImpl implements EventDao {
     @Override
     public List<Event> findAll() {
         logger.info("FINDING... ALL EVENTS");
-        List<Event> events = jdbcTemplate.query(GENERATE_TEMPLATE, eventRowMapper);
+        List<Event> events = jdbcTemplate.query(GENERATE_TEMPLATE + GENERATE_TEMPLATE_ORDER_BY, eventRowMapper);
         logger.info("FOUND ALL EVENTS - {}", events);
         return events;
     }
@@ -160,7 +161,7 @@ public class EventDaoImpl implements EventDao {
         requireNonNull(from);
         requireNonNull(to);
         logger.info("FINDING EVENTS FROM {} TO {}", Timestamp.valueOf(from), Timestamp.valueOf(to));
-        final String FIND_EVENTS = GENERATE_TEMPLATE + "WHERE date_time BETWEEN ? AND ?";
+        final String FIND_EVENTS = GENERATE_TEMPLATE + "WHERE date_time BETWEEN ? AND ? " + GENERATE_TEMPLATE_ORDER_BY;
         List<Event> events = jdbcTemplate.query(FIND_EVENTS, eventRowMapper, Timestamp.valueOf(from), Timestamp.valueOf(to));
         logger.info("FOUND {} FROM {} TO {}", events.size(), from.format(formatter), to.format(formatter));
         return events;

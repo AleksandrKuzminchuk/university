@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.service.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,11 +86,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public void delete(Group group) {
-        requireNonNull(group);
-        requiredGroupExistence(group);
-        logger.info("DELETING... {}", group);
-        groupDao.delete(group);
-        logger.info("DELETED {} SUCCESSFULLY", group);
+        throw new NotImplementedException("The method delete not implemented");
     }
 
     @Override

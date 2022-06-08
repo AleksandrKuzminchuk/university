@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.dao.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +28,10 @@ public class StudentDaoImpl implements StudentDao {
 
     private static final String GENERATE_TEMPLATE =
             "SELECT student_id, first_name, last_name, course, st.group_id, g.group_name " +
-            "FROM students st " +
-            "LEFT OUTER JOIN groups g " +
-            "ON st.group_id = g.group_id ";
+                    "FROM students st " +
+                    "LEFT OUTER JOIN groups g " +
+                    "ON st.group_id = g.group_id ";
+    private static final String GENERATE_TEMPLATE_ORDER = " ORDER BY first_name, last_name";
 
     private final JdbcTemplate jdbcTemplate;
     private final StudentRowMapper studentRowMapper;
@@ -72,14 +74,16 @@ public class StudentDaoImpl implements StudentDao {
 
 
     @Override
-    public Optional<Student> findStudentByNameSurname(Student student) {
+    public List<Student> findStudentsByNameOrSurname(Student student) {
         requireNonNull(student);
-        logger.info("FIND STUDENT {}", student);
-        final String FIND_BY_NAME_SURNAME = GENERATE_TEMPLATE + "WHERE first_name = INITCAP(?) AND last_name = INITCAP(?)";
-        Student result = jdbcTemplate.queryForObject(FIND_BY_NAME_SURNAME, studentRowMapper,
+        logger.info("FIND STUDENTS BY NAME OR SURNAME");
+        final String FIND_BY_NAME_SURNAME = GENERATE_TEMPLATE +
+                "WHERE first_name = INITCAP(?) OR last_name = INITCAP(?)" +
+                GENERATE_TEMPLATE_ORDER;
+        List<Student> result = jdbcTemplate.query(FIND_BY_NAME_SURNAME, studentRowMapper,
                 student.getFirstName(), student.getLastName());
-        logger.info("FOUND STUDENT {}", result);
-        return Optional.ofNullable(result);
+        logger.info("FOUND STUDENT {} BY NAME OR SURNAME SUCCESSFULLY", result.size());
+        return result;
     }
 
     @Override
@@ -96,7 +100,7 @@ public class StudentDaoImpl implements StudentDao {
     @Override
     public List<Student> findAll() {
         logger.info("FIND ALL STUDENTS...");
-        final String FIND_ALL = GENERATE_TEMPLATE;
+        final String FIND_ALL = GENERATE_TEMPLATE + GENERATE_TEMPLATE_ORDER;
         List<Student> students = jdbcTemplate.query(FIND_ALL, studentRowMapper);
         logger.info("FOUND ALL STUDENTS: {}", students.size());
         return students;
@@ -130,29 +134,26 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     @Override
-    public void deleteStudentsByGroupId(Integer groupId) {
-        requireNonNull(groupId);
-        logger.info("DELETE STUDENTS BY GROUP ID - {}", groupId);
-        final String DELETE_BY_GROUP_NAME = "UPDATE students SET group_id = null WHERE group_id = ?";
-        jdbcTemplate.update(DELETE_BY_GROUP_NAME, groupId);
-        logger.info("DELETED STUDENTS BY GROUP ID - {} SUCCESSFULLY", groupId);
-    }
-
-    @Override
     public void delete(Student student) {
-        requireNonNull(student);
-        logger.info("DELETE {}...", student);
-        final String DELETE_STUDENT = "DELETE FROM students WHERE first_name = INITCAP(?) AND last_name = INITCAP(?)";
-        jdbcTemplate.update(DELETE_STUDENT, student.getFirstName(), student.getLastName());
-        logger.info("DELETED {} SUCCESSFULLY", student);
+        throw new NotImplementedException("The method delete not implemented");
     }
 
     @Override
     public void deleteAll() {
-        logger.info("DELETE ALL STUDENTS...");
-        final String DELETE_ALL_STUDENTS = "DELETE FROM students;";
-        jdbcTemplate.update(DELETE_ALL_STUDENTS);
+        logger.info("DELETE ALL STUDENTS");
+        final String DELETE_ALL = "DELETE FROM students";
+        jdbcTemplate.update(DELETE_ALL);
         logger.info("DELETED ALL STUDENTS SUCCESSFULLY");
+    }
+
+    @Override
+    public List<Student> findStudentsByGroupId(Integer groupId) {
+        requireNonNull(groupId);
+        logger.info("FIND STUDENTS BY GROUP ID - {}", groupId);
+        final String FIND_STUDENTS_BY_GROUP_ID = GENERATE_TEMPLATE + "WHERE st.group_id = ?" + GENERATE_TEMPLATE_ORDER;
+        List<Student> students = jdbcTemplate.query(FIND_STUDENTS_BY_GROUP_ID, studentRowMapper, groupId);
+        logger.info("FOUND {} STUDENTS BY GROUP ID - {}", students.size(), groupId);
+        return students;
     }
 
     @Override
@@ -167,7 +168,7 @@ public class StudentDaoImpl implements StudentDao {
     public List<Student> findByCourseNumber(Integer courseNumber) {
         requireNonNull(courseNumber);
         logger.info("FINDING STUDENTS BY COURSE NUMBER {}", courseNumber);
-        final String FIND_STUDENTS_BY_COURSE_NUMBER = GENERATE_TEMPLATE + "WHERE course = ?";
+        final String FIND_STUDENTS_BY_COURSE_NUMBER = GENERATE_TEMPLATE + "WHERE course = ?" + GENERATE_TEMPLATE_ORDER;
         List<Student> students = jdbcTemplate.query(FIND_STUDENTS_BY_COURSE_NUMBER, studentRowMapper, courseNumber);
         logger.info("FOUND {} BY COURSE NUMBER - {}", students, courseNumber);
         return students;
@@ -208,10 +209,19 @@ public class StudentDaoImpl implements StudentDao {
     }
 
     @Override
+    public void deleteStudentsByGroupId(Integer groupId) {
+        requireNonNull(groupId);
+        logger.info("DELETE STUDENTS BY GROUP ID - {}", groupId);
+        final String DELETE_BY_GROUP_NAME = "UPDATE students SET group_id = null WHERE group_id = ?";
+        jdbcTemplate.update(DELETE_BY_GROUP_NAME, groupId);
+        logger.info("DELETED STUDENTS BY GROUP ID - {} SUCCESSFULLY", groupId);
+    }
+
+    @Override
     public List<Student> findStudentsByGroupName(Group groupName) {
         requireNonNull(groupName.getName());
         logger.info("FINDING STUDENTS FROM GROUP NAME - {}", groupName.getName());
-        final String FIND_STUDENTS_BY_GROUP_ID = GENERATE_TEMPLATE + "WHERE g.group_name = UPPER(?)";
+        final String FIND_STUDENTS_BY_GROUP_ID = GENERATE_TEMPLATE + "WHERE g.group_name = UPPER(?)" + GENERATE_TEMPLATE_ORDER;
         List<Student> students = jdbcTemplate.query(FIND_STUDENTS_BY_GROUP_ID, studentRowMapper, groupName.getName());
         logger.info("FOUND {} FROM GROUP NAME - {}", students.size(), groupName.getName());
         return students;

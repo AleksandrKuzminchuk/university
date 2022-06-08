@@ -15,7 +15,7 @@
 <div class="login-page">
     <div class="form">
         <form class="login-form"
-              th:action="@{/deleted_subject_by_name}"
+              th:action="@{/subjects/deleted/by_name}"
               th:object="${subject}"
               th:method="DELETE">
             <input type="text" th:field="*{name}" id="name" placeholder="name subject"/>

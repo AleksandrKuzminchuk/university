@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.dao.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,7 +93,7 @@ public class ClassroomDaoImpl implements ClassroomDao {
     @Override
     public List<Classroom> findAll() {
         logger.info("FINDING... ALL CLASSROOMS");
-        final String FIND_ALL = "SELECT * FROM classrooms";
+        final String FIND_ALL = "SELECT * FROM classrooms ORDER BY room_number";
         List<Classroom> classrooms = jdbcTemplate.query(FIND_ALL, classroomRowMapper);
         logger.info("FOUND ALL SUCCESSFULLY {}", classrooms.size());
         return classrooms;
@@ -118,11 +119,7 @@ public class ClassroomDaoImpl implements ClassroomDao {
 
     @Override
     public void delete(Classroom classroom) {
-        requireNonNull(classroom);
-        logger.info("DELETING... {}", classroom);
-        final String DELETE_CLASSROOM = "DELETE FROM classrooms WHERE room_number = ?";
-        jdbcTemplate.update(DELETE_CLASSROOM, classroom.getNumber());
-        logger.info("DELETED {} SUCCESSFULLY", classroom);
+        throw new NotImplementedException("The method delete not implemented");
     }
 
     @Override

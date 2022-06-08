@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.dao.impl;
 
+import org.apache.commons.lang3.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,7 +90,7 @@ public class SubjectDaoImpl implements SubjectDao {
     @Override
     public List<Subject> findAll() {
         logger.info("FINDING... ALL SUBJECTS");
-        final String FIND_ALL = "SELECT * FROM subjects";
+        final String FIND_ALL = "SELECT * FROM subjects ORDER BY subject_name";
         List<Subject> subjects = jdbcTemplate.query(FIND_ALL, subjectRowMapper);
         logger.info("FOUND ALL SUBJECTS - {} SUCCESSFULLY", subjects.size());
         return subjects;
@@ -115,11 +116,7 @@ public class SubjectDaoImpl implements SubjectDao {
 
     @Override
     public void delete(Subject subject) {
-        requireNonNull(subject);
-        logger.info("DELETING {}", subject);
-        final String DELETE = "DELETE FROM subjects WHERE subject_name = UPPER(?)";
-        jdbcTemplate.update(DELETE, subject.getName());
-        logger.info("DELETED {} SUCCESSFULLY", subject);
+        throw new NotImplementedException("The Method delete not implemented");
     }
 
     @Override
@@ -179,7 +176,7 @@ public class SubjectDaoImpl implements SubjectDao {
                 "FULL OUTER JOIN teachers t on t.teacher_id = ts.teacher_id " +
                 "FULL OUTER JOIN subjects s on s.subject_id = ts.subject_id " +
                 "WHERE ts.subject_id = ? " +
-                "ORDER BY t.first_name";
+                "ORDER BY t.first_name, t.last_name";
         List<Teacher> teachers = jdbcTemplate.query(FIND_TEACHERS_BY_SUBJECT, teacherRowMapper, subjectId);
         logger.info("FOUND {} TEACHERS BY SUBJECT ID - {}", teachers.size(), subjectId);
         return teachers;
