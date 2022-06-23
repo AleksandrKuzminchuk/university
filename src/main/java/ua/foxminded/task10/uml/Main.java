@@ -1,8 +1,7 @@
 package ua.foxminded.task10.uml;
-
+/*
 
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import ua.foxminded.task10.uml.configuration.PropertyManager;
 import ua.foxminded.task10.uml.dao.*;
 import ua.foxminded.task10.uml.dao.impl.*;
 import ua.foxminded.task10.uml.dao.mapper.*;
@@ -93,7 +92,7 @@ public class Main {
 
 //subjectService.deleteAll();
 
-        eventService.findAll();
+//        eventService.findAll();
         // classroomService.count();
 
 //
@@ -116,10 +115,8 @@ public class Main {
 
 
 //        groupService.assignStudentsToGroup(s, new Group(8));
-
-
     }
 }
 
 
-
+*/

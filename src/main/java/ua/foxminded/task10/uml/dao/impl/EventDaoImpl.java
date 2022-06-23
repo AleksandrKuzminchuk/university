@@ -1,18 +1,17 @@
 package ua.foxminded.task10.uml.dao.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.dao.EventDao;
-import ua.foxminded.task10.uml.dao.mapper.EventRowMapper;
-import ua.foxminded.task10.uml.model.Event;
+import ua.foxminded.task10.uml.model.*;
 
-import javax.sql.DataSource;
-import java.sql.PreparedStatement;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,149 +20,135 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
 
-@Component
+@Repository
+@Slf4j
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(onConstructor_={@Autowired})
 public class EventDaoImpl implements EventDao {
 
-    private static final Logger logger = LoggerFactory.getLogger(EventDaoImpl.class);
+    private static final String GENERATE_TEMPLATE = "SELECT e FROM Event e " +
+            "LEFT JOIN FETCH e.classroom " +
+            "LEFT JOIN FETCH e.subject " +
+            "LEFT JOIN FETCH e.teacher " +
+            "LEFT JOIN FETCH e.group ";
+    private static final String GENERATE_TEMPLATE_ORDER_BY = "ORDER BY e.dateTime";
 
-    private static final String GENERATE_TEMPLATE = "SELECT * FROM events ev " +
-            "LEFT JOIN classrooms c on c.classroom_id = ev.classroom_id " +
-            "LEFT JOIN subjects s on ev.subject_id = s.subject_id " +
-            "LEFT JOIN teachers t on t.teacher_id = ev.teacher_id " +
-            "LEFT JOIN groups g on ev.group_id = g.group_id ";
-    private static final String GENERATE_TEMPLATE_ORDER_BY = "ORDER BY date_time";
-
-    private final JdbcTemplate jdbcTemplate;
-    private final EventRowMapper eventRowMapper;
-
-    @Autowired
-    public EventDaoImpl(DataSource dataSource, EventRowMapper eventRowMapper) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.eventRowMapper = eventRowMapper;
-    }
+    SessionFactory sessionFactory;
 
     @Override
     public Optional<Event> save(Event event) {
         requireNonNull(event);
-        logger.info("SAVING... {}", event);
-        final String SAVE_LESSON = "INSERT INTO events (date_time, subject_id, classroom_id, teacher_id, group_id) VALUES(?,?,?,?,?)";
-        KeyHolder holder = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement(SAVE_LESSON, new String[]{"event_id"});
-            statement.setObject(1, Timestamp.valueOf(event.getDateTime()));
-            statement.setInt(2, event.getSubject().getId());
-            statement.setInt(3, event.getClassroom().getId());
-            statement.setInt(4, event.getTeacher().getId());
-            statement.setInt(5, event.getGroup().getId());
-            return statement;
-        }, holder);
-        Integer eventId = requireNonNull(holder.getKey()).intValue();
-        event.setId(eventId);
-        Optional<Event> result = Optional.of(event);
-        logger.info("SAVED {} SUCCESSFULLY", result);
-        return result;
+        log.info("SAVING... {}", event);
+        Session session = sessionFactory.getCurrentSession();
+        session.merge(event);
+        log.info("SAVED {} SUCCESSFULLY", event);
+        return Optional.of(event);
     }
 
     @Override
-    public Optional<Event> findById(Integer id) {
-        requireNonNull(id);
-        logger.info("FINDING... EVENT BY ID - {}", id);
-        final String FIND_BY_ID = GENERATE_TEMPLATE + " WHERE event_id = ?";
-        Event result = jdbcTemplate.queryForObject(FIND_BY_ID, eventRowMapper, id);
-        logger.info("FOUND {} BY ID - {}", result, id);
+    public Optional<Event> findById(Integer eventId) {
+        requireNonNull(eventId);
+        log.info("FINDING... EVENT BY ID - {}", eventId);
+        final String FIND_BY_ID = GENERATE_TEMPLATE + " WHERE e.id=:eventId " + GENERATE_TEMPLATE_ORDER_BY;
+        Session session = sessionFactory.getCurrentSession();
+        Event result = session.createQuery(FIND_BY_ID, Event.class).setParameter("eventId", eventId).uniqueResult();
+        log.info("FOUND {} BY ID - {}", result, eventId);
         return Optional.ofNullable(result);
     }
 
     @Override
-    public boolean existsById(Integer id) {
-        requireNonNull(id);
-        logger.info("CHECKING... EXISTS EVENT BY ID - {}", id);
-        final String EXISTS_BY_ID = "SELECT COUNT(*) FROM events WHERE event_id = ?";
-        Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
+    public boolean existsById(Integer eventId) {
+        requireNonNull(eventId);
+        log.info("CHECKING... EXISTS EVENT BY ID - {}", eventId);
+        final String EXISTS_BY_ID = "SELECT COUNT(e) FROM Event e WHERE e.id=:eventId";
+        Session session = sessionFactory.getCurrentSession();
+        Long count = session.createQuery(EXISTS_BY_ID, Long.class).setParameter("eventId", eventId).uniqueResult();
         boolean exists = count != null && count > 0;
-        logger.info("EVENT BY ID - {} EXISTS - {}", id, exists);
+        log.info("EVENT BY ID - {} EXISTS - {}", eventId, exists);
         return exists;
     }
 
     @Override
     public List<Event> findAll() {
-        logger.info("FINDING... ALL EVENTS");
-        List<Event> events = jdbcTemplate.query(GENERATE_TEMPLATE + GENERATE_TEMPLATE_ORDER_BY, eventRowMapper);
-        logger.info("FOUND ALL EVENTS - {}", events);
+        log.info("FINDING... ALL EVENTS");
+        Session session = sessionFactory.getCurrentSession();
+        List<Event> events = session.createQuery(GENERATE_TEMPLATE + GENERATE_TEMPLATE_ORDER_BY, Event.class).getResultList();
+        log.info("FOUND ALL EVENTS - {}", events);
         return events;
     }
 
     @Override
     public Long count() {
-        logger.info("FINDING COUNT EVENTS");
-        final String COUNT = "SELECT COUNT(*) FROM events";
-        Long count = jdbcTemplate.queryForObject(COUNT, Long.class);
-        logger.info("FOUND COUNT({}) EVENTS SUCCESSFULLY", count);
+        log.info("FINDING COUNT EVENTS");
+        final String COUNT = "SELECT COUNT(e) FROM Event e";
+        Session session = sessionFactory.getCurrentSession();
+        Long count = session.createQuery(COUNT, Long.class).uniqueResult();
+        log.info("FOUND COUNT({}) EVENTS SUCCESSFULLY", count);
         return count;
     }
 
     @Override
-    public void deleteById(Integer id) {
-        requireNonNull(id);
-        logger.info("DELETING EVENTS BY ID - {}", id);
-        final String DELETE_BY_ID = "DELETE FROM events WHERE event_id = ?";
-        jdbcTemplate.update(DELETE_BY_ID, id);
-        logger.info("DELETED EVENTS BY ID - {} SUCCESSFULLY", id);
+    public void deleteById(Integer eventId) {
+        requireNonNull(eventId);
+        log.info("DELETING EVENTS BY ID - {}", eventId);
+        final String DELETE_BY_ID = "DELETE FROM Event e WHERE e.id=:eventId";
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery(DELETE_BY_ID).setParameter("eventId", eventId).executeUpdate();
+        log.info("DELETED EVENTS BY ID - {} SUCCESSFULLY", eventId);
     }
 
     @Override
     public void saveAll(List<Event> events) {
         requireNonNull(events);
-        logger.info("SAVING... EVENTS - {}", events.size());
+        log.info("SAVING... EVENTS - {}", events.size());
         events.forEach(this::save);
-        logger.info("SAVED EVENTS - {} SUCCESSFULLY", events.size());
+        log.info("SAVED EVENTS - {} SUCCESSFULLY", events.size());
     }
 
     @Override
     public void delete(Event event) {
         requireNonNull(event);
-        logger.info("DELETING... {}", event);
+        log.info("DELETING... {}", event);
         this.deleteById(event.getId());
-        logger.info("DELETED {} SUCCESSFULLY", event);
+        log.info("DELETED {} SUCCESSFULLY", event);
     }
 
     @Override
     public void deleteAll() {
-        logger.info("DELETING ALL EVENTS");
-        final String DELETE_ALL = "DELETE FROM events";
-        jdbcTemplate.update(DELETE_ALL);
-        logger.info("DELETED ALL EVENTS SUCCESSFULLY");
+        log.info("DELETING ALL EVENTS");
+        final String DELETE_ALL = "DELETE FROM Event";
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery(DELETE_ALL).executeUpdate();
+        log.info("DELETED ALL EVENTS SUCCESSFULLY");
     }
 
     @Override
     public void updateEvent(Integer eventId, Event event) {
         requireNonNull(event);
         requireNonNull(eventId);
-        logger.info("UPDATING EVENT BY ID - {}", eventId);
-        final String UPDATE_EVENT = "UPDATE events SET " +
-                "date_time = ?, " +
-                "subject_id = ?, " +
-                "classroom_id = ?, " +
-                "teacher_id = ?, " +
-                "group_id = ? " +
-                "WHERE event_id = ?";
-        jdbcTemplate.update(UPDATE_EVENT, Timestamp.valueOf(event.getDateTime()),
-                event.getSubject().getId(),
-                event.getClassroom().getId(),
-                event.getTeacher().getId(),
-                event.getGroup().getId(),
-                eventId);
-        logger.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventId);
+        log.info("UPDATING EVENT BY ID - {}", eventId);
+        Session session = sessionFactory.getCurrentSession();
+        Event eventToBeUpdated = session.find(Event.class, eventId);
+        eventToBeUpdated.setDateTime(event.getDateTime());
+        eventToBeUpdated.setSubject(event.getSubject());
+        eventToBeUpdated.setClassroom(event.getClassroom());
+        eventToBeUpdated.setTeacher(event.getTeacher());
+        eventToBeUpdated.setGroup(event.getGroup());
+        log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventId);
     }
 
     @Override
     public List<Event> findEvents(LocalDateTime from, LocalDateTime to) {
         requireNonNull(from);
         requireNonNull(to);
-        logger.info("FINDING EVENTS FROM {} TO {}", Timestamp.valueOf(from), Timestamp.valueOf(to));
-        final String FIND_EVENTS = GENERATE_TEMPLATE + "WHERE date_time BETWEEN ? AND ? " + GENERATE_TEMPLATE_ORDER_BY;
-        List<Event> events = jdbcTemplate.query(FIND_EVENTS, eventRowMapper, Timestamp.valueOf(from), Timestamp.valueOf(to));
-        logger.info("FOUND {} FROM {} TO {}", events.size(), from.format(formatter), to.format(formatter));
+        log.info("FINDING EVENTS FROM {} TO {}", Timestamp.valueOf(from), Timestamp.valueOf(to));
+        final String FIND_EVENTS = GENERATE_TEMPLATE + "WHERE e.dateTime BETWEEN :from AND :to " + GENERATE_TEMPLATE_ORDER_BY;
+        Session session = sessionFactory.getCurrentSession();
+        Query<Event> query = session.createQuery(FIND_EVENTS, Event.class);
+        query.setParameter("from", from);
+        query.setParameter("to",  to);
+        List<Event> events = query.getResultList();
+        log.info("FOUND {} FROM {} TO {}", events.size(), from.format(formatter), to.format(formatter));
         return events;
     }
 }

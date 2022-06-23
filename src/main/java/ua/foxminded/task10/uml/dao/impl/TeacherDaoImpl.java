@@ -1,117 +1,108 @@
 package ua.foxminded.task10.uml.dao.impl;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.dao.TeacherDao;
-import ua.foxminded.task10.uml.dao.mapper.SubjectRowMapper;
-import ua.foxminded.task10.uml.dao.mapper.TeacherRowMapper;
+import ua.foxminded.task10.uml.model.Classroom;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 
-import javax.sql.DataSource;
-import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-@Component
+@Slf4j
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@Repository
 public class TeacherDaoImpl implements TeacherDao {
 
-    private static final Logger logger = LoggerFactory.getLogger(TeacherDaoImpl.class);
-
-    private final JdbcTemplate jdbcTemplate;
-    private final TeacherRowMapper teacherRowMapper;
-    private final SubjectRowMapper subjectRowMapper;
-
-    @Autowired
-    public TeacherDaoImpl(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.teacherRowMapper = new TeacherRowMapper();
-        this.subjectRowMapper = new SubjectRowMapper();
-    }
+    SessionFactory sessionFactory;
 
     @Override
     public Optional<Teacher> save(Teacher teacher) {
         requireNonNull(teacher);
-        logger.info("SAVING {}", teacher);
-        final String SAVE_TEACHER = "INSERT INTO teachers (first_name, last_name) VALUES (INITCAP(?), INITCAP(?))";
-        KeyHolder holder = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement(SAVE_TEACHER, new String[]{"teacher_id"});
-            statement.setString(1, teacher.getFirstName());
-            statement.setString(2, teacher.getLastName());
-            return statement;
-        }, holder);
-        Integer teacherId = requireNonNull(holder.getKey()).intValue();
-        teacher.setId(teacherId);
-        Optional<Teacher> result = Optional.of(teacher);
-        logger.info("SAVED {} SUCCESSFULLY", teacher);
+        log.info("SAVING {}", teacher);
+        Session session = sessionFactory.getCurrentSession();
+        session.persist(teacher);
+        log.info("SAVED {} SUCCESSFULLY", teacher);
+        return Optional.of(teacher);
+    }
+
+    @Override
+    public Optional<Teacher> findById(Integer teacherId) {
+        requireNonNull(teacherId);
+        log.info("FINDING TEACHER BY ID - {}", teacherId);
+        Session session = sessionFactory.getCurrentSession();
+        Teacher result = session.get(Teacher.class, teacherId);
+        log.info("FOUND {} BY ID SUCCESSFULLY", result);
+        return Optional.ofNullable(result);
+    }
+
+    @Override
+    public List<Teacher> findTeachersByNameOrSurname(Teacher teacher) {
+        requireNonNull(teacher);
+        log.info("FIND TEACHERS {}", teacher);
+        final String FIND_BY_NAME_SURNAME = "FROM Teacher t WHERE t.firstName=:firstName OR t.lastName=:lastName";
+        Session session = sessionFactory.getCurrentSession();
+        Query<Teacher> query = session.createQuery(FIND_BY_NAME_SURNAME, Teacher.class);
+        query.setParameter("firstName", teacher.getFirstName());
+        query.setParameter("lastName", teacher.getLastName());
+        List<Teacher> result = query.list();
+        log.info("FOUND {} TEACHERS BY {}", result.size(), teacher);
         return result;
     }
 
     @Override
-    public Optional<Teacher> findById(Integer id) {
-        requireNonNull(id);
-        logger.info("FINDING TEACHER BY ID - {}", id);
-        final String FIND_TEACHER_BY_ID = "SELECT * FROM teachers WHERE teacher_id = ?";
-        Teacher result = jdbcTemplate.queryForObject(FIND_TEACHER_BY_ID, teacherRowMapper, id);
-        logger.info("FOUND {} BY ID SUCCESSFULLY", result);
-        return Optional.ofNullable(result);
-    }
-
-    @Override
-    public Optional<Teacher> findTeacherByNameSurname(Teacher teacher) {
-        requireNonNull(teacher);
-        logger.info("FIND TEACHER {}", teacher);
-        final String FIND_BY_NAME_SURNAME = "SELECT * FROM teachers WHERE first_name = INITCAP(?) AND last_name = INITCAP(?)";
-        Teacher result = jdbcTemplate.queryForObject(FIND_BY_NAME_SURNAME, teacherRowMapper, teacher.getFirstName(), teacher.getLastName());
-        logger.info("FOUND TEACHER {}", result);
-        return Optional.ofNullable(result);
-    }
-
-    @Override
-    public boolean existsById(Integer id) {
-        requireNonNull(id);
-        logger.info("CHECKING... TEACHER EXISTS BY ID - {}", id);
-        final String EXISTS_BY_ID = "SELECT COUNT(*) FROM teachers WHERE teacher_id = ?";
-        Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
+    public boolean existsById(Integer teacherId) {
+        requireNonNull(teacherId);
+        log.info("CHECKING... TEACHER EXISTS BY ID - {}", teacherId);
+        final String EXISTS_BY_ID = "SELECT COUNT(t) FROM Teacher t WHERE t.id=:id";
+        Session session = sessionFactory.getCurrentSession();
+        Long count = session.createQuery(EXISTS_BY_ID, Long.class).setParameter("id", teacherId).uniqueResult();
         boolean exists = count != null && count > 0;
-        logger.info("TEACHER BY ID - {} EXISTS - {}", id, exists);
+        log.info("TEACHER BY ID - {} EXISTS - {}", teacherId, exists);
         return exists;
     }
 
     @Override
     public List<Teacher> findAll() {
-        logger.info("FINDING ALL TEACHERS...");
-        final String FIND_ALL = "SELECT * FROM teachers ORDER BY first_name, last_name";
-        List<Teacher> teachers = jdbcTemplate.query(FIND_ALL, teacherRowMapper);
-        logger.info("FOUND ALL TEACHERS: {}", teachers.size());
+        log.info("FINDING ALL TEACHERS...");
+        final String FIND_ALL = "SELECT t FROM Teacher t ORDER BY t.firstName, t.lastName";
+        Session session = sessionFactory.getCurrentSession();
+        List<Teacher> teachers = session.createQuery(FIND_ALL, Teacher.class).getResultList();
+        log.info("FOUND ALL TEACHERS: {}", teachers.size());
         return teachers;
     }
 
     @Override
     public Long count() {
-        logger.info("FIND COUNT ALL TEACHERS...");
-        final String COUNT = "SELECT COUNT(*) FROM teachers";
-        Long countTeachers = jdbcTemplate.queryForObject(COUNT, Long.class);
-        logger.info("FOUND COUNT({}) TEACHERS SUCCESSFULLY", countTeachers);
+        log.info("FIND COUNT ALL TEACHERS...");
+        final String COUNT = "SELECT COUNT(t) FROM Teacher t";
+        Session session = sessionFactory.getCurrentSession();
+        Long countTeachers = session.createQuery(COUNT, Long.class).uniqueResult();
+        log.info("FOUND COUNT({}) TEACHERS SUCCESSFULLY", countTeachers);
         return countTeachers;
     }
 
     @Override
-    public void deleteById(Integer id) {
-        requireNonNull(id);
-        logger.info("DELETE TEACHER BY ID - {}", id);
-        final String DELETE_BY_ID = "DELETE FROM teachers WHERE teacher_id = ?";
-        jdbcTemplate.update(DELETE_BY_ID, id);
-        logger.info("DELETED TEACHER BY ID - {} SUCCESSFULLY", id);
+    public void deleteById(Integer teacherId) {
+        requireNonNull(teacherId);
+        log.info("DELETE TEACHER BY ID - {}", teacherId);
+        final String DELETE_BY_ID = "DELETE FROM Teacher t WHERE t.id=:teacherId";
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery(DELETE_BY_ID).setParameter("teacherId", teacherId).executeUpdate();
+        log.info("DELETED TEACHER BY ID - {} SUCCESSFULLY", teacherId);
     }
 
     @Override
@@ -121,38 +112,44 @@ public class TeacherDaoImpl implements TeacherDao {
 
     @Override
     public void deleteAll() {
-        logger.info("DELETE ALL TEACHERS...");
-        final String DELETE_ALL = "DELETE FROM teachers";
-        jdbcTemplate.update(DELETE_ALL);
-        logger.info("DELETED ALL TEACHERS SUCCESSFULLY");
+        log.info("DELETE ALL TEACHERS...");
+        final String DELETE_ALL = "DELETE FROM Teacher";
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery(DELETE_ALL, Teacher.class).executeUpdate();
+        log.info("DELETED ALL TEACHERS SUCCESSFULLY");
     }
 
     @Override
     public void deleteTheTeacherSubject(Integer teacherId, Integer subjectId) {
         requireNonNull(teacherId);
         requireNonNull(subjectId);
-        logger.info("DELETE THE TEACHERS' BY ID - {} SUBJECT BY ID - {}", teacherId, subjectId);
-        final String DELETE_THE_TEACHERS_GROUPS = "DELETE FROM teachers_subjects WHERE teacher_id = ? AND subject_id = ?";
-        jdbcTemplate.update(DELETE_THE_TEACHERS_GROUPS, teacherId, subjectId);
-        logger.info("DELETED THE TEACHERS' BY ID - {} SUBJECTS BY ID - {} SUCCESSFULLY", teacherId, subjectId);
+        log.info("DELETE THE TEACHERS' BY ID - {} SUBJECT BY ID - {}", teacherId, subjectId);
+        Session session = sessionFactory.getCurrentSession();
+        Teacher teacher = session.get(Teacher.class, teacherId);
+        Subject subjectToRemove = session.get(Subject.class, subjectId);
+        teacher.getSubjects().remove(subjectToRemove);
+        subjectToRemove.getTeachers().remove(teacher);
+        log.info("DELETED THE TEACHERS' BY ID - {} SUBJECTS BY ID - {} SUCCESSFULLY", teacherId, subjectId);
     }
 
     @Override
     public void saveAll(List<Teacher> teachers) {
         requireNonNull(teachers);
-        logger.info("SAVING {} TEACHERS", teachers.size());
+        log.info("SAVING {} TEACHERS", teachers.size());
         teachers.forEach(this::save);
-        logger.info("SAVED {} TEACHERS SUCCESSFULLY", teachers.size());
+        log.info("SAVED {} TEACHERS SUCCESSFULLY", teachers.size());
     }
 
     @Override
     public void updateTeacher(Integer teacherId, Teacher teacher) {
         requireNonNull(teacher);
         requireNonNull(teacherId);
-        logger.info("UPDATING TEACHER BY ID - {}", teacherId);
-        final String UPDATE_TEACHER = "UPDATE teachers SET first_name = INITCAP(?), last_name = INITCAP(?) WHERE teacher_id = ?";
-        jdbcTemplate.update(UPDATE_TEACHER, teacher.getFirstName(), teacher.getLastName(), teacherId);
-        logger.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", teacherId);
+        log.info("UPDATING TEACHER BY ID - {}", teacherId);
+        Session session = sessionFactory.getCurrentSession();
+        Teacher teacherToBeUpdated = session.get(Teacher.class, teacherId);
+        teacherToBeUpdated.setFirstName(teacher.getFirstName());
+        teacherToBeUpdated.setLastName(teacher.getLastName());
+        log.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", teacherId);
     }
 
     @Override
@@ -160,48 +157,40 @@ public class TeacherDaoImpl implements TeacherDao {
         requireNonNull(teacherId);
         requireNonNull(oldSubjectId);
         requireNonNull(newSubjectId);
-        logger.info("UPDATE THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {}", teacherId, oldSubjectId, newSubjectId);
-        final String UPDATE_THE_TEACHER_SUBJECT = "UPDATE teachers_subjects SET subject_id = ? WHERE teacher_id = ? AND subject_id = ?";
-        jdbcTemplate.update(UPDATE_THE_TEACHER_SUBJECT, newSubjectId, teacherId, oldSubjectId);
-        logger.info("UPDATED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacherId, oldSubjectId, newSubjectId);
+        log.info("UPDATE THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {}", teacherId, oldSubjectId, newSubjectId);
+        this.deleteTheTeacherSubject(teacherId, oldSubjectId);
+        this.addTeacherToSubject(new Teacher(teacherId), new Subject(newSubjectId));
+        log.info("UPDATED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacherId, oldSubjectId, newSubjectId);
     }
 
     @Override
-    public void addTeacherToSubject(Teacher teacherId, Subject subjectId) {
-        requireNonNull(teacherId);
-        requireNonNull(subjectId);
-        logger.info("ADDING... TEACHER ID - {} TO SUBJECT ID - {}", teacherId.getId(), subjectId.getId());
-        final String ADD_TEACHER_TO_SUBJECT = "INSERT INTO teachers_subjects (teacher_id, subject_id) VALUES (?, ?)";
-        jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement(ADD_TEACHER_TO_SUBJECT);
-            statement.setInt(1, teacherId.getId());
-            statement.setInt(2, subjectId.getId());
-            logger.info("ADDED TEACHER ID - {} TO SUBJECT ID - {} SUCCESSFULLY", teacherId.getId(), subjectId.getId());
-            return statement;
-        });
+    public void addTeacherToSubject(Teacher teacher, Subject subject) {
+        requireNonNull(teacher);
+        requireNonNull(subject);
+        log.info("ADDING... TEACHER ID - {} TO SUBJECT ID - {}", teacher.getId(), subject.getId());
+        Session session = sessionFactory.getCurrentSession();
+        session.get(Teacher.class, teacher.getId()).getSubjects().add(subject);
+        log.info("ADDED TEACHER ID - {} TO SUBJECT ID - {} SUCCESSFULLY", teacher.getId(), subject.getId());
     }
 
     @Override
-    public void addTeacherToSubjects(Teacher teacherId, List<Subject> subjects) {
-        requireNonNull(teacherId);
+    public void addTeacherToSubjects(Teacher teacher, List<Subject> subjects) {
+        requireNonNull(teacher);
         requireNonNull(subjects);
-        logger.info("ADDING... TEACHER ID - {} TO SUBJECTS {}", teacherId, subjects.size());
-        subjects.forEach(subject -> addTeacherToSubject(teacherId, subject));
-        logger.info("ADDED TEACHER ID - {} TO SUBJECTS {} SUCCESSFULLY", teacherId, subjects.size());
+        log.info("ADDING... TEACHER ID - {} TO SUBJECTS {}", teacher, subjects.size());
+        subjects.forEach(subject -> addTeacherToSubject(teacher, subject));
+        log.info("ADDED TEACHER ID - {} TO SUBJECTS {} SUCCESSFULLY", teacher, subjects.size());
     }
 
     @Override
     public List<Subject> findSubjectsByTeacherId(Integer teacherId) {
         requireNonNull(teacherId);
-        logger.info("FIND SUBJECTS BY TEACHER ID - {}", teacherId);
-        final String FIND_SUBJECTS_BY_TEACHER_ID = "SELECT s.subject_id ,s.subject_name " +
-                "FROM teachers_subjects ts " +
-                "FULL OUTER JOIN subjects s ON ts.subject_id = s.subject_id " +
-                "FULL OUTER JOIN teachers t ON t.teacher_id = ts.teacher_id " +
-                "WHERE ts.teacher_id = ? " +
-                "ORDER BY subject_name";
-        List<Subject> subjects = jdbcTemplate.query(FIND_SUBJECTS_BY_TEACHER_ID, subjectRowMapper, teacherId);
-        logger.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", subjects.size(), teacherId);
+        log.info("FIND SUBJECTS BY TEACHER ID - {}", teacherId);
+        final String FIND_SUBJECTS_BY_TEACHER_ID = "SELECT t FROM Teacher t LEFT JOIN FETCH t.subjects WHERE t.id=:teacherId";
+        Session session = sessionFactory.getCurrentSession();
+        List<Subject> subjects = session.createQuery(FIND_SUBJECTS_BY_TEACHER_ID, Teacher.class).
+                setParameter("teacherId", teacherId).uniqueResult().getSubjects();
+        log.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", subjects.size(), teacherId);
         return subjects;
     }
 }

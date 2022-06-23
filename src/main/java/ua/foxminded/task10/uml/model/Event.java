@@ -1,141 +1,74 @@
 package ua.foxminded.task10.uml.model;
 
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
-
+@Setter
+@Getter
+@ToString(onlyExplicitlyIncluded = true)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@Entity
+@Table(name = "events")
 public class Event {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "event_id")
+    @NonNull
     private Integer id;
 
+    @Column(name = "date_time")
+    @ToString.Include
+    @EqualsAndHashCode.Include
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime dateTime;
 
+    @Transient
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime startDateTime;
 
+    @Transient
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endDateTime;
 
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinColumn(name = "subject_id", referencedColumnName = "subject_id", unique = true)
     private Subject subject;
+
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinColumn(name = "classroom_id", referencedColumnName = "classroom_id", unique = true)
     private Classroom classroom;
+
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinColumn(name = "group_id", referencedColumnName = "group_id", unique = true)
     private Group group;
+
+    @EqualsAndHashCode.Include
+    @ToString.Include
+    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinColumn(name = "teacher_id", referencedColumnName = "teacher_id", unique = true)
     private Teacher teacher;
 
-    public Event() {
+    public Event(Integer event_id) {
+        this.id = event_id;
     }
-
-    public Event(Integer id) {
-        this.id = id;
-    }
-
-    public Event(Subject subject, Classroom classroom, Group group, Teacher teacher, LocalDateTime localDateTime) {
-        this.subject = subject;
-        this.classroom = classroom;
-        this.group = group;
-        this.teacher = teacher;
-        this.dateTime = localDateTime;
-    }
-
-    public Event(Integer id, Subject subject, Classroom classroom, Group group, Teacher teacher, LocalDateTime localDateTime) {
-        this.id = id;
-        this.subject = subject;
-        this.classroom = classroom;
-        this.group = group;
-        this.teacher = teacher;
-        this.dateTime = localDateTime;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
-        this.subject = subject;
-    }
-
-    public Classroom getClassroom() {
-        return classroom;
-    }
-
-    public void setClassroom(Classroom classroom) {
-        this.classroom = classroom;
-    }
-
-    public Group getGroup() {
-        return group;
-    }
-
-    public void setGroup(Group group) {
-        this.group = group;
-    }
-
-    public Teacher getTeacher() {
-        return teacher;
-    }
-
-    public void setTeacher(Teacher teacher) {
-        this.teacher = teacher;
-    }
-
-    public LocalDateTime getDateTime() {
-        return dateTime;
-    }
-
-    public void setDateTime(LocalDateTime dateTime) {
+    public Event(Subject subjectByName, Classroom classroomByNumber, Group byGroupName,
+                 Teacher teacherByNameSurname, LocalDateTime dateTime) {
+        this.subject = subjectByName;
+        this.classroom = classroomByNumber;
+        this.group = byGroupName;
+        this.teacher = teacherByNameSurname;
         this.dateTime = dateTime;
-    }
-
-    public LocalDateTime getStartDateTime() {
-        return startDateTime;
-    }
-
-    public void setStartDateTime(LocalDateTime startDateTime) {
-        this.startDateTime = startDateTime;
-    }
-
-    public LocalDateTime getEndDateTime() {
-        return endDateTime;
-    }
-
-    public void setEndDateTime(LocalDateTime endDateTime) {
-        this.endDateTime = endDateTime;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Event event = (Event) o;
-        return Objects.equals(id, event.id) && Objects.equals(dateTime, event.dateTime) && Objects.equals(startDateTime, event.startDateTime) && Objects.equals(endDateTime, event.endDateTime) && Objects.equals(subject, event.subject) && Objects.equals(classroom, event.classroom) && Objects.equals(group, event.group) && Objects.equals(teacher, event.teacher);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, dateTime, startDateTime, endDateTime, subject, classroom, group, teacher);
-    }
-
-    @Override
-    public String toString() {
-        return "Event{" +
-                "id=" + id +
-                ", dateTime=" + dateTime +
-                ", startDateTime=" + startDateTime +
-                ", endDateTime=" + endDateTime +
-                ", subject=" + subject +
-                ", classroom=" + classroom +
-                ", group=" + group +
-                ", teacher=" + teacher +
-                '}';
     }
 }

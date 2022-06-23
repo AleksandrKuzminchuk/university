@@ -14,11 +14,11 @@ public interface SubjectDao extends CrudRepositoryDao<Subject, Integer> {
 
     List<Teacher> findTeachersBySubject(Integer subjectId);
 
-    Optional<Subject> findSubjectByName(Subject subject);
+    List<Subject> findSubjectsByName(Subject subject);
 
-    void addSubjectToTeacher(Subject subjectId, Teacher teacherId);
+    void addSubjectToTeacher(Subject subject, Teacher teacher);
 
-    void addSubjectToTeachers(Subject subjectId, List<Teacher> teachers);
+    void addSubjectToTeachers(Subject subject, List<Teacher> teachers);
 
     void updateTheSubjectTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId);
 

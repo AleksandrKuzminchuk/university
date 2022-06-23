@@ -1,102 +1,105 @@
 package ua.foxminded.task10.uml.service.impl;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.dao.ClassroomDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Classroom;
 import ua.foxminded.task10.uml.service.ClassroomService;
 
 import java.util.List;
-import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
-@Component
+@Slf4j
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@RequiredArgsConstructor(onConstructor_= {@Autowired})
+@Transactional(readOnly = true)
+@Service
 public class ClassroomServiceImpl implements ClassroomService {
 
-    private static final Logger logger = LoggerFactory.getLogger(ClassroomServiceImpl.class);
+    ClassroomDao classroomDao;
 
-    private final ClassroomDao classroomDao;
-
-    @Autowired
-    public ClassroomServiceImpl(ClassroomDao classroomDao) {
-        this.classroomDao = classroomDao;
-    }
-
+    @Transactional
     @Override
     public void saveAll(List<Classroom> classrooms) {
         requireNonNull(classrooms);
-        logger.info("SAVING... {} CLASSROOMS", classrooms.size());
+        log.info("SAVING... {} CLASSROOMS", classrooms.size());
         classroomDao.saveAll(classrooms);
-        logger.info("SAVED {} CLASSROOMS SUCCESSFULLY", classrooms.size());
+        log.info("SAVED {} CLASSROOMS SUCCESSFULLY", classrooms.size());
     }
 
+    @Transactional
     @Override
     public void updateClassroom(Integer classroomId, Classroom classroom) {
         requireNonNull(classroom);
         requireNonNull(classroomId);
         requiredClassroomExistence(classroomId);
-        logger.info("UPDATING... CLASSROOM BY ID - {}", classroomId);
+        log.info("UPDATING... CLASSROOM BY ID - {}", classroomId);
         classroomDao.updateClassroom(classroomId, classroom);
-        logger.info("UPDATED {} SUCCESSFULLY", classroom);
+        log.info("UPDATED {} SUCCESSFULLY", classroom);
     }
 
+    @Transactional
     @Override
     public Classroom save(Classroom classroom) {
         requireNonNull(classroom);
-        logger.info("SAVING... {}", classroom);
+        log.info("SAVING... {}", classroom);
         Classroom result = classroomDao.save(classroom).orElseThrow(() -> new NotFoundException(format("Can't save %s", classroom)));
-        logger.info("SAVED {} SUCCESSFULLY", classroom);
+        log.info("SAVED {} SUCCESSFULLY", classroom);
         return result;
     }
 
     @Override
-    public Classroom findById(Integer id) {
-        requireNonNull(id);
-        requiredClassroomExistence(id);
-        logger.info("FINDING... CLASSROOM BY ID- {}", id);
-        Classroom result = classroomDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find classroom by id - %d", id)));
-        logger.info("FOUND CLASSROOM BY ID - {} SUCCESSFULLY", id);
+    public Classroom findById(Integer classroomId) {
+        requireNonNull(classroomId);
+        requiredClassroomExistence(classroomId);
+        log.info("FINDING... CLASSROOM BY ID- {}", classroomId);
+        Classroom result = classroomDao.findById(classroomId).orElseThrow(() -> new NotFoundException(format("Can't find classroom by classroomId - %d", classroomId)));
+        log.info("FOUND CLASSROOM BY ID - {} SUCCESSFULLY", classroomId);
         return result;
     }
 
     @Override
-    public boolean existsById(Integer id) {
-        requireNonNull(id);
-        logger.info("CHECKING... CLASSROOM EXISTS BY ID - {}", id);
-        boolean result = classroomDao.existsById(id);
-        logger.info("CLASSROOM BY ID - {} EXISTS - {}", id, result);
+    public boolean existsById(Integer classroomId) {
+        requireNonNull(classroomId);
+        log.info("CHECKING... CLASSROOM EXISTS BY ID - {}", classroomId);
+        boolean result = classroomDao.existsById(classroomId);
+        log.info("CLASSROOM BY ID - {} EXISTS - {}", classroomId, result);
         return result;
     }
 
     @Override
     public List<Classroom> findAll() {
-        logger.info("FINDING... ALL CLASSROOMS");
+        log.info("FINDING... ALL CLASSROOMS");
         List<Classroom> result = classroomDao.findAll();
-        logger.info("FOUND {} CLASSROOMS", result.size());
+        log.info("FOUND {} CLASSROOMS", result.size());
         return result;
     }
 
     @Override
     public Long count() {
-        logger.info("FINDING... COUNT CLASSROOMS");
+        log.info("FINDING... COUNT CLASSROOMS");
         Long result = classroomDao.count();
-        logger.info("FOUND COUNT({}) CLASSROOMS", result);
+        log.info("FOUND COUNT({}) CLASSROOMS", result);
         return result;
     }
 
+    @Transactional
     @Override
-    public void deleteById(Integer id) {
-        requireNonNull(id);
-        requiredClassroomExistence(id);
-        logger.info("DELETING... CLASSROOM BY ID- {}", id);
-        classroomDao.deleteById(id);
-        logger.info("DELETED CLASSROOMS BY ID - {} SUCCESSFULLY", id);
+    public void deleteById(Integer classroomId) {
+        requireNonNull(classroomId);
+        requiredClassroomExistence(classroomId);
+        log.info("DELETING... CLASSROOM BY ID- {}", classroomId);
+        classroomDao.deleteById(classroomId);
+        log.info("DELETED CLASSROOMS BY ID - {} SUCCESSFULLY", classroomId);
     }
 
     @Override
@@ -104,29 +107,25 @@ public class ClassroomServiceImpl implements ClassroomService {
         throw new NotImplementedException("The method delete not implemented");
     }
 
+    @Transactional
     @Override
     public void deleteAll() {
-        logger.info("DELETING... ALL CLASSROOMS");
+        log.info("DELETING... ALL CLASSROOMS");
         classroomDao.deleteAll();
-        logger.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
+        log.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
     }
 
     @Override
-    public Classroom findClassroomByNumber(Integer classroomNumber) {
+    public List<Classroom> findClassroomsByNumber(Integer classroomNumber) {
         requireNonNull(classroomNumber);
-        logger.info("FINDING... CLASSROOM BY NUMBER - {}", classroomNumber);
-        Classroom classroom = classroomDao.findClassroomByNumber(classroomNumber).orElseThrow(() -> new NotFoundException(format("Can't find classroom by number - %d", classroomNumber)));
-        logger.info("FOUND CLASSROOM BY NUMBER - {} SUCCESSFULLY", classroom);
-        return classroom;
+        log.info("FINDING... CLASSROOMS BY NUMBER - {}", classroomNumber);
+        List<Classroom> classrooms = classroomDao.findClassroomsByNumber(classroomNumber);
+        log.info("FOUND {} CLASSROOMS BY NUMBER - {} SUCCESSFULLY", classrooms.size(), classroomNumber);
+        return classrooms;
     }
 
     private void requiredClassroomExistence(Integer classroomId) {
         if (!existsById(classroomId))
             throw new NotFoundException(format("Classroom by id - %d not exists", classroomId));
-    }
-
-    private void requiredClassroomExistence(Classroom classroom) {
-        if (!existsById(findClassroomByNumber(classroom.getNumber()).getId()))
-            throw new NotFoundException(format("Classroom by number %d not exists", classroom.getNumber()));
     }
 }

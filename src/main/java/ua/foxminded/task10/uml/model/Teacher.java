@@ -1,51 +1,32 @@
 package ua.foxminded.task10.uml.model;
 
-import java.util.List;
-import java.util.Objects;
+import lombok.*;
 
+import javax.persistence.*;
+import java.util.List;
+
+@EqualsAndHashCode(onlyExplicitlyIncluded = true, callSuper = true)
+@Getter
+@Setter
+@ToString(onlyExplicitlyIncluded = true, callSuper = true)
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name = "teachers")
+@AttributeOverride(name = "id", column = @Column(name = "teacher_id"))
+@AttributeOverride(name = "firstName", column = @Column(name = "first_name"))
+@AttributeOverride(name = "lastName", column = @Column(name = "last_name"))
 public class Teacher extends Person {
 
-    private List<Subject> teacherSubject;
+    @Singular
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH, CascadeType.REFRESH})
+    @ToString.Exclude
+    @JoinTable(name = "teachers_subjects",
+            joinColumns = @JoinColumn(name = "teacher_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    private List<Subject> subjects;
 
-    public Teacher() {
-    }
-
-    public Teacher(Integer id) {
+    public Teacher(@NonNull Integer id) {
         super(id);
-    }
-
-    public Teacher(String firstName, String lastName) {
-        super(firstName, lastName);
-    }
-
-    public Teacher(Integer id, String firstName, String lastName) {
-        super(id, firstName, lastName);
-    }
-
-    public List<Subject> getTeacherSubject() {
-        return teacherSubject;
-    }
-
-    public void setTeacherSubject(List<Subject> teacherSubject) {
-        this.teacherSubject = teacherSubject;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Teacher teacher = (Teacher) o;
-        return Objects.equals(teacherSubject, teacher.teacherSubject);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), teacherSubject);
-    }
-
-    @Override
-    public String toString() {
-        return "Teacher{" + getFirstName() + " " + getLastName() + "}";
     }
 }

@@ -1,5 +1,9 @@
 package ua.foxminded.task10.uml.dao.mapper;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Component;
 import ua.foxminded.task10.uml.model.*;
@@ -8,23 +12,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 
-
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
+@RequiredArgsConstructor
 @Component
 public class EventRowMapper implements RowMapper<Event> {
-    private final SubjectRowMapper subjectRowMapper;
-    private final ClassroomRowMapper classroomRowMapper;
-    private final TeacherRowMapper teacherRowMapper;
-    private final GroupRowMapper groupRowMapper;
-
-
-
-    public EventRowMapper(SubjectRowMapper subjectRowMapper, ClassroomRowMapper
-            classroomRowMapper, TeacherRowMapper teacherRowMapper, GroupRowMapper groupRowMapper) {
-        this.subjectRowMapper = subjectRowMapper;
-        this.classroomRowMapper = classroomRowMapper;
-        this.teacherRowMapper = teacherRowMapper;
-        this.groupRowMapper = groupRowMapper;
-    }
+    SubjectRowMapper subjectRowMapper;
+    ClassroomRowMapper classroomRowMapper;
+    TeacherRowMapper teacherRowMapper;
+    GroupRowMapper groupRowMapper;
 
     @Override
     public Event mapRow(ResultSet rs, int rowNum) throws SQLException {

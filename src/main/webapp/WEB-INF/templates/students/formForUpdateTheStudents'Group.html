@@ -6,13 +6,20 @@
     <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
     <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
     <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleDropDownList.css"/>
 </head>
 <body>
 <div th:insert="~{university :: copy}"></div>
 <div class="login-page">
     <div class="form">
         <form class="login-form" th:method="PATCH" th:action="@{/students/{studentId}/updated/group(studentId=${student.id})}">
-            <input type="text" th:field="${group.name}" id="name" placeholder="group name"/>
+            <input type="text" th:field="${student.group.name}" id="name" placeholder="group name" readonly/>
+            <span class="custom-dropdown big">
+            <select th:object="${group}" th:field="*{id}" id="group">
+                <option th:each="group : ${groups}" th:value="${group.id}"
+                        th:text="${group.name}"></option>
+            </select>
+                            </span>
             <button type="submit">update</button>
         </form>
     </div>

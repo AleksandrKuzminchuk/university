@@ -37,7 +37,9 @@
         <td th:text="${#strings.capitalize(student.firstName)}"/>
         <td th:text="${#strings.capitalize(student.lastName)}"/>
         <td th:text="${student.course}"/>
-        <td th:text="${#strings.toUpperCase(student.getGroup().getName())}"/>
+        <td>
+          <span th:text="${student.Group?.name}"></span>
+        </td>
         <td>
           <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/update(studentId=${student.id})}">
             <button type="submit">update</button>

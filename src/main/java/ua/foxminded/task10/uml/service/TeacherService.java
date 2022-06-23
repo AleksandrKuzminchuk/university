@@ -12,11 +12,11 @@ public interface TeacherService extends CrudRepositoryService<Teacher, Integer>{
 
     void updateTeacher(Integer teacherId, Teacher teacher);
 
-    void addTeacherToSubject(Teacher teacherId, Subject subjectId);
+    void addTeacherToSubject(Teacher teacher, Subject subject);
 
-    void addTeacherToSubjects(Teacher teacherId, List<Subject> subjects);
+    void addTeacherToSubjects(Teacher teacher, List<Subject> subjects);
 
-    Teacher findTeacherByNameSurname(Teacher teacher);
+    List<Teacher> findTeachersByNameOrSurname(Teacher teacher);
 
     List<Subject> findSubjectsByTeacherId(Integer teacherId);
 

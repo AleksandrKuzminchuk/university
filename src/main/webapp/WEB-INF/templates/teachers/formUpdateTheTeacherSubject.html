@@ -6,13 +6,20 @@
     <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
     <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
     <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleDropDownList.css"/>
 </head>
 <body>
 <div th:insert="~{university :: copy}"></div>
 <div class="login-page">
     <div class="form">
         <form class="login-form" th:method="PATCH" th:action="'/teachers/' + ${teacher.id} + '/updated/' + ${oldSubject.id} + '/subject'">
-            <input type="text" th:field="${oldSubject.name}" id="name" placeholder="subject name"/>
+            <input type="text" th:field="${oldSubject.name}" id="name" placeholder="subject name" readonly/>
+            <span class="custom-dropdown big">
+            <select th:object="${newSubject}" th:field="*{id}" id="subject">
+                <option th:each="subject : ${subjects}" th:value="${subject.id}"
+                        th:text="${subject.name}"></option>
+            </select>
+            </span>
             <button type="submit">update</button>
         </form>
     </div>

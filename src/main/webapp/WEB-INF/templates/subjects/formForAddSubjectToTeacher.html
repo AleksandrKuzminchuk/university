@@ -6,6 +6,7 @@
     <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
     <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
     <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleDropDownList.css"/>
 </head>
 <body>
 <div th:insert="~{university :: copy}"></div>
@@ -13,8 +14,12 @@
     <div class="form">
         <form class="login-form" th:method="POST" th:action="@{/subjects/{subjectId}/added/teacher(subjectId=${subject.id})}">
             <input type="text" th:field="${subject.name}" id="name" placeholder="subject name" READONLY/>
-            <input type="text" th:field="${teacher.firstName}" id="teacher name" placeholder="teacher name"/>
-            <input type="text" th:field="${teacher.lastName}" id="teacher surname" placeholder="teacher surname"/>
+            <span class="custom-dropdown big">
+            <select th:object="${teacher}" th:field="*{id}" id="teacher">
+                <option th:each="teacher : ${teachers}" th:value="${teacher.id}"
+                        th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></option>
+            </select>
+            </span>
             <button type="submit">add</button>
         </form>
     </div>
