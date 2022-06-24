@@ -35,13 +35,6 @@ import static java.util.Objects.requireNonNull;
 @RequiredArgsConstructor(onConstructor_= {@Autowired})
 public class StudentDaoImpl implements StudentDao {
 
-    private static final String GENERATE_TEMPLATE =
-            "SELECT student_id, first_name, last_name, course, st.group_id, g.group_name " +
-                    "FROM students st " +
-                    "LEFT OUTER JOIN groups g " +
-                    "ON st.group_id = g.group_id ";
-    private static final String GENERATE_TEMPLATE_ORDER = " ORDER BY first_name, last_name";
-
     GroupDao groupDao;
     SessionFactory sessionFactory;
 

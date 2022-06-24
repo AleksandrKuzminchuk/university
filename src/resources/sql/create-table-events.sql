@@ -1,7 +1,7 @@
 CREATE TABLE public.events
 (
     event_id     SERIAL PRIMARY KEY,
-    date_time    TIMESTAMP NOT NULL DEFAULT current_timestamp,
+    date_time    TIMESTAMP DEFAULT current_timestamp,
     subject_id   INTEGER  ,
     classroom_id INTEGER  ,
     teacher_id   INTEGER  ,

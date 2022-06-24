@@ -1,40 +1,42 @@
 package ua.foxminded.task10.uml.configuration;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import ua.foxminded.task10.uml.util.PropertyManager;
 
 import javax.sql.DataSource;
-import java.io.File;
 import java.util.Properties;
 
 @Slf4j
 @Configuration
 @EnableTransactionManagement
+@PropertySource("classpath:application.properties")
 public class SpringConfig {
 
-    @Bean
-    public PropertyManager propertyManager() {
-        return new PropertyManager("resources" + File.separator + "application.properties");
+    private final Environment environment;
+
+    @Autowired
+    public SpringConfig(Environment environment) {
+        this.environment = environment;
     }
 
     @Bean
     public DataSource dataSource() {
         log.info("Create [DataSource]->");
-        PropertyManager propertyManager = propertyManager();
-        String url = propertyManager.getProperty("url");
-        String username = propertyManager.getProperty("username");
-        String password = propertyManager.getProperty("password");
-        String driver = propertyManager.getProperty("driver");
-        boolean suppressClose = true;
-        SingleConnectionDataSource dataSource = new SingleConnectionDataSource(url, username, password, suppressClose);
+        SingleConnectionDataSource dataSource = new SingleConnectionDataSource();
         dataSource.setSchema("public");
-        dataSource.setDriverClassName(driver);
+        dataSource.setDriverClassName(environment.getRequiredProperty("hibernate.driver_class"));
+        dataSource.setUrl(environment.getRequiredProperty("hibernate.connection.url"));
+        dataSource.setUsername(environment.getRequiredProperty("hibernate.connection.username"));
+        dataSource.setPassword(environment.getRequiredProperty("hibernate.connection.password"));
+        dataSource.setSuppressClose(Boolean.parseBoolean(environment.getRequiredProperty("hibernate.connection.suppressClose")));
         log.info("Created [DataSource] -> SUCCESSFULLY");
         return dataSource;
     }
@@ -55,10 +57,10 @@ public class SpringConfig {
 
     private Properties getProperties() {
         Properties hibernateProperties = new Properties();
-        hibernateProperties.getProperty("hibernate.dialect", "org.hibernate.dialect.PostgreSQLDialect");
-        hibernateProperties.getProperty("hibernate.ejb.naming_strategy", "org.hibernate.cfg.ImprovedNamingStrategy");
-        hibernateProperties.setProperty("hibernate.show_sql", "true");
-        hibernateProperties.getProperty("hibernate.format_sql", "true");
+        hibernateProperties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));
+        hibernateProperties.put("hibernate.ejb.naming_strategy", environment.getRequiredProperty("hibernate.ejb.naming_strategy"));
+        hibernateProperties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"));
+        hibernateProperties.put("hibernate.format_sql", environment.getRequiredProperty("hibernate.format_sql"));
         return hibernateProperties;
     }
 
