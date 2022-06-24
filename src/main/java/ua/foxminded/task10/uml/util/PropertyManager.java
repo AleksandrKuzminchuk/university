@@ -3,7 +3,9 @@ package ua.foxminded.task10.uml.util;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import ua.foxminded.task10.uml.exceptions.ExceptionsHandlingConstants;
+import ua.foxminded.task10.uml.exceptions.PropertiesException;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -20,9 +22,8 @@ public class PropertyManager {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(propertiesPath)) {
             properties.load(inputStream);
             logger.info("Properties from path '{}' successfully loaded", propertiesPath);
-        } catch (Exception e) {
-            logger.error(e.getLocalizedMessage());
-            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new PropertiesException(e);
         }
     }
 
