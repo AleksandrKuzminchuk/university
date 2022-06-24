@@ -4,35 +4,17 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Getter
-@Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 @MappedSuperclass
 public abstract class Person {
 
     @Id
+    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NonNull
-    @EqualsAndHashCode.Include
     private Integer id;
-
-    @NonNull
-    @EqualsAndHashCode.Include
+    @Column(name = "first_name")
     private String firstName;
-
-    @NonNull
-    @EqualsAndHashCode.Include
+    @Column(name = "last_name")
     private String lastName;
 
-    public Person(@NonNull Integer id) {
-        this.id = id;
-    }
-
-    public Person(@NonNull String firstName, @NonNull String lastName) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-    }
 }

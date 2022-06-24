@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.dao.GroupDao;
@@ -21,21 +20,21 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 @Service
-@Transactional(readOnly = true)
+@Transactional
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class StudentServiceImpl implements StudentService {
 
     StudentDao studentDao;
     GroupDao groupDao;
 
-    @Transactional
     @Override
     public Student save(Student student) {
         requireNonNull(student);
         log.info("SAVING... {}", student);
-        Student result = studentDao.save(student).orElseThrow(() -> new NotFoundException(format("Can't save %s", student)));
+        Student result = studentDao.save(student)
+                .orElseThrow(() -> new NotFoundException(format("Can't save %s", student)));
         log.info("SAVED {} SUCCESSFULLY", result);
         return result;
     }
@@ -92,7 +91,6 @@ public class StudentServiceImpl implements StudentService {
         return result;
     }
 
-    @Transactional
     @Override
     public void deleteById(Integer studentId) {
         requireNonNull(studentId);
@@ -102,7 +100,6 @@ public class StudentServiceImpl implements StudentService {
         log.info("DELETED STUDENT BY ID - {} SUCCESSFULLY", studentId);
     }
 
-    @Transactional
     @Override
     public void deleteStudentsByCourseNumber(Integer courseNumber) {
         requireNonNull(courseNumber);
@@ -111,7 +108,6 @@ public class StudentServiceImpl implements StudentService {
         log.info("DELETED STUDENTS BY COURSE NUMBER - {} SUCCESSFULLY", courseNumber);
     }
 
-    @Transactional
     @Override
     public void deleteStudentsByGroupId(Integer groupId) {
         requireNonNull(groupId);
@@ -126,7 +122,6 @@ public class StudentServiceImpl implements StudentService {
         throw new NotImplementedException("The method delete not implemented");
     }
 
-    @Transactional
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL STUDENTS");
@@ -144,7 +139,6 @@ public class StudentServiceImpl implements StudentService {
         return students;
     }
 
-    @Transactional
     @Override
     public void saveAll(List<Student> students) {
         requireNonNull(students);
@@ -162,7 +156,6 @@ public class StudentServiceImpl implements StudentService {
         return result;
     }
 
-    @Transactional
     @Override
     public void updateStudent(Integer studentId, Student updatedStudent) {
         requireNonNull(updatedStudent);
@@ -173,7 +166,6 @@ public class StudentServiceImpl implements StudentService {
         log.info("UPDATED STUDENT BY ID - {} SUCCESSFULLY", studentId);
     }
 
-    @Transactional
     @Override
     public void updateTheStudentGroup(Integer groupId, Integer studentId) {
         requireNonNull(groupId);
@@ -185,7 +177,6 @@ public class StudentServiceImpl implements StudentService {
         log.info("UPDATED THE STUDENTS' BY ID - {} GROUP BY ID - {}", studentId, groupId);
     }
 
-    @Transactional
     @Override
     public void deleteTheStudentGroup(Integer studentId) {
         requireNonNull(studentId);

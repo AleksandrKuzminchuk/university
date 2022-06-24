@@ -159,7 +159,9 @@ public class TeacherDaoImpl implements TeacherDao {
         requireNonNull(newSubjectId);
         log.info("UPDATE THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {}", teacherId, oldSubjectId, newSubjectId);
         this.deleteTheTeacherSubject(teacherId, oldSubjectId);
-        this.addTeacherToSubject(new Teacher(teacherId), new Subject(newSubjectId));
+        Teacher teacher = new Teacher();
+        teacher.setId(teacherId);
+        this.addTeacherToSubject(teacher, new Subject(newSubjectId));
         log.info("UPDATED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacherId, oldSubjectId, newSubjectId);
     }
 

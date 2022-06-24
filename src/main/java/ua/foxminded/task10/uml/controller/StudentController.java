@@ -17,10 +17,10 @@ import ua.foxminded.task10.uml.service.StudentService;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/students")
 @Slf4j
-@RequiredArgsConstructor(onConstructor_ = @Autowired)
+@Controller
+@RequiredArgsConstructor
+@RequestMapping("/students")
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class StudentController {
 

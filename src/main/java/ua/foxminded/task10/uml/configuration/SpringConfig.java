@@ -17,7 +17,7 @@ import java.util.Properties;
 @Slf4j
 @Configuration
 @EnableTransactionManagement
-@PropertySource("classpath:application.properties")
+@PropertySource("application.properties")
 public class SpringConfig {
 
     private final Environment environment;

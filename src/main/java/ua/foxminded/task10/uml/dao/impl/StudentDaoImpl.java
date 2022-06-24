@@ -1,38 +1,28 @@
 package ua.foxminded.task10.uml.dao.impl;
 
-import com.sun.xml.internal.ws.util.StringUtils;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.dao.GroupDao;
 import ua.foxminded.task10.uml.dao.StudentDao;
-import ua.foxminded.task10.uml.dao.mapper.StudentRowMapper;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
 
-import java.sql.PreparedStatement;
 import java.util.List;
-import java.util.Locale;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-@Repository
 @Slf4j
+@Repository
+@RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_= {@Autowired})
 public class StudentDaoImpl implements StudentDao {
 
     GroupDao groupDao;
@@ -204,7 +194,9 @@ public class StudentDaoImpl implements StudentDao {
         requireNonNull(studentId);
         log.info("UPDATE THE STUDENTS' BY ID - {} GROUP BY ID - {}", studentId, groupId);
         this.deleteTheStudentGroup(studentId);
-        groupDao.assignStudentToGroup(new Student(studentId), new Group(groupId));
+        Student student = new Student();
+        student.setId(studentId);
+        groupDao.assignStudentToGroup(student, new Group(groupId));
         log.info("UPDATED THE STUDENTS' BY ID - {} GROUP BY ID - {} SUCCESSFULLY", studentId, groupId);
     }
 

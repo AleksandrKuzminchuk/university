@@ -152,7 +152,9 @@ public class SubjectDaoImpl implements SubjectDao {
         requireNonNull(newTeacherId);
         log.info("UPDATE THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
         this.deleteTheSubjectTeacher(subjectId, oldTeacherId);
-        this.addSubjectToTeacher(new Subject(subjectId), new Teacher(newTeacherId));
+        Teacher teacher = new Teacher();
+        teacher.setId(newTeacherId);
+        this.addSubjectToTeacher(new Subject(subjectId), teacher);
         log.info("UPDATED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subjectId, oldTeacherId, newTeacherId);
     }
 
