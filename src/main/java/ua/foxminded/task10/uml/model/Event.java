@@ -6,14 +6,10 @@ import org.springframework.format.annotation.DateTimeFormat;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
-@Setter
-@Getter
-@ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Entity
 @Table(name = "events")
+@NoArgsConstructor
 public class Event {
 
     @Id
@@ -23,8 +19,6 @@ public class Event {
     private Integer id;
 
     @Column(name = "date_time")
-    @ToString.Include
-    @EqualsAndHashCode.Include
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime dateTime;
 
@@ -36,39 +30,27 @@ public class Event {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endDateTime;
 
-    @EqualsAndHashCode.Include
-    @ToString.Include
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "subject_id", referencedColumnName = "subject_id", unique = true)
     private Subject subject;
 
-    @EqualsAndHashCode.Include
-    @ToString.Include
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "classroom_id", referencedColumnName = "classroom_id", unique = true)
     private Classroom classroom;
 
-    @EqualsAndHashCode.Include
-    @ToString.Include
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "group_id", referencedColumnName = "group_id", unique = true)
     private Group group;
 
-    @EqualsAndHashCode.Include
-    @ToString.Include
     @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinColumn(name = "teacher_id", referencedColumnName = "teacher_id", unique = true)
     private Teacher teacher;
 
-    public Event(Integer event_id) {
-        this.id = event_id;
-    }
-    public Event(Subject subjectByName, Classroom classroomByNumber, Group byGroupName,
-                 Teacher teacherByNameSurname, LocalDateTime dateTime) {
-        this.subject = subjectByName;
-        this.classroom = classroomByNumber;
-        this.group = byGroupName;
-        this.teacher = teacherByNameSurname;
+    public Event(Subject subject, Classroom classroom, Group group, Teacher teacher, LocalDateTime dateTime) {
+        this.subject = subject;
+        this.classroom = classroom;
+        this.group = group;
+        this.teacher = teacher;
         this.dateTime = dateTime;
     }
 }

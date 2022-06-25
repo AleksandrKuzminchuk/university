@@ -7,8 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.dao.SubjectDao;
 import ua.foxminded.task10.uml.model.Subject;
@@ -19,10 +17,10 @@ import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-@Repository
 @Slf4j
+@Repository
+@RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
 public class SubjectDaoImpl implements SubjectDao {
 
     SessionFactory sessionFactory;
@@ -51,7 +49,7 @@ public class SubjectDaoImpl implements SubjectDao {
     public List<Subject> findSubjectsByName(Subject subject) {
         requireNonNull(subject);
         log.info("FIND SUBJECTS BY NAME {}", subject.getName());
-        final String FIND_BY_NAME = "FROM Subject s WHERE s.id =:subjectName";
+        final String FIND_BY_NAME = "SELECT s FROM Subject s WHERE s.id =:subjectName";
         Session session = sessionFactory.getCurrentSession();
         List<Subject> result = session.createQuery(FIND_BY_NAME, Subject.class).setParameter("subjectName", subject.getName()).getResultList();
         log.info("FOUND {} SUBJECTS BY NAME {}", result.size(), subject.getName());
@@ -73,7 +71,7 @@ public class SubjectDaoImpl implements SubjectDao {
     @Override
     public List<Subject> findAll() {
         log.info("FINDING... ALL SUBJECTS");
-        final String FIND_ALL = "FROM Subject s ORDER BY s.name";
+        final String FIND_ALL = "SELECT s FROM Subject s ORDER BY s.name";
         Session session = sessionFactory.getCurrentSession();
         List<Subject> subjects = session.createQuery(FIND_ALL, Subject.class).getResultList();
         log.info("FOUND ALL SUBJECTS - {} SUCCESSFULLY", subjects.size());

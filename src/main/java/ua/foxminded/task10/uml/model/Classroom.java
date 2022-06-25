@@ -4,13 +4,9 @@ import lombok.*;
 
 import javax.persistence.*;
 
-@Getter
-@Setter
-@EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
-@ToString
+@Data
 @Entity
+@NoArgsConstructor
 @Table(name = "classrooms")
 public class Classroom {
 
@@ -23,8 +19,4 @@ public class Classroom {
     @Column(name = "room_number")
     @NonNull
     private Integer number;
-
-    public Classroom(@NonNull Integer id) {
-        this.id = id;
-    }
 }

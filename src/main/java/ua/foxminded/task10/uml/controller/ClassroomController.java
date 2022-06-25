@@ -4,9 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +12,11 @@ import ua.foxminded.task10.uml.service.ClassroomService;
 
 import java.util.List;
 
-@Controller
-@RequestMapping("/classrooms")
 @Slf4j
+@Controller
+@RequiredArgsConstructor
+@RequestMapping("/classrooms")
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_= @Autowired)
 public class ClassroomController {
 
     ClassroomService classroomService;

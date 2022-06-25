@@ -4,8 +4,6 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.dao.*;
@@ -21,10 +19,10 @@ import static java.util.Objects.requireNonNull;
 import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
 
 @Slf4j
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_= {@Autowired})
 @Service
-@Transactional(readOnly = true)
+@Transactional
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class EventServiceImpl implements EventService {
 
     EventDao eventDao;
@@ -33,7 +31,6 @@ public class EventServiceImpl implements EventService {
     SubjectDao subjectDao;
     ClassroomDao classroomDao;
 
-    @Transactional
     @Override
     public Event save(Event event) {
         requireNonNull(event);
@@ -79,7 +76,6 @@ public class EventServiceImpl implements EventService {
         return result;
     }
 
-    @Transactional
     @Override
     public void deleteById(Integer eventId) {
         requireNonNull(eventId);
@@ -89,7 +85,6 @@ public class EventServiceImpl implements EventService {
         log.info("DELETED EVENT BY ID - {} SUCCESSFULLY", eventId);
     }
 
-    @Transactional
     @Override
     public void delete(Event event) {
         requireNonNull(event);
@@ -99,7 +94,6 @@ public class EventServiceImpl implements EventService {
         log.info("DELETED {} SUCCESSFULLY", event);
     }
 
-    @Transactional
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL EVENTS");
@@ -116,7 +110,6 @@ public class EventServiceImpl implements EventService {
         log.info("SAVED {} EVENTS SUCCESSFULLY", events.size());
     }
 
-    @Transactional
     @Override
     public void updateEvent(Integer eventId, Event event) {
         requireNonNull(event);

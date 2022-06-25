@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.dao.ClassroomDao;
@@ -19,15 +18,14 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_= {@Autowired})
-@Transactional(readOnly = true)
 @Service
+@Transactional
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ClassroomServiceImpl implements ClassroomService {
 
     ClassroomDao classroomDao;
 
-    @Transactional
     @Override
     public void saveAll(List<Classroom> classrooms) {
         requireNonNull(classrooms);
@@ -36,7 +34,6 @@ public class ClassroomServiceImpl implements ClassroomService {
         log.info("SAVED {} CLASSROOMS SUCCESSFULLY", classrooms.size());
     }
 
-    @Transactional
     @Override
     public void updateClassroom(Integer classroomId, Classroom classroom) {
         requireNonNull(classroom);
@@ -47,7 +44,6 @@ public class ClassroomServiceImpl implements ClassroomService {
         log.info("UPDATED {} SUCCESSFULLY", classroom);
     }
 
-    @Transactional
     @Override
     public Classroom save(Classroom classroom) {
         requireNonNull(classroom);
@@ -92,7 +88,6 @@ public class ClassroomServiceImpl implements ClassroomService {
         return result;
     }
 
-    @Transactional
     @Override
     public void deleteById(Integer classroomId) {
         requireNonNull(classroomId);
@@ -107,7 +102,6 @@ public class ClassroomServiceImpl implements ClassroomService {
         throw new NotImplementedException("The method delete not implemented");
     }
 
-    @Transactional
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL CLASSROOMS");

@@ -40,11 +40,11 @@
         <table cellpadding="0" cellspacing="0" border="0">
             <tbody>
             <tr th:each="event: ${events}">
-                <td aria-sort="ascending" th:text="${#temporals.format(event.dateTime, 'yyyy-MM-dd HH:mm')}"/>
-                <td th:text="${event.subject.name}"/>
-                <td th:text="${event.classroom.number}"/>
-                <td th:text="${event.teacher.firstName + ' ' + event.teacher.lastName}"/>
-                <td th:text="${event.group.name}"/>
+                <td aria-sort="ascending" th:text="${#temporals.format(event?.dateTime, 'yyyy-MM-dd HH:mm')}"/>
+                <td th:text="${event.subject?.name}"/>
+                <td th:text="${event.classroom?.number}"/>
+                <td th:text="${event.teacher?.firstName + ' ' + event.teacher?.lastName}"/>
+                <td th:text="${event.group?.name}"/>
                 <td>
                     <form class="login-form" th:method="GET"
                           th:action="@{/students/found/by_group/{groupId}(groupId=${event.group.id})}">

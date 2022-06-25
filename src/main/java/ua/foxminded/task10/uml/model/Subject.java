@@ -5,13 +5,9 @@ import lombok.*;
 import javax.persistence.*;
 import java.util.List;
 
-@Getter
-@Setter
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@ToString(onlyExplicitlyIncluded = true)
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 @Entity
+@NoArgsConstructor
 @Table(name = "subjects")
 public class Subject {
 
@@ -19,14 +15,10 @@ public class Subject {
     @Column(name = "subject_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @NonNull
-    @EqualsAndHashCode.Include
-    @ToString.Include
     private Integer id;
 
     @Column(name = "subject_name")
     @NonNull
-    @EqualsAndHashCode.Include
-    @ToString.Include
     private String name;
 
     @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
@@ -34,7 +26,6 @@ public class Subject {
     joinColumns = @JoinColumn(name = "subject_id"),
     inverseJoinColumns = @JoinColumn(name = "teacher_id"))
     @NonNull
-    @ToString.Exclude
     private List<Teacher> teachers;
 
     public Subject(@NonNull Integer id) {

@@ -3,33 +3,28 @@ package ua.foxminded.task10.uml.model;
 import lombok.*;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-@ToString(onlyExplicitlyIncluded = true)
-@EqualsAndHashCode(onlyExplicitlyIncluded = true)
-@NoArgsConstructor
-@AllArgsConstructor
+@Data
 @Entity
+@NoArgsConstructor
 @Table(name = "groups")
+@ToString(onlyExplicitlyIncluded = true)
 public class Group {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "group_id")
-    @NonNull
-    @EqualsAndHashCode.Include
     @ToString.Include
+    @NonNull
     private Integer id;
 
-    @EqualsAndHashCode.Include
-    @Column(name = "group_name")
     @ToString.Include
+    @Column(name = "group_name")
     private String name;
 
     @Singular
+    @ToString.Exclude
     @OneToMany(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},
             mappedBy = "group", fetch = FetchType.EAGER)
     private List<Student> students;

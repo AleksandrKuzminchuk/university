@@ -5,7 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.dao.GroupDao;
@@ -21,16 +20,15 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_= {@Autowired})
 @Service
-@Transactional(readOnly = true)
+@Transactional
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class GroupServiceImpl implements GroupService {
 
     GroupDao groupDao;
     StudentDao studentDao;
 
-    @Transactional
     @Override
     public Group save(Group group) {
         requireNonNull(group);
@@ -75,7 +73,6 @@ public class GroupServiceImpl implements GroupService {
         return result;
     }
 
-    @Transactional
     @Override
     public void deleteById(Integer groupId) {
         requireNonNull(groupId);
@@ -90,7 +87,6 @@ public class GroupServiceImpl implements GroupService {
         throw new NotImplementedException("The method delete not implemented");
     }
 
-    @Transactional
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL GROUPS");
@@ -98,7 +94,6 @@ public class GroupServiceImpl implements GroupService {
         log.info("DELETED ALL GROUPS SUCCESSFULLY");
     }
 
-    @Transactional
     @Override
     public void saveAll(List<Group> groups) {
         requireNonNull(groups);
@@ -116,7 +111,6 @@ public class GroupServiceImpl implements GroupService {
         return result;
     }
 
-    @Transactional
     @Override
     public void updateGroup(Integer groupId, Group group) {
         requireNonNull(group);
@@ -127,7 +121,6 @@ public class GroupServiceImpl implements GroupService {
         log.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", groupId);
     }
 
-    @Transactional
     @Override
     public void assignStudentToGroup(Student student, Group group) {
         requireNonNull(student);
@@ -139,7 +132,6 @@ public class GroupServiceImpl implements GroupService {
         log.info("ASSIGNED STUDENT BY ID - {} TO GROUP BY ID - {} SUCCESSFULLY", student, group);
     }
 
-    @Transactional
     @Override
     public void assignStudentsToGroup(List<Student> students, Group group) {
         requireNonNull(students);

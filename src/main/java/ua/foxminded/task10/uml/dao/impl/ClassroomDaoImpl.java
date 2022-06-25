@@ -8,7 +8,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.dao.ClassroomDao;
 import ua.foxminded.task10.uml.model.Classroom;
@@ -18,10 +17,10 @@ import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-@Repository
 @Slf4j
+@Repository
+@RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_= @Autowired)
 public class ClassroomDaoImpl implements ClassroomDao {
 
     SessionFactory sessionFactory;

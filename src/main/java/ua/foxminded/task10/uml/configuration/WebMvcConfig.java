@@ -4,13 +4,10 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.orm.hibernate5.HibernateTransactionManager;
-import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.servlet.config.annotation.*;
 import org.thymeleaf.extras.java8time.dialect.Java8TimeDialect;
@@ -21,15 +18,13 @@ import org.thymeleaf.spring5.view.ThymeleafViewResolver;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
-import java.util.Properties;
-
 @Slf4j
-@FieldDefaults(makeFinal = true ,level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_= {@Autowired})
 @EnableWebMvc
 @Configuration
-@ComponentScan(basePackages = "ua.foxminded.task10.uml")
+@RequiredArgsConstructor
 @EnableTransactionManagement
+@ComponentScan(basePackages = "ua.foxminded.task10.uml")
+@FieldDefaults(makeFinal = true ,level = AccessLevel.PRIVATE)
 public class WebMvcConfig implements WebMvcConfigurer {
 
     ApplicationContext applicationContext;

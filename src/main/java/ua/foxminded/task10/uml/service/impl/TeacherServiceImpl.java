@@ -5,10 +5,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.dao.SubjectDao;
@@ -24,16 +20,15 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 
 @Slf4j
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_= {@Autowired})
 @Service
-@Transactional(readOnly = true)
+@Transactional
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class TeacherServiceImpl implements TeacherService {
 
     TeacherDao teacherDao;
     SubjectDao subjectDao;
 
-    @Transactional
     @Override
     public Teacher save(Teacher teacher) {
         requireNonNull(teacher);
@@ -87,7 +82,6 @@ public class TeacherServiceImpl implements TeacherService {
         return result;
     }
 
-    @Transactional
     @Override
     public void deleteById(Integer teacherId) {
         requireNonNull(teacherId);
@@ -102,7 +96,6 @@ public class TeacherServiceImpl implements TeacherService {
         throw new NotImplementedException("The method delete not implemented");
     }
 
-    @Transactional
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL TEACHERS");
@@ -110,7 +103,6 @@ public class TeacherServiceImpl implements TeacherService {
         log.info("DELETED ALL TEACHERS SUCCESSFULLY");
     }
 
-    @Transactional
     @Override
     public void deleteTheTeacherSubject(Integer teacherId, Integer subjectId) {
         requireNonNull(teacherId);
@@ -122,7 +114,6 @@ public class TeacherServiceImpl implements TeacherService {
         log.info("DELETED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} SUCCESSFULLY", teacherId, subjectId);
     }
 
-    @Transactional
     @Override
     public void saveAll(List<Teacher> teachers) {
         requireNonNull(teachers);
@@ -131,7 +122,6 @@ public class TeacherServiceImpl implements TeacherService {
         log.info("SAVED {} TEACHERS SUCCESSFULLY", teachers.size());
     }
 
-    @Transactional
     @Override
     public void updateTeacher(Integer teacherId, Teacher teacher) {
         requireNonNull(teacher);
@@ -142,7 +132,6 @@ public class TeacherServiceImpl implements TeacherService {
         log.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", teacherId);
     }
 
-    @Transactional
     @Override
     public void updateTheTeacherSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId) {
         requireNonNull(teacherId);
@@ -156,7 +145,6 @@ public class TeacherServiceImpl implements TeacherService {
         log.info("UPDATED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacherId, oldSubjectId, newSubjectId);
     }
 
-    @Transactional
     @Override
     public void addTeacherToSubject(Teacher teacher, Subject subject) {
         requireNonNull(teacher);
@@ -168,7 +156,6 @@ public class TeacherServiceImpl implements TeacherService {
         log.info("ADDED TEACHER BT ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacher.getId(), subject.getId());
     }
 
-    @Transactional
     @Override
     public void addTeacherToSubjects(Teacher teacher, List<Subject> subjects) {
         requireNonNull(teacher);

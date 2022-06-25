@@ -7,7 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.dao.EventDao;
 import ua.foxminded.task10.uml.model.*;
@@ -20,10 +19,10 @@ import java.util.Optional;
 import static java.util.Objects.requireNonNull;
 import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
 
-@Repository
 @Slf4j
+@Repository
+@RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@RequiredArgsConstructor(onConstructor_={@Autowired})
 public class EventDaoImpl implements EventDao {
 
     private static final String GENERATE_TEMPLATE = "SELECT e FROM Event e " +
