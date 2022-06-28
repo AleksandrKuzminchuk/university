@@ -4,15 +4,21 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.hibernate.jpa.HibernatePersistenceProvider;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.env.Environment;
+import org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor;
 import org.springframework.jdbc.datasource.SingleConnectionDataSource;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
+import org.springframework.orm.jpa.JpaTransactionManager;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
+import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.transaction.PlatformTransactionManager;
 
+import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import java.util.Properties;
 
@@ -42,19 +48,19 @@ public class UniversityApplication {
 		return dataSource;
 	}
 
-	@Bean
-	public LocalSessionFactoryBean sessionFactory() {
-		log.info("Create [sessionFactory]->");
-		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
-		sessionFactory.setDataSource(dataSource());
-		sessionFactory.setPackagesToScan("ua.foxminded.task10.uml");
-		log.info("Create [properties]->");
-		Properties properties = getProperties();
-		log.info("Created [properties] -> SUCCESSFULLY");
-		sessionFactory.setHibernateProperties(properties);
-		log.info("Created [sessionFactory] -> SUCCESSFULLY");
-		return sessionFactory;
-	}
+//	@Bean
+//	public LocalSessionFactoryBean sessionFactory() {
+//		log.info("Create [sessionFactory]->");
+//		LocalSessionFactoryBean sessionFactory = new LocalSessionFactoryBean();
+//		sessionFactory.setDataSource(dataSource());
+//		sessionFactory.setPackagesToScan("ua.foxminded.task10.uml");
+//		log.info("Create [properties]->");
+//		Properties properties = getProperties();
+//		log.info("Created [properties] -> SUCCESSFULLY");
+//		sessionFactory.setHibernateProperties(properties);
+//		log.info("Created [sessionFactory] -> SUCCESSFULLY");
+//		return sessionFactory;
+//	}
 
 	private Properties getProperties() {
 		Properties hibernateProperties = new Properties();
@@ -67,13 +73,37 @@ public class UniversityApplication {
 		return hibernateProperties;
 	}
 
+//	@Bean
+//	public HibernateTransactionManager transactionManager() {
+//		log.info("Create [transactionManager]->");
+//		HibernateTransactionManager transactionManager = new HibernateTransactionManager();
+//		transactionManager.setSessionFactory(sessionFactory().getObject());
+//		log.info("Created [transactionManager] -> SUCCESSFULLY");
+//		return transactionManager;
+//	}
+
 	@Bean
-	public HibernateTransactionManager transactionManager() {
-		log.info("Create [transactionManager]->");
-		HibernateTransactionManager transactionManager = new HibernateTransactionManager();
-		transactionManager.setSessionFactory(sessionFactory().getObject());
-		log.info("Created [transactionManager] -> SUCCESSFULLY");
+	public LocalContainerEntityManagerFactoryBean entityManagerFactory(){
+		LocalContainerEntityManagerFactoryBean entityManagerFactoryBean = new LocalContainerEntityManagerFactoryBean();
+		entityManagerFactoryBean.setDataSource(dataSource());
+		entityManagerFactoryBean.setPackagesToScan("ua.foxminded.task10.uml.model");
+
+		HibernateJpaVendorAdapter jpaVendorAdapter = new HibernateJpaVendorAdapter();
+		entityManagerFactoryBean.setJpaVendorAdapter(jpaVendorAdapter);
+		entityManagerFactoryBean.setJpaProperties(getProperties());
+
+		return entityManagerFactoryBean;
+	}
+
+	@Bean
+	public PlatformTransactionManager transactionManager(){
+		JpaTransactionManager transactionManager = new JpaTransactionManager();
+		transactionManager.setEntityManagerFactory(entityManagerFactory().getObject());
 		return transactionManager;
 	}
 
+	@Bean
+	public PersistenceExceptionTranslationPostProcessor exceptionTranslationPostProcessor(){
+		return new PersistenceExceptionTranslationPostProcessor();
+	}
 }

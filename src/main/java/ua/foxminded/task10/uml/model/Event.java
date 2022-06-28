@@ -4,6 +4,7 @@ import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
+import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 
 @Data
@@ -30,20 +31,20 @@ public class Event {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endDateTime;
 
-    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinColumn(name = "subject_id", referencedColumnName = "subject_id", unique = true)
+    @OneToOne(cascade = {CascadeType.MERGE})
+    @JoinColumn(name = "subject_id", referencedColumnName = "subject_id")
     private Subject subject;
 
-    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinColumn(name = "classroom_id", referencedColumnName = "classroom_id", unique = true)
+    @OneToOne(cascade = {CascadeType.MERGE})
+    @JoinColumn(name = "classroom_id", referencedColumnName = "classroom_id")
     private Classroom classroom;
 
-    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinColumn(name = "group_id", referencedColumnName = "group_id", unique = true)
+    @OneToOne(cascade = {CascadeType.MERGE})
+    @JoinColumn(name = "group_id", referencedColumnName = "group_id")
     private Group group;
 
-    @OneToOne(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinColumn(name = "teacher_id", referencedColumnName = "teacher_id", unique = true)
+    @OneToOne(cascade = {CascadeType.MERGE})
+    @JoinColumn(name = "teacher_id", referencedColumnName = "teacher_id")
     private Teacher teacher;
 
     public Event(Subject subject, Classroom classroom, Group group, Teacher teacher, LocalDateTime dateTime) {

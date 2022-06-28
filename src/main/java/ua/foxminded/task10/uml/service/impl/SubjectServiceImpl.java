@@ -7,11 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.foxminded.task10.uml.dao.SubjectDao;
-import ua.foxminded.task10.uml.dao.TeacherDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
+import ua.foxminded.task10.uml.repository.SubjectRepository;
+import ua.foxminded.task10.uml.repository.TeacherRepository;
 import ua.foxminded.task10.uml.service.SubjectService;
 
 import java.util.List;
@@ -26,14 +26,14 @@ import static java.util.Objects.requireNonNull;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class SubjectServiceImpl implements SubjectService {
 
-    SubjectDao subjectDao;
-    TeacherDao teacherDao;
+    SubjectRepository subjectRepository;
+    TeacherRepository teacherRepository;
 
     @Override
     public Subject save(Subject subject) {
         requireNonNull(subject);
         log.info("SAVING... {}", subject);
-        Subject result = subjectDao.save(subject).orElseThrow(() -> new NotFoundException(format("Can't save %s", subject)));
+        Subject result = subjectRepository.save(subject);
         log.info("SAVED {} SUCCESSFULLY", subject);
         return result;
     }
@@ -43,7 +43,7 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... SUBJECT BY ID - {}", subjectId);
-        Subject result = subjectDao.findById(subjectId).orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
+        Subject result = subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
         log.info("FOUND {} BY ID - {} SUCCESSFULLY", result, subjectId);
         return result;
     }
@@ -52,7 +52,7 @@ public class SubjectServiceImpl implements SubjectService {
     public List<Subject> findSubjectsByName(Subject subject) {
         requireNonNull(subject);
         log.info("FINDING... SUBJECTS BY NAME {}", subject.getName());
-        List<Subject> result = subjectDao.findSubjectsByName(subject);
+        List<Subject> result = subjectRepository.findSubjectsByName(subject);
         log.info("FOUND {} SUBJECTS BY NAME {}", result.size(), subject.getName());
         return result;
     }
@@ -61,7 +61,7 @@ public class SubjectServiceImpl implements SubjectService {
     public boolean existsById(Integer subjectId) {
         requireNonNull(subjectId);
         log.info("CHECKING... SUBJECT EXISTS BY ID - {}", subjectId);
-        boolean result = subjectDao.existsById(subjectId);
+        boolean result = subjectRepository.existsById(subjectId);
         log.info("SUBJECT BY ID - {} EXISTS - {}", subjectId, result);
         return result;
     }
@@ -69,7 +69,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public List<Subject> findAll() {
         log.info("FINDING... ALL SUBJECTS");
-        List<Subject> result = subjectDao.findAll();
+        List<Subject> result = subjectRepository.findAll();
         log.info("FOUND {} SUBJECTS SUCCESSFULLY", result.size());
         return result;
     }
@@ -77,7 +77,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public Long count() {
         log.info("FINDING... COUNT SUBJECTS");
-        Long result = subjectDao.count();
+        Long result = subjectRepository.count();
         log.info("FOUND {} SUBJECTS SUCCESSFULLY", result);
         return result;
     }
@@ -87,7 +87,7 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("DELETING SUBJECT BY ID - {}", subjectId);
-        subjectDao.deleteById(subjectId);
+        subjectRepository.deleteById(subjectId);
         log.info("DELETED SUBJECT BY ID - {} SUCCESSFULLY", subjectId);
     }
 
@@ -100,7 +100,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL SUBJECTS");
-        subjectDao.deleteAll();
+        subjectRepository.deleteAll();
         log.info("DELETED ALL SUBJECTS SUCCESSFULLY");
     }
 
@@ -111,7 +111,7 @@ public class SubjectServiceImpl implements SubjectService {
         requiredSubjectExistence(subjectId);
         requiredTeacherExistence(teacherId);
         log.info("DELETING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {}", subjectId, teacherId);
-        subjectDao.deleteTheSubjectTeacher(subjectId, teacherId);
+        subjectRepository.deleteTheSubjectTeacher(subjectId, teacherId);
         log.info("DELETED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} SUCCESSFULLY", subjectId, teacherId);
     }
 
@@ -119,7 +119,7 @@ public class SubjectServiceImpl implements SubjectService {
     public void saveAll(List<Subject> subjects) {
         requireNonNull(subjects);
         log.info("SAVING {} SUBJECTS", subjects.size());
-        subjectDao.saveAll(subjects);
+        subjectRepository.saveAll(subjects);
         log.info("SAVED {} SUBJECTS SUCCESSFULLY", subjects.size());
     }
 
@@ -129,7 +129,8 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("UPDATING... SUBJECT BY ID - {}", subjectId);
-        subjectDao.updateSubject(subjectId, subject);
+        subject.setId(subjectId);
+        subjectRepository.save(subject);
         log.info("UPDATED {} SUCCESSFULLY", subject);
     }
 
@@ -142,7 +143,7 @@ public class SubjectServiceImpl implements SubjectService {
         requiredTeacherExistence(oldTeacherId);
         requiredTeacherExistence(newTeacherId);
         log.info("UPDATING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
-        subjectDao.updateTheSubjectTeacher(subjectId, oldTeacherId, newTeacherId);
+        subjectRepository.updateTheSubjectTeacher(subjectId, oldTeacherId, newTeacherId);
         log.info("UPDATED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
     }
 
@@ -151,7 +152,7 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... TEACHERS BY SUBJECT ID - {}", subjectId);
-        List<Teacher> teachers = subjectDao.findTeachersBySubject(subjectId);
+        List<Teacher> teachers = subjectRepository.findTeachersBySubject(subjectId);
         log.info("FOUND {} TEACHERS BY TEACHER ID - {}", teachers.size(), subjectId);
         return teachers;
     }
@@ -163,7 +164,7 @@ public class SubjectServiceImpl implements SubjectService {
         requiredSubjectExistence(subject.getId());
         requiredTeacherExistence(teacher);
         log.info("ADDING... SUBJECT BY ID - {} TO TEACHER BY ID - {}", subject.getId(), teacher.getId());
-        subjectDao.addSubjectToTeacher(subject, teacher);
+        subjectRepository.addSubjectToTeacher(subject, teacher);
         log.info("ADDED SUBJECT BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subject.getId(), teacher.getId());
     }
 
@@ -179,17 +180,17 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     private void requiredSubjectExistence(Integer subjectId) {
-        if (!subjectDao.existsById(subjectId))
+        if (!subjectRepository.existsById(subjectId))
             throw new NotFoundException(format("Subject by id - %d not exists", subjectId));
     }
 
     private void requiredTeacherExistence(Teacher teacher) {
-        if (!teacherDao.existsById(teacher.getId()))
+        if (!teacherRepository.existsById(teacher.getId()))
             throw new NotFoundException(format("Teacher by id - %d not exists", teacher.getId()));
     }
 
     private void requiredTeacherExistence(Integer teacherId) {
-        if (!teacherDao.existsById(teacherId))
+        if (!teacherRepository.existsById(teacherId))
             throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
     }
 

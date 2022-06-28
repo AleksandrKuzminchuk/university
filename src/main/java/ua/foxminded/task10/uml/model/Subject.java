@@ -25,6 +25,7 @@ public class Subject {
     @JoinTable(name = "teachers_subjects",
     joinColumns = @JoinColumn(name = "subject_id"),
     inverseJoinColumns = @JoinColumn(name = "teacher_id"))
+    @ToString.Exclude
     @NonNull
     private List<Teacher> teachers;
 

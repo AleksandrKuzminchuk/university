@@ -7,11 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.foxminded.task10.uml.dao.GroupDao;
-import ua.foxminded.task10.uml.dao.StudentDao;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
+import ua.foxminded.task10.uml.repository.GroupRepository;
+import ua.foxminded.task10.uml.repository.StudentRepository;
 import ua.foxminded.task10.uml.service.GroupService;
 
 import java.util.List;
@@ -26,14 +26,14 @@ import static java.util.Objects.requireNonNull;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class GroupServiceImpl implements GroupService {
 
-    GroupDao groupDao;
-    StudentDao studentDao;
+    GroupRepository groupRepository;
+    StudentRepository studentRepository;
 
     @Override
     public Group save(Group group) {
         requireNonNull(group);
         log.info("SAVING... {}", group);
-        Group result = groupDao.save(group).orElseThrow(() -> new NotFoundException(format("Can't save %s", group)));
+        Group result = groupRepository.save(group);
         log.info("SAVED {} SUCCESSFULLY", group);
         return result;
     }
@@ -43,7 +43,7 @@ public class GroupServiceImpl implements GroupService {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
         log.info("FINDING... GROUP BY ID - {}", groupId);
-        Group result = groupDao.findById(groupId).orElseThrow(() -> new NotFoundException(format("Can't find group by groupId- %d", groupId)));
+        Group result = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException(format("Can't find group by groupId- %d", groupId)));
         log.info("FOUND {} BY ID - {} SUCCESSFULLY", result, groupId);
         return result;
     }
@@ -52,7 +52,7 @@ public class GroupServiceImpl implements GroupService {
     public boolean existsById(Integer groupId) {
         requireNonNull(groupId);
         log.info("CHECKING... GROUP EXISTS BY ID - {}", groupId);
-        boolean result = groupDao.existsById(groupId);
+        boolean result = groupRepository.existsById(groupId);
         log.info("GROUP BY ID - {} EXISTS - {}", groupId, result);
         return result;
     }
@@ -60,7 +60,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<Group> findAll() {
         log.info("FINDING... ALL GROUPS");
-        List<Group> result = groupDao.findAll();
+        List<Group> result = groupRepository.findAll();
         log.info("FOUND {} GROUPS", result.size());
         return result;
     }
@@ -68,7 +68,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Long count() {
         log.info("FINDING... COUNT GROUPS");
-        Long result = groupDao.count();
+        Long result = groupRepository.count();
         log.info("FOUND COUNT({}) GROUPS SUCCESSFULLY", result);
         return result;
     }
@@ -78,7 +78,7 @@ public class GroupServiceImpl implements GroupService {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
         log.info("DELETING... GROUP BY ID- {}", groupId);
-        groupDao.deleteById(groupId);
+        groupRepository.deleteById(groupId);
         log.info("DELETED GROUP BY ID - {} SUCCESSFULLY", groupId);
     }
 
@@ -90,7 +90,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL GROUPS");
-        groupDao.deleteAll();
+        groupRepository.deleteAll();
         log.info("DELETED ALL GROUPS SUCCESSFULLY");
     }
 
@@ -98,7 +98,7 @@ public class GroupServiceImpl implements GroupService {
     public void saveAll(List<Group> groups) {
         requireNonNull(groups);
         log.info("SAVING... {} GROUPS", groups.size());
-        groupDao.saveAll(groups);
+        groupRepository.saveAll(groups);
         log.info("SAVED {} GROUPS SUCCESSFULLY", groups.size());
     }
 
@@ -106,7 +106,7 @@ public class GroupServiceImpl implements GroupService {
     public List<Group> findGroupsByName(String groupName) {
         requireNonNull(groupName);
         log.info("FINDING... GROUPS BY NAME - {}", groupName);
-        List<Group> result = groupDao.findGroupsByName(groupName);
+        List<Group> result = groupRepository.findGroupsByNameOrderByName(groupName);
         log.info("FOUND {} BY NAME - {} SUCCESSFULLY", result.size(), groupName);
         return result;
     }
@@ -117,7 +117,8 @@ public class GroupServiceImpl implements GroupService {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
         log.info("UPDATING... GROUP BY ID - {}", groupId);
-        groupDao.updateGroup(groupId, group);
+        group.setId(groupId);
+        groupRepository.save(group);
         log.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", groupId);
     }
 
@@ -128,7 +129,7 @@ public class GroupServiceImpl implements GroupService {
         requiredStudentExistence(student.getId());
         requiredGroupExistence(group.getId());
         log.info("ASSIGNING STUDENT BY ID - {} TO GROUP BY ID- {}", student, group);
-        groupDao.assignStudentToGroup(student, group);
+        groupRepository.assignStudentToGroup(student, group);
         log.info("ASSIGNED STUDENT BY ID - {} TO GROUP BY ID - {} SUCCESSFULLY", student, group);
     }
 
@@ -139,12 +140,12 @@ public class GroupServiceImpl implements GroupService {
         requiredGroupExistence(group.getId());
         students.forEach(student -> requiredStudentExistence(student.getId()));
         log.info("ASSIGNING STUDENTS {} TO GROUP BY ID - {}", students.size(), group);
-        groupDao.assignStudentsToGroup(students, group);
+        groupRepository.assignStudentsToGroup(students, group);
         log.info("ASSIGNED STUDENTS {} TO GROUP BY ID - {} SUCCESSFULLY", students.size(), group);
     }
 
     private void requiredStudentExistence(Integer studentId){
-        if (!studentDao.existsById(studentId)){
+        if (!studentRepository.existsById(studentId)){
             throw new NotFoundException(format("Student by id- %d not exists", studentId));
         }
     }

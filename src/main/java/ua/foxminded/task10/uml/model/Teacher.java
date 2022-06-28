@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 @Entity
 @Table(name = "teachers")
+@ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
 @AttributeOverride(name = "id", column = @Column(name = "teacher_id"))
 public class Teacher extends Person {
@@ -19,5 +20,4 @@ public class Teacher extends Person {
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private List<Subject> subjects;
-
 }

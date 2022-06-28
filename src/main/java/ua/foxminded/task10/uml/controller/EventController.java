@@ -7,10 +7,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.model.*;
 import ua.foxminded.task10.uml.service.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -44,7 +46,8 @@ public class EventController {
     }
 
     @PostMapping("/saved")
-    public String saveEvent(Model model, @ModelAttribute Event event) {
+    public String saveEvent(Model model, @ModelAttribute @Valid Event event,
+                            BindingResult bindingResult) {
         log.info("requested-> [POST]-'/saved'");
         Event savedEvent = eventService.save(getNewEvent(event));
         model.addAttribute("event", savedEvent);
