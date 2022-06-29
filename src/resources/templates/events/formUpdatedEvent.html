@@ -12,7 +12,7 @@
 <div class="login-page">
     <div class="form">
         <form class="login-form" th:action="@{/events}">
-            <b th:text="'Event ' + ${#temporals.format(event.dateTime, 'yyyy-MM-dd HH:mm')} + ' ' + ${#strings.toUpperCase(event.subject.name)} + ' ' + ${event.classroom.number} + ' ' + ${#strings.capitalize(event.teacher.firstName)} + ' ' + ${#strings.capitalize(event.teacher.lastName)} + ' ' + ${#strings.toUpperCase(event.group.name)} + ' UPDATED SUCCESSFULLY'" style="text-align: center;" ></b>
+            <b th:text="'Event ' + ${#temporals.format(event?.dateTime, 'yyyy-MM-dd HH:mm')} + ' ' + ${#strings.toUpperCase(event?.subject.name)} + ' ' + ${event?.classroom.number} + ' ' + ${#strings.capitalize(event.teacher?.firstName)} + ' ' + ${#strings.capitalize(event.teacher?.lastName)} + ' ' + ${#strings.toUpperCase(event.group?.name)} + ' UPDATED SUCCESSFULLY'" style="text-align: center;" ></b>
             <button type="submit">return to events page</button>
             <p class="message">main page <a th:href="@{/university}">UNIVERSITY</a></p>
         </form>

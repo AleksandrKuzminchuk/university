@@ -8,6 +8,7 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.dao.ClassroomDao;
 import ua.foxminded.task10.uml.model.Classroom;
