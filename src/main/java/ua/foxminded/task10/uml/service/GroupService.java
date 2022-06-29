@@ -9,11 +9,11 @@ public interface GroupService extends CrudRepositoryService<Group, Integer>{
 
     void saveAll(List<Group> groups);
 
-    Group findByGroupName(String groupName);
+    List<Group> findGroupsByName(String groupName);
 
     void updateGroup(Integer groupId, Group group);
 
-    void assignStudentToGroup(Student studentId, Group groupId);
+    void assignStudentToGroup(Student student, Group group);
 
-    void assignStudentsToGroup(List<Student> students, Group groupId);
+    void assignStudentsToGroup(List<Student> students, Group group);
 }

@@ -1,104 +1,90 @@
 package ua.foxminded.task10.uml.dao.impl;
 
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.stereotype.Component;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.dao.GroupDao;
-import ua.foxminded.task10.uml.dao.mapper.GroupRowMapper;
-import ua.foxminded.task10.uml.dao.mapper.StudentRowMapper;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
 
-import javax.sql.DataSource;
-import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Optional;
 
 import static java.util.Objects.requireNonNull;
 
-@Component
+@Slf4j
+@Repository
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class GroupDaoImpl implements GroupDao {
 
-    private static final Logger logger = LoggerFactory.getLogger(GroupDaoImpl.class);
-
-    private final JdbcTemplate jdbcTemplate;
-    private final GroupRowMapper groupMapper;
-
-    @Autowired
-    public GroupDaoImpl(DataSource dataSource) {
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.groupMapper = new GroupRowMapper();
-    }
+    SessionFactory sessionFactory;
 
     @Override
     public Optional<Group> save(Group group) {
         requireNonNull(group);
-        logger.info("SAVING {}...", group);
-        final String SAVE_GROUP = "INSERT INTO groups (group_name) VALUES (UPPER(?))";
-        KeyHolder holder = new GeneratedKeyHolder();
-        jdbcTemplate.update(con -> {
-            PreparedStatement statement = con.prepareStatement(SAVE_GROUP, new String[]{"group_id"});
-            statement.setString(1, group.getName());
-            return statement;
-        }, holder);
-        Integer groupId = requireNonNull(holder.getKey()).intValue();
-        group.setId(groupId);
-        Optional<Group> result = Optional.of(group);
-        logger.info("SAVED {} SUCCESSFULLY", group);
-        return result;
+        log.info("SAVING {}...", group);
+        Session session = sessionFactory.getCurrentSession();
+        session.persist(group);
+        log.info("SAVED {} SUCCESSFULLY", group);
+        return Optional.of(group);
     }
 
     @Override
-    public Optional<Group> findById(Integer id) {
-        requireNonNull(id);
-        logger.info("FINDING GROUP BY ID - {}", id);
-        final String FIND_BY_ID = "SELECT * FROM groups WHERE group_id = ?";
-        Group result = jdbcTemplate.queryForObject(FIND_BY_ID, groupMapper, id);
-        logger.info("FOUND {} BY ID - {}", result, id);
+    public Optional<Group> findById(Integer groupId) {
+        requireNonNull(groupId);
+        log.info("FINDING GROUP BY ID - {}", groupId);
+        Session session = sessionFactory.getCurrentSession();
+        Group result = session.find(Group.class, groupId);
+        log.info("FOUND {} BY ID - {}", result, groupId);
         return Optional.ofNullable(result);
     }
 
     @Override
-    public boolean existsById(Integer id) {
-        requireNonNull(id);
-        logger.info("CHECKING... GROUP EXISTS BY ID - {}", id);
-        final String EXISTS_BY_ID = "SELECT COUNT(*) FROM groups WHERE group_id = ?";
-        Long count = jdbcTemplate.queryForObject(EXISTS_BY_ID, Long.class, id);
+    public boolean existsById(Integer groupId) {
+        requireNonNull(groupId);
+        log.info("CHECKING... GROUP EXISTS BY ID - {}", groupId);
+        final String EXISTS_BY_ID = "SELECT COUNT(g) FROM Group g WHERE g.id =:groupId";
+        Session session = sessionFactory.getCurrentSession();
+        Long count = session.createQuery(EXISTS_BY_ID, Long.class).setParameter("groupId", groupId).uniqueResult();
         boolean exists = count != null && count > 0;
-        logger.info("GROUP BY ID - {} EXISTS - {}", id, exists);
+        log.info("GROUP BY ID - {} EXISTS - {}", groupId, exists);
         return exists;
     }
 
     @Override
     public List<Group> findAll() {
-        logger.info("FINDING ALL GROUPS");
-        final String FIND_GROUPS = "SELECT * FROM groups";
-        List<Group> groups = jdbcTemplate.query(FIND_GROUPS, groupMapper);
-        logger.info("FOUND ALL GROUPS: {}", groups.size());
+        log.info("FINDING ALL GROUPS");
+        final String FIND_GROUPS = "SELECT g FROM Group g ORDER BY g.name";
+        Session session = sessionFactory.getCurrentSession();
+        List<Group> groups = session.createQuery(FIND_GROUPS, Group.class).getResultList();
+        log.info("FOUND ALL GROUPS: {}", groups.size());
         return groups;
     }
 
     @Override
     public Long count() {
-        logger.info("FINDING COUNT ALL GROUPS");
-        final String COUNT = "SELECT COUNT(*) FROM groups";
-        Long count = jdbcTemplate.queryForObject(COUNT, Long.class);
-        logger.info("FOUND COUNT({}) GROUPS SUCCESSFULLY", count);
+        log.info("FINDING COUNT ALL GROUPS");
+        final String COUNT = "SELECT COUNT(g) FROM Group g";
+        Session session = sessionFactory.getCurrentSession();
+        Long count = session.createQuery(COUNT, Long.class).uniqueResult();
+        log.info("FOUND COUNT({}) GROUPS SUCCESSFULLY", count);
         return count;
     }
 
     @Override
-    public void deleteById(Integer id) {
-        requireNonNull(id);
-        logger.info("DELETE GROUP BY ID - {}", id);
-        final String DELETE_BY_ID = "DELETE FROM groups WHERE group_id = ?";
-        jdbcTemplate.update(DELETE_BY_ID, id);
-        logger.info("DELETED GROUP BY ID - {}", id);
+    public void deleteById(Integer groupId) {
+        requireNonNull(groupId);
+        log.info("DELETE GROUP BY ID - {}", groupId);
+        final String DELETE_BY_ID = "DELETE FROM Group g WHERE g.id =:groupId";
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery(DELETE_BY_ID).setParameter("groupId", groupId).executeUpdate();
+        log.info("DELETED GROUP BY ID - {}", groupId);
     }
 
     @Override
@@ -108,57 +94,63 @@ public class GroupDaoImpl implements GroupDao {
 
     @Override
     public void deleteAll() {
-        logger.info("DELETE ALL GROUPS");
-        final String DELETE_GROUPS = "DELETE FROM groups";
-        jdbcTemplate.update(DELETE_GROUPS);
-        logger.info("DELETED ALL GROUPS");
+        log.info("DELETE ALL GROUPS");
+        final String DELETE_GROUPS = "DELETE FROM Group";
+        Session session = sessionFactory.getCurrentSession();
+        session.createQuery(DELETE_GROUPS, Group.class).executeUpdate();
+        log.info("DELETED ALL GROUPS");
     }
 
     @Override
     public void saveAll(List<Group> groups) {
         requireNonNull(groups);
-        logger.info("SAVING GROUPS - {}", groups.size());
+        log.info("SAVING GROUPS - {}", groups.size());
         groups.forEach(this::save);
-        logger.info("SAVED GROUPS - {} SUCCESSFULLY ", groups.size());
+        log.info("SAVED GROUPS - {} SUCCESSFULLY ", groups.size());
     }
 
     @Override
-    public Optional<Group> findByGroupName(String groupName) {
+    public List<Group> findGroupsByName(String groupName) {
         requireNonNull(groupName);
-        logger.info("FINDING GROUP BY NAME - {}", groupName);
-        final String FIND_GROUP_BY_NAME = "SELECT * FROM groups WHERE group_name = UPPER(?)";
-        Group group = jdbcTemplate.queryForObject(FIND_GROUP_BY_NAME, groupMapper, groupName);
-        logger.info("FOUND {} BY NAME {}", group, groupName);
-        return Optional.ofNullable(group);
+        log.info("FINDING GROUPS BY NAME - {}", groupName);
+        final String FIND_GROUP_BY_NAME = "SELECT g FROM Group g WHERE g.name =:groupName";
+        Session session = sessionFactory.getCurrentSession();
+        List<Group> groups = session.createQuery(FIND_GROUP_BY_NAME, Group.class).setParameter("groupName", groupName).getResultList();
+        log.info("FOUND {} GROUPS BY NAME {}", groups.size(), groupName);
+        return groups;
     }
 
     @Override
     public void updateGroup(Integer groupId, Group group) {
         requireNonNull(group);
         requireNonNull(groupId);
-        logger.info("UPDATING GROUP BY ID - {}", group.getId());
-        final String UPDATE_GROUP = "UPDATE groups SET group_name = UPPER(?) WHERE group_id = ?";
-        jdbcTemplate.update(UPDATE_GROUP, group.getName(), groupId);
-        logger.info("UPDATED {} SUCCESSFULLY", group);
+        log.info("UPDATING GROUP BY ID - {}", group.getId());
+        Session session = sessionFactory.getCurrentSession();
+        session.find(Group.class, groupId).setName(group.getName());
+        log.info("UPDATED {} SUCCESSFULLY", group);
     }
 
     @Override
-    public void assignStudentToGroup(Student studentId, Group groupId) {
-        requireNonNull(studentId);
-        requireNonNull(groupId);
-        logger.info("ASSIGN {} TO {}", studentId, groupId);
-        final String ASSIGN_STUDENT_TO_GROUP = "UPDATE students SET group_id = ? WHERE student_id = ?";
-        jdbcTemplate.update(ASSIGN_STUDENT_TO_GROUP, groupId.getId(), studentId.getId());
-        logger.info("ASSIGNED {} TO {} SUCCESSFULLY", studentId, groupId);
+    public void assignStudentToGroup(Student student, Group group) {
+        requireNonNull(student);
+        requireNonNull(group);
+        log.info("ASSIGN {} TO {}", student, group);
+        Session session = sessionFactory.getCurrentSession();
+        Group addGroup = session.find(Group.class, group.getId());
+        Student addStudent = session.find(Student.class, student.getId());
+        addGroup.getStudents().add(addStudent);
+        addStudent.setGroup(addGroup);
+        session.merge(addGroup);
+        log.info("ASSIGNED {} TO {} SUCCESSFULLY", student, group);
     }
 
 
     @Override
-    public void assignStudentsToGroup(List<Student> students, Group groupId) {
+    public void assignStudentsToGroup(List<Student> students, Group group) {
         requireNonNull(students);
-        requireNonNull(groupId);
-        logger.info("ASSIGN {} TO GROUP  - {}", students.size(), groupId);
-        students.forEach(student -> assignStudentToGroup(student, groupId));
-        logger.info("ASSIGNED {} TO GROUP - {} SUCCESSFULLY", students.size(), groupId);
+        requireNonNull(group);
+        log.info("ASSIGN {} TO GROUP  - {}", students.size(), group);
+        students.forEach(student -> assignStudentToGroup(student, group));
+        log.info("ASSIGNED {} TO GROUP - {} SUCCESSFULLY", students.size(), group);
     }
 }

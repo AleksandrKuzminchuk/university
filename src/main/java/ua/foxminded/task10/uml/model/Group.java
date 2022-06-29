@@ -1,87 +1,35 @@
 package ua.foxminded.task10.uml.model;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import lombok.*;
 
+import javax.persistence.*;
+import java.util.List;
+
+@Data
+@Entity
+@NoArgsConstructor
+@Table(name = "groups")
+@ToString(onlyExplicitlyIncluded = true)
 public class Group {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "group_id")
+    @ToString.Include
+    @NonNull
     private Integer id;
+
+    @ToString.Include
+    @Column(name = "group_name")
     private String name;
+
+    @Singular
+    @ToString.Exclude
+    @OneToMany(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH},
+            mappedBy = "group", fetch = FetchType.EAGER)
     private List<Student> students;
 
-    public Group() {
-    }
-
-    public Group(Integer id) {
+    public Group(@NonNull Integer id) {
         this.id = id;
-    }
-
-    public Group(String name) {
-        this.name = name;
-        this.students = new ArrayList<>();
-    }
-
-    public Group(Integer id, String name) {
-        this.id = id;
-        this.name = name;
-    }
-
-    public Group(String name, List<Student> students) {
-        this.name = name;
-        this.students = new ArrayList<>();
-    }
-
-    public Group(Integer id, String name, List<Student> students) {
-        this.id = id;
-        this.name = name;
-        this.students = students;
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public List<Student> getStudents() {
-        return students;
-    }
-
-    public void setStudents(List<Student> students) {
-        this.students = students;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Group group = (Group) o;
-        return Objects.equals(id, group.id) && Objects.equals(name, group.name) &&
-                Objects.equals(students, group.students);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, name, students);
-    }
-
-    @Override
-    public String toString() {
-        return "Group{" +
-                "id=" + id +
-                ", name='" + name + '\'' +
-                ", students=" + students +
-                '}';
     }
 }

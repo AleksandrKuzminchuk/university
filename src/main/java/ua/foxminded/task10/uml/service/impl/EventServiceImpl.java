@@ -1,9 +1,11 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import lombok.AccessLevel;
+import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.dao.*;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Event;
@@ -16,103 +18,96 @@ import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
 
-@Component
+@Slf4j
+@Service
+@Transactional
+@RequiredArgsConstructor
+@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class EventServiceImpl implements EventService {
 
-    private static final Logger logger = LoggerFactory.getLogger(EventServiceImpl.class);
-
-    private final EventDao eventDao;
-    private final TeacherDao teacherDao;
-    private final GroupDao groupDao;
-    private final SubjectDao subjectDao;
-    private final ClassroomDao classroomDao;
-
-    @Autowired
-    public EventServiceImpl(EventDao eventDao, TeacherDao teacherDao, GroupDao groupDao, SubjectDao subjectDao, ClassroomDao classroomDao) {
-        this.eventDao = eventDao;
-        this.teacherDao = teacherDao;
-        this.groupDao = groupDao;
-        this.subjectDao = subjectDao;
-        this.classroomDao = classroomDao;
-    }
+    EventDao eventDao;
+    TeacherDao teacherDao;
+    GroupDao groupDao;
+    SubjectDao subjectDao;
+    ClassroomDao classroomDao;
 
     @Override
     public Event save(Event event) {
         requireNonNull(event);
         requiredEventExistence(event);
-        logger.info("SAVING... {}", event);
+        log.info("SAVING... {}", event);
         Event result = eventDao.save(event).orElseThrow(() -> new NotFoundException(format("Can't save %s", event)));
-        logger.info("SAVED {} SUCCESSFULLY", event);
+        log.info("SAVED {} SUCCESSFULLY", event);
         return result;
     }
 
     @Override
-    public Event findById(Integer id) {
-        requireNonNull(id);
-        requiredEventByIdExistence(id);
-        logger.info("FINDING... EVENT BY ID - {}", id);
-        Event result = eventDao.findById(id).orElseThrow(() -> new NotFoundException(format("Can't find event by id - %d", id)));
-        logger.info("FOUND {} BY ID - {}", result, id);
+    public Event findById(Integer eventId) {
+        requireNonNull(eventId);
+        requiredEventByIdExistence(eventId);
+        log.info("FINDING... EVENT BY ID - {}", eventId);
+        Event result = eventDao.findById(eventId).orElseThrow(() -> new NotFoundException(format("Can't find event by eventId - %d", eventId)));
+        log.info("FOUND {} BY ID - {}", result, eventId);
         return result;
     }
 
     @Override
-    public boolean existsById(Integer id) {
-        requireNonNull(id);
-        logger.info("CHECKING... EVENT BY ID - {}", id);
-        boolean result = eventDao.existsById(id);
-        logger.info("EVENT BY ID - {} EXISTS - {}", id, result);
+    public boolean existsById(Integer eventId) {
+        requireNonNull(eventId);
+        log.info("CHECKING... EVENT BY ID - {}", eventId);
+        boolean result = eventDao.existsById(eventId);
+        log.info("EVENT BY ID - {} EXISTS - {}", eventId, result);
         return result;
     }
 
     @Override
     public List<Event> findAll() {
-        logger.info("FINDING... ALL EVENTS");
+        log.info("FINDING... ALL EVENTS");
         List<Event> result = eventDao.findAll();
-        logger.info("FOUND {} EVENTS", result.size());
+        log.info("FOUND {} EVENTS", result.size());
         return result;
     }
 
     @Override
     public Long count() {
-        logger.info("FINDING... COUNT EVENTS");
+        log.info("FINDING... COUNT EVENTS");
         long result = eventDao.count();
-        logger.info("FOUND {} EVENTS", result);
+        log.info("FOUND {} EVENTS", result);
         return result;
     }
 
     @Override
-    public void deleteById(Integer id) {
-        requireNonNull(id);
-        requiredEventByIdExistence(id);
-        logger.info("DELETING... EVENT BY ID - {}", id);
-        eventDao.deleteById(id);
-        logger.info("DELETED EVENT BY ID - {} SUCCESSFULLY", id);
+    public void deleteById(Integer eventId) {
+        requireNonNull(eventId);
+        requiredEventByIdExistence(eventId);
+        log.info("DELETING... EVENT BY ID - {}", eventId);
+        eventDao.deleteById(eventId);
+        log.info("DELETED EVENT BY ID - {} SUCCESSFULLY", eventId);
     }
 
     @Override
     public void delete(Event event) {
         requireNonNull(event);
         requiredEventExistence(event);
-        logger.info("DELETING... {}", event);
+        log.info("DELETING... {}", event);
         eventDao.deleteById(event.getId());
-        logger.info("DELETED {} SUCCESSFULLY", event);
+        log.info("DELETED {} SUCCESSFULLY", event);
     }
 
     @Override
     public void deleteAll() {
-        logger.info("DELETING... ALL EVENTS");
+        log.info("DELETING... ALL EVENTS");
         eventDao.deleteAll();
-        logger.info("DELETED ALL EVENTS SUCCESSFULLY");
+        log.info("DELETED ALL EVENTS SUCCESSFULLY");
     }
 
     @Override
     public void saveAll(List<Event> events) {
         requireNonNull(events);
         events.forEach(this::requiredEventExistence);
-        logger.info("SAVING... {} EVENTS", events.size());
+        log.info("SAVING... {} EVENTS", events.size());
         eventDao.saveAll(events);
-        logger.info("SAVED {} EVENTS SUCCESSFULLY", events.size());
+        log.info("SAVED {} EVENTS SUCCESSFULLY", events.size());
     }
 
     @Override
@@ -120,18 +115,18 @@ public class EventServiceImpl implements EventService {
         requireNonNull(event);
         requireNonNull(eventId);
         requiredEventByIdExistence(eventId);
-        logger.info("UPDATING... EVENT BY ID - {}", eventId);
+        log.info("UPDATING... EVENT BY ID - {}", eventId);
         eventDao.updateEvent(eventId, event);
-        logger.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventId);
+        log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventId);
     }
 
     @Override
     public List<Event> findEvents(LocalDateTime from, LocalDateTime to) {
         requireNonNull(from);
         requireNonNull(to);
-        logger.info("FINDING... EVENT FROM {} TO {}", from.format(formatter), to.format(formatter));
+        log.info("FINDING... EVENT FROM {} TO {}", from.format(formatter), to.format(formatter));
         List<Event> result = eventDao.findEvents(from, to);
-        logger.info("FOUND {} EVENT FROM {} TO {}", result.size(), from.format(formatter), to.format(formatter));
+        log.info("FOUND {} EVENT FROM {} TO {}", result.size(), from.format(formatter), to.format(formatter));
         return result;
     }
 
