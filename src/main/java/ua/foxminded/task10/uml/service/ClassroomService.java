@@ -11,5 +11,5 @@ public interface ClassroomService extends CrudRepositoryService<Classroom, Integ
 
     void updateClassroom(Integer classroomId, Classroom classroom);
 
-    List<Classroom> findClassroomsByNumber(Integer classroomNumber);
+    Classroom findClassroomByNumber(Classroom classroom);
 }

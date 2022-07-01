@@ -1,9 +1,14 @@
 package ua.foxminded.task10.uml.model;
 
 import lombok.*;
+import org.springframework.validation.annotation.Validated;
 
 import javax.persistence.*;
-import javax.validation.constraints.Size;
+import javax.validation.Valid;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 
 @Data
 @Entity
@@ -17,8 +22,11 @@ public class Classroom {
     @NonNull
     private Integer id;
 
-    @Column(name = "room_number")
+    @Column(name = "room_number", unique = true ,nullable = false)
     @NonNull
+    @Min(value = 1, message = "Must be greater than 1. Range courses from 1 to 1000")
+    @Max(value = 1000, message = "Must be less than 1000. Range courses from 1 to 1000")
+    @NotNull(message = "Can't be empty and consist on placeholders")
     private Integer number;
 
     public Classroom(@NonNull Integer id) {

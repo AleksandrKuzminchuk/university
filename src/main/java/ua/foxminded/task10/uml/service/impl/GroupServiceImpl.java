@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
@@ -13,8 +15,10 @@ import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.repository.GroupRepository;
 import ua.foxminded.task10.uml.repository.StudentRepository;
 import ua.foxminded.task10.uml.service.GroupService;
+import ua.foxminded.task10.uml.util.GlobalNotFoundException;
 
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -27,15 +31,14 @@ import static java.util.Objects.requireNonNull;
 public class GroupServiceImpl implements GroupService {
 
     GroupRepository groupRepository;
-    StudentRepository studentRepository;
 
     @Override
     public Group save(Group group) {
         requireNonNull(group);
         log.info("SAVING... {}", group);
-        Group result = groupRepository.save(group);
+        groupRepository.save(group);
         log.info("SAVED {} SUCCESSFULLY", group);
-        return result;
+        return group;
     }
 
     @Override
@@ -43,7 +46,7 @@ public class GroupServiceImpl implements GroupService {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
         log.info("FINDING... GROUP BY ID - {}", groupId);
-        Group result = groupRepository.findById(groupId).orElseThrow(() -> new NotFoundException(format("Can't find group by groupId- %d", groupId)));
+        Group result = groupRepository.findById(groupId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by groupId- %d", groupId)));
         log.info("FOUND {} BY ID - {} SUCCESSFULLY", result, groupId);
         return result;
     }
@@ -60,7 +63,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public List<Group> findAll() {
         log.info("FINDING... ALL GROUPS");
-        List<Group> result = groupRepository.findAll();
+        List<Group> result = groupRepository.findAll(Sort.by(Sort.Order.asc("name")));
         log.info("FOUND {} GROUPS", result.size());
         return result;
     }
@@ -103,11 +106,11 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> findGroupsByName(String groupName) {
-        requireNonNull(groupName);
-        log.info("FINDING... GROUPS BY NAME - {}", groupName);
-        List<Group> result = groupRepository.findGroupsByNameOrderByName(groupName);
-        log.info("FOUND {} BY NAME - {} SUCCESSFULLY", result.size(), groupName);
+    public Group findGroupByName(Group group) {
+        requireNonNull(group);
+        log.info("FINDING... GROUPS BY NAME - {}", group.getName());
+        Group result = groupRepository.findOne(Example.of(group)).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", group.getName())));
+        log.info("FOUND {} BY NAME - {} SUCCESSFULLY", result, group.getName());
         return result;
     }
 
@@ -122,36 +125,8 @@ public class GroupServiceImpl implements GroupService {
         log.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", groupId);
     }
 
-    @Override
-    public void assignStudentToGroup(Student student, Group group) {
-        requireNonNull(student);
-        requireNonNull(group);
-        requiredStudentExistence(student.getId());
-        requiredGroupExistence(group.getId());
-        log.info("ASSIGNING STUDENT BY ID - {} TO GROUP BY ID- {}", student, group);
-        groupRepository.assignStudentToGroup(student, group);
-        log.info("ASSIGNED STUDENT BY ID - {} TO GROUP BY ID - {} SUCCESSFULLY", student, group);
-    }
-
-    @Override
-    public void assignStudentsToGroup(List<Student> students, Group group) {
-        requireNonNull(students);
-        requireNonNull(group);
-        requiredGroupExistence(group.getId());
-        students.forEach(student -> requiredStudentExistence(student.getId()));
-        log.info("ASSIGNING STUDENTS {} TO GROUP BY ID - {}", students.size(), group);
-        groupRepository.assignStudentsToGroup(students, group);
-        log.info("ASSIGNED STUDENTS {} TO GROUP BY ID - {} SUCCESSFULLY", students.size(), group);
-    }
-
-    private void requiredStudentExistence(Integer studentId){
-        if (!studentRepository.existsById(studentId)){
-            throw new NotFoundException(format("Student by id- %d not exists", studentId));
-        }
-    }
-
     private void requiredGroupExistence(Integer groupId){
-        if (!existsById(groupId)){
+        if (!groupRepository.existsById(groupId)){
             throw new NotFoundException(format("Group by id - %d not exists", groupId));
         }
     }

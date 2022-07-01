@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
@@ -33,9 +34,9 @@ public class StudentServiceImpl implements StudentService {
     public Student save(Student student) {
         requireNonNull(student);
         log.info("SAVING... {}", student);
-        Student result = studentRepository.save(student);
-        log.info("SAVED {} SUCCESSFULLY", result);
-        return result;
+        studentRepository.save(student);
+        log.info("SAVED {} SUCCESSFULLY", student);
+        return student;
     }
 
     @Override
@@ -52,7 +53,7 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> findStudentsByNameOrSurname(Student student) {
         requireNonNull(student);
         log.info("FINDING... STUDENTS BY NAME OR SURNAME");
-        List<Student> result = studentRepository.findStudentsByNameOrSurname(student);
+        List<Student> result = studentRepository.findStudentsByFirstNameOrLastNameOrderByFirstName(student.getFirstName(), student.getLastName());
         log.info("FOUND STUDENTS {} BY NAME OR SURNAME", result.size());
         return result;
     }
@@ -69,7 +70,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> findAll() {
         log.info("FINDING... ALL STUDENTS");
-        List<Student> result = studentRepository.findAll();
+        List<Student> result = studentRepository.findAll(Sort.by(Sort.Order.asc("firstName")));
         log.info("FOUND {} STUDENTS", result.size());
         return result;
     }
@@ -167,22 +168,13 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void updateTheStudentGroup(Integer groupId, Integer studentId) {
-        requireNonNull(groupId);
-        requireNonNull(studentId);
-        requiredGroupExistence(groupId);
-        requiredStudentExistence(studentId);
-        log.info("UPDATING... THE STUDENTS' BY ID - {} GROUP BY ID - {}", studentId, groupId);
-        studentRepository.updateTheStudentGroup(groupId, studentId);
-        log.info("UPDATED THE STUDENTS' BY ID - {} GROUP BY ID - {}", studentId, groupId);
-    }
-
-    @Override
     public void deleteTheStudentGroup(Integer studentId) {
         requireNonNull(studentId);
         requiredStudentExistence(studentId);
         log.info("UPDATING... STUDENTS' BY ID - {} GROUP", studentId);
-        studentRepository.deleteTheStudentGroup(studentId);
+        Student studentToBeDeleted = findById(studentId);
+        studentToBeDeleted.setGroup(null);
+        studentRepository.save(studentToBeDeleted);
         log.info("UPDATED THE STUDENTS' BY ID - {} GROUP SUCCESSFULLY", studentId);
     }
 
@@ -191,7 +183,7 @@ public class StudentServiceImpl implements StudentService {
         requireNonNull(group.getName());
         requiredGroupExistence(group.getId());
         log.info("FINDING... STUDENTS BY NAME GROUP - {}", group.getName());
-        List<Student> result = studentRepository.findStudentsByGroupName(group);
+        List<Student> result = studentRepository.findStudentsByGroupNameOrderByFirstName(group.getName());
         log.info("FOUND {} STUDENTS BY ID GROUP NAME - {}", result.size(), group.getName());
         return result;
     }

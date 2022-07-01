@@ -99,10 +99,9 @@ public class SubjectController {
     @GetMapping("/found/by_name")
     public String findSubjectByName(Model model, @ModelAttribute Subject subject) {
         log.info("requested-> [GET]-'/found/by_name'");
-        List<Subject> result = subjectService.findSubjectsByName(subject);
+        Subject result = subjectService.findSubjectsByName(subject);
         model.addAttribute("subjects", result);
-        model.addAttribute("count", result.size());
-        log.info("FOUND {} SUBJECTS BY NAME {}", result.size(), subject.getName());
+        log.info("FOUND {} SUBJECT BY NAME {}", result, subject.getName());
         return "subjects/subjects";
     }
 

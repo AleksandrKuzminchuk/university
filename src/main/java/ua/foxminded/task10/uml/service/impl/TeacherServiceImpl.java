@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
@@ -33,9 +34,9 @@ public class TeacherServiceImpl implements TeacherService {
     public Teacher save(Teacher teacher) {
         requireNonNull(teacher);
         log.info("SAVING... {}", teacher);
-        Teacher result = teacherRepository.save(teacher);
-        log.info("SAVED {} SUCCESSFULLY", result);
-        return result;
+        teacherRepository.save(teacher);
+        log.info("SAVED {} SUCCESSFULLY", teacher);
+        return teacher;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class TeacherServiceImpl implements TeacherService {
         requireNonNull(teacherId);
         requiredTeacherExistence(teacherId);
         log.info("FINDING... TEACHER BY ID - {}", teacherId);
-        Teacher result = teacherRepository.findById(teacherId).orElseThrow(() -> new NotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
+        Teacher result = generateFindByIdExtractorTeacher(teacherId);
         log.info("FOUND {} BY ID - {}", result, teacherId);
         return result;
     }
@@ -60,7 +61,7 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public List<Teacher> findAll() {
         log.info("FINDING... ALL TEACHERS");
-        List<Teacher> result = teacherRepository.findAll();
+        List<Teacher> result = teacherRepository.findAll(Sort.by(Sort.Order.asc("firstName")));
         log.info("FOUND {} TEACHERS", result.size());
         return result;
     }
@@ -69,7 +70,7 @@ public class TeacherServiceImpl implements TeacherService {
     public List<Teacher> findTeachersByNameOrSurname(Teacher teacher) {
         requireNonNull(teacher);
         log.info("FINDING... TEACHERS {}", teacher);
-        List<Teacher> result = teacherRepository.findTeachersByNameOrSurname(teacher);
+        List<Teacher> result = teacherRepository.findTeachersByFirstNameOrLastNameOrderByFirstName(teacher.getFirstName(), teacher.getLastName());
         log.info("FOUND {} TEACHERS BY {} SUCCESSFULLY", result.size(), teacher);
         return result;
     }
@@ -110,7 +111,10 @@ public class TeacherServiceImpl implements TeacherService {
         requiredTeacherExistence(teacherId);
         requiredSubjectExistence(subjectId);
         log.info("DELETING... THE TEACHERS' BY ID - {} SUBJECT BY ID - {}", teacherId, subjectId);
-        teacherRepository.deleteTheTeacherSubject(teacherId, subjectId);
+        Teacher teacher = generateFindByIdExtractorTeacher(teacherId);
+        Subject subjectToRemove = generateFindByIdExtractorSubject(subjectId);
+        teacher.getSubjects().remove(subjectToRemove);
+        subjectToRemove.getTeachers().remove(teacher);
         log.info("DELETED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} SUCCESSFULLY", teacherId, subjectId);
     }
 
@@ -142,7 +146,11 @@ public class TeacherServiceImpl implements TeacherService {
         requiredSubjectExistence(newSubjectId);
         requiredSubjectExistence(oldSubjectId);
         log.info("UPDATING... THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {}", teacherId, oldSubjectId, newSubjectId);
-        teacherRepository.updateTheTeacherSubject(teacherId, oldSubjectId, newSubjectId);
+        Teacher teacher = generateFindByIdExtractorTeacher(teacherId);
+        Subject oldSubject = generateFindByIdExtractorSubject(oldSubjectId);
+        Subject newSubject = generateFindByIdExtractorSubject(newSubjectId);
+        teacher.getSubjects().remove(oldSubject);
+        teacher.getSubjects().add(newSubject);
         log.info("UPDATED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacherId, oldSubjectId, newSubjectId);
     }
 
@@ -153,7 +161,9 @@ public class TeacherServiceImpl implements TeacherService {
         requiredSubjectExistence(subject.getId());
         requiredTeacherExistence(teacher.getId());
         log.info("ADDING... TEACHER BY ID - {} TO SUBJECT BY ID - {}", teacher.getId(), subject.getId());
-        teacherRepository.addTeacherToSubject(teacher, subject);
+        Teacher teacherToBeSave = generateFindByIdExtractorTeacher(teacher.getId());
+        Subject subjectToBeSave = generateFindByIdExtractorSubject(subject.getId());
+        teacherToBeSave.getSubjects().add(subjectToBeSave);
         log.info("ADDED TEACHER BT ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacher.getId(), subject.getId());
     }
 
@@ -164,7 +174,7 @@ public class TeacherServiceImpl implements TeacherService {
         requiredTeacherExistence(teacher.getId());
         subjects.forEach(subject -> requiredSubjectExistence(subject.getId()));
         log.info("ADDING... TEACHER BY ID - {} TO SUBJECTS {}", teacher.getId(), subjects.size());
-        teacherRepository.addTeacherToSubjects(teacher, subjects);
+        subjects.forEach(subject -> addTeacherToSubject(teacher, subject));
         log.info("ADDED TEACHER BY ID - {} TO SUBJECTS {} SUCCESSFULLY", teacher.getId(), subjects.size());
     }
 
@@ -173,13 +183,21 @@ public class TeacherServiceImpl implements TeacherService {
         requireNonNull(teacherId);
         requiredTeacherExistence(teacherId);
         log.info("FINDING... SUBJECTS BY TEACHER ID - {}", teacherId);
-        List<Subject> subjects = teacherRepository.findSubjectsByTeacherId(teacherId);
-        log.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", subjects.size(), teacherId);
-        return subjects;
+        Teacher teacher = generateFindByIdExtractorTeacher(teacherId);
+        log.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", teacher.getSubjects().size(), teacherId);
+        return teacher.getSubjects();
      }
 
+    private Teacher generateFindByIdExtractorTeacher(Integer teacherId) {
+        return teacherRepository.findById(teacherId).orElseThrow(() -> new NotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
+    }
+
+    private Subject generateFindByIdExtractorSubject(Integer subjectId) {
+        return subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
+    }
+
     private void requiredTeacherExistence(Integer teacherId) {
-        if (!existsById(teacherId))
+        if (!teacherRepository.existsById(teacherId))
             throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
     }
 

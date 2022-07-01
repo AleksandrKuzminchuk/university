@@ -13,7 +13,7 @@ public interface SubjectService extends CrudRepositoryService<Subject, Integer>{
 
     List<Teacher> findTeachersBySubject(Integer subjectId);
 
-    List<Subject> findSubjectsByName(Subject subject);
+    Subject findSubjectsByName(Subject subject);
 
     void addSubjectToTeacher(Subject subject, Teacher teacher);
 

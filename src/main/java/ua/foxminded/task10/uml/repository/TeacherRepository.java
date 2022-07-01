@@ -10,8 +10,6 @@ import ua.foxminded.task10.uml.model.Teacher;
 import java.util.List;
 
 @Repository
-public interface TeacherRepository extends JpaRepository<Teacher, Integer>, CustomizedTeacher {
-
-    @Query("FROM Teacher t ORDER BY t.firstName, t.lastName")
-    List<Teacher> findAll();
+public interface TeacherRepository extends JpaRepository<Teacher, Integer> {
+    List<Teacher> findTeachersByFirstNameOrLastNameOrderByFirstName(String firstName, String lastName);
 }

@@ -5,6 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
@@ -33,9 +35,9 @@ public class SubjectServiceImpl implements SubjectService {
     public Subject save(Subject subject) {
         requireNonNull(subject);
         log.info("SAVING... {}", subject);
-        Subject result = subjectRepository.save(subject);
+        subjectRepository.save(new Subject(subject.getName().toUpperCase()));
         log.info("SAVED {} SUCCESSFULLY", subject);
-        return result;
+        return subject;
     }
 
     @Override
@@ -43,17 +45,17 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... SUBJECT BY ID - {}", subjectId);
-        Subject result = subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
+        Subject result = generateFindByIdExtractorSubject(subjectId);
         log.info("FOUND {} BY ID - {} SUCCESSFULLY", result, subjectId);
         return result;
     }
 
     @Override
-    public List<Subject> findSubjectsByName(Subject subject) {
+    public Subject findSubjectsByName(Subject subject) {
         requireNonNull(subject);
-        log.info("FINDING... SUBJECTS BY NAME {}", subject.getName());
-        List<Subject> result = subjectRepository.findSubjectsByName(subject);
-        log.info("FOUND {} SUBJECTS BY NAME {}", result.size(), subject.getName());
+        log.info("FINDING... SUBJECT BY NAME {}", subject.getName());
+        Subject result = subjectRepository.findOne(Example.of(subject)).orElseThrow(() -> new NotFoundException(format("Can't find subject by name - %s", subject.getName())));
+        log.info("FOUND {} SUBJECT BY NAME {}", result, subject.getName());
         return result;
     }
 
@@ -69,7 +71,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public List<Subject> findAll() {
         log.info("FINDING... ALL SUBJECTS");
-        List<Subject> result = subjectRepository.findAll();
+        List<Subject> result = subjectRepository.findAll(Sort.by(Sort.Order.asc("name")));
         log.info("FOUND {} SUBJECTS SUCCESSFULLY", result.size());
         return result;
     }
@@ -111,7 +113,10 @@ public class SubjectServiceImpl implements SubjectService {
         requiredSubjectExistence(subjectId);
         requiredTeacherExistence(teacherId);
         log.info("DELETING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {}", subjectId, teacherId);
-        subjectRepository.deleteTheSubjectTeacher(subjectId, teacherId);
+        Subject subject = generateFindByIdExtractorSubject(subjectId);
+        Teacher teacherToRemove = generateFindByIdExtractorTeacher(teacherId);
+        subject.getTeachers().remove(teacherToRemove);
+        teacherToRemove.getSubjects().remove(subject);
         log.info("DELETED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} SUCCESSFULLY", subjectId, teacherId);
     }
 
@@ -130,7 +135,7 @@ public class SubjectServiceImpl implements SubjectService {
         requiredSubjectExistence(subjectId);
         log.info("UPDATING... SUBJECT BY ID - {}", subjectId);
         subject.setId(subjectId);
-        subjectRepository.save(subject);
+        subjectRepository.save(new Subject(subjectId, subject.getName().toUpperCase()));
         log.info("UPDATED {} SUCCESSFULLY", subject);
     }
 
@@ -143,7 +148,11 @@ public class SubjectServiceImpl implements SubjectService {
         requiredTeacherExistence(oldTeacherId);
         requiredTeacherExistence(newTeacherId);
         log.info("UPDATING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
-        subjectRepository.updateTheSubjectTeacher(subjectId, oldTeacherId, newTeacherId);
+        Subject subject = generateFindByIdExtractorSubject(subjectId);
+        Teacher oldTeacher = generateFindByIdExtractorTeacher(oldTeacherId);
+        Teacher newTeacher = generateFindByIdExtractorTeacher(newTeacherId);
+        subject.getTeachers().remove(oldTeacher);
+        subject.getTeachers().add(newTeacher);
         log.info("UPDATED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
     }
 
@@ -152,9 +161,9 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... TEACHERS BY SUBJECT ID - {}", subjectId);
-        List<Teacher> teachers = subjectRepository.findTeachersBySubject(subjectId);
-        log.info("FOUND {} TEACHERS BY TEACHER ID - {}", teachers.size(), subjectId);
-        return teachers;
+        Subject subject = generateFindByIdExtractorSubject(subjectId);
+        log.info("FOUND {} TEACHERS BY TEACHER ID - {}", subject.getTeachers().size(), subjectId);
+        return subject.getTeachers();
     }
 
     @Override
@@ -164,7 +173,9 @@ public class SubjectServiceImpl implements SubjectService {
         requiredSubjectExistence(subject.getId());
         requiredTeacherExistence(teacher);
         log.info("ADDING... SUBJECT BY ID - {} TO TEACHER BY ID - {}", subject.getId(), teacher.getId());
-        subjectRepository.addSubjectToTeacher(subject, teacher);
+        Teacher teacherToBeSave = generateFindByIdExtractorTeacher(teacher.getId());
+        Subject subjectToBeSave = generateFindByIdExtractorSubject(subject.getId());
+        subjectToBeSave.getTeachers().add(teacherToBeSave);
         log.info("ADDED SUBJECT BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subject.getId(), teacher.getId());
     }
 
@@ -177,6 +188,14 @@ public class SubjectServiceImpl implements SubjectService {
         log.info("ADDING... SUBJECT BY ID - {} TO TEACHERS - {}", subject, teachers.size());
         teachers.forEach(teacher -> addSubjectToTeacher(subject, teacher));
         log.info("ADDED SUBJECT BY ID - {} TO TEACHERS - {} SUCCESSFULLY", subject.getId(), teachers.size());
+    }
+
+    private Subject generateFindByIdExtractorSubject(Integer subjectId) {
+        return subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
+    }
+
+    private Teacher generateFindByIdExtractorTeacher(Integer teacherId) {
+        return teacherRepository.findById(teacherId).orElseThrow(() -> new NotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
     }
 
     private void requiredSubjectExistence(Integer subjectId) {

@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
@@ -63,7 +64,7 @@ public class EventServiceImpl implements EventService {
     @Override
     public List<Event> findAll() {
         log.info("FINDING... ALL EVENTS");
-        List<Event> result = eventRepository.findAll();
+        List<Event> result = eventRepository.findAll(Sort.by(Sort.Order.asc("dateTime")));
         log.info("FOUND {} EVENTS", result.size());
         return result;
     }
@@ -122,12 +123,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> findEvents(LocalDateTime from, LocalDateTime to) {
-        requireNonNull(from);
-        requireNonNull(to);
-        log.info("FINDING... EVENT FROM {} TO {}", from.format(formatter), to.format(formatter));
-        List<Event> result = eventRepository.findEvents(from, to);
-        log.info("FOUND {} EVENT FROM {} TO {}", result.size(), from.format(formatter), to.format(formatter));
+    public List<Event> findEvents(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+        requireNonNull(startDateTime);
+        requireNonNull(endDateTime);
+        log.info("FINDING... EVENT FROM {} TO {}", startDateTime.format(formatter), endDateTime.format(formatter));
+        List<Event> result = eventRepository.findEventsByDateTimeOrderByDateTime(startDateTime, endDateTime);
+        log.info("FOUND {} EVENT FROM {} TO {}", result.size(), startDateTime.format(formatter), endDateTime.format(formatter));
         return result;
     }
 

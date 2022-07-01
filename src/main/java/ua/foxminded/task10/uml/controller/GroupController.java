@@ -6,12 +6,15 @@ import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.service.GroupService;
 import ua.foxminded.task10.uml.service.StudentService;
+import ua.foxminded.task10.uml.util.GroupValidator;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -24,6 +27,8 @@ public class GroupController {
 
     GroupService groupService;
     StudentService studentService;
+
+    GroupValidator groupValidator;
 
     @GetMapping()
     public String findAllGroups(Model model){
@@ -42,8 +47,12 @@ public class GroupController {
     }
 
     @PostMapping("/saved")
-    public String saveGroup(Model model, @ModelAttribute Group group){
+    public String saveGroup(Model model, @ModelAttribute("newGroup") @Valid Group group, BindingResult bindingResult){
         log.info("requested-> [POST]-'/saved'");
+        groupValidator.validate(group, bindingResult);
+        if (bindingResult.hasErrors()){
+            return "groups/formSaveGroup";
+        }
         Group newGroup = groupService.save(group);
         model.addAttribute("newGroup", newGroup);
         log.info("SAVED {} SUCCESSFULLY", newGroup);
@@ -60,8 +69,13 @@ public class GroupController {
     }
 
     @PatchMapping("{groupId}/updated")
-    public String updateGroup(Model model, @ModelAttribute Group group, @PathVariable("groupId") Integer groupId){
+    public String updateGroup(Model model, @ModelAttribute @Valid Group group, BindingResult bindingResult,
+                              @PathVariable("groupId") Integer groupId){
         log.info("requested-> [PATCH]-'/{groupId}/updated'");
+        groupValidator.validate(group, bindingResult);
+        if (bindingResult.hasErrors()){
+            return "groups/formUpdateGroup";
+        }
         groupService.updateGroup(groupId, group);
         model.addAttribute("updatedGroup", group);
         log.info("UPDATED {} SUCCESSFULLY", group);
@@ -95,12 +109,14 @@ public class GroupController {
     }
 
     @GetMapping("found/by_name")
-    public String findGroupByName(Model model, @ModelAttribute Group group){
+    public String findGroupByName(Model model, @ModelAttribute @Valid Group group, BindingResult bindingResult){
         log.info("requested-> [GET]-'found/by_name'");
-        List<Group> result = groupService.findGroupsByName(group.getName());
+        if (bindingResult.hasErrors()){
+            return "groups/formForFindGroupByName";
+        }
+        Group result = groupService.findGroupByName(group);
         model.addAttribute("groups", result);
-        model.addAttribute("count", result.size());
-        log.info("FOUND {} GROUPS BY NAME {} SUCCESSFULLY", result.size(), group.getName());
+        log.info("FOUND {} GROUPS BY NAME {} SUCCESSFULLY", result, group.getName());
         return "groups/groups";
     }
 

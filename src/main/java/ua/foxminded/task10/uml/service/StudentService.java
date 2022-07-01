@@ -23,8 +23,6 @@ public interface StudentService extends CrudRepositoryService<Student, Integer> 
 
     void deleteTheStudentGroup(Integer studentId);
 
-    void updateTheStudentGroup(Integer groupId, Integer studentId);
-
     List<Student> findStudentsByGroupId(Integer groupId);
 
     Long countByGroupId(Integer groupId);

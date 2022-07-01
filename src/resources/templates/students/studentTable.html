@@ -23,8 +23,6 @@
         <th>Group</th>
         <th>Update</th>
         <th>Delete</th>
-        <th>Assign to group</th>
-        <th>Change group</th>
         <th>Delete from group</th>
       </tr>
       </thead>
@@ -48,16 +46,6 @@
         <td>
           <form class="login-form" th:method="DELETE" th:action="@{/students/{studentId}/deleted(studentId=${student.id})}">
             <button type="submit">delete</button>
-          </form>
-        </td>
-        <td>
-          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/to_group(studentId=${student.id})}">
-            <button type="submit">assign to group</button>
-          </form>
-        </td>
-        <td>
-          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/update/group(studentId=${student.id})}">
-            <button type="submit">change group</button>
           </form>
         </td>
         <td>

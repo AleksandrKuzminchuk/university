@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.repository;
 
+import lombok.NonNull;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -8,7 +9,7 @@ import ua.foxminded.task10.uml.model.Student;
 import java.util.List;
 
 @Repository
-public interface StudentRepository extends JpaRepository<Student, Integer>, CustomizedStudent {
+public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     Long countByGroupId(Integer groupId);
 
@@ -18,7 +19,9 @@ public interface StudentRepository extends JpaRepository<Student, Integer>, Cust
 
     List<Student> findStudentsByCourseOrderByFirstName(Integer courseNumber);
 
-    @Query("SELECT s FROM Student s ORDER BY s.firstName, s.lastName")
-    List<Student> findAll();
+    List<Student> findStudentsByGroupNameOrderByFirstName(String groupName);
 
+    List<Student> findStudentsByFirstNameOrLastNameOrderByFirstName(String firstName, String lastName);
+
+    void deleteStudentsByGroupId(Integer groupId);
 }

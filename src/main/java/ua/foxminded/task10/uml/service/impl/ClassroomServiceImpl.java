@@ -5,12 +5,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Classroom;
 import ua.foxminded.task10.uml.repository.ClassroomRepository;
 import ua.foxminded.task10.uml.service.ClassroomService;
+import ua.foxminded.task10.uml.util.GlobalNotFoundException;
 
 import java.util.List;
 
@@ -49,9 +52,9 @@ public class ClassroomServiceImpl implements ClassroomService {
     public Classroom save(Classroom classroom) {
         requireNonNull(classroom);
         log.info("SAVING... {}", classroom);
-        Classroom result = classroomRepository.save(classroom);
+        classroomRepository.save(classroom);
         log.info("SAVED {} SUCCESSFULLY", classroom);
-        return result;
+        return classroom;
     }
 
     @Override
@@ -59,7 +62,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         requireNonNull(classroomId);
         requiredClassroomExistence(classroomId);
         log.info("FINDING... CLASSROOM BY ID- {}", classroomId);
-        Classroom result = classroomRepository.findById(classroomId).orElseThrow(() -> new NotFoundException(format("Can't find classroom by classroomId - %d", classroomId)));
+        Classroom result = classroomRepository.findById(classroomId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find classroom by classroomId - %d", classroomId)));
         log.info("FOUND CLASSROOM BY ID - {} SUCCESSFULLY", classroomId);
         return result;
     }
@@ -76,7 +79,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public List<Classroom> findAll() {
         log.info("FINDING... ALL CLASSROOMS");
-        List<Classroom> result = classroomRepository.findAll();
+        List<Classroom> result = classroomRepository.findAll(Sort.by(Sort.Order.asc("number")));
         log.info("FOUND {} CLASSROOMS", result.size());
         return result;
     }
@@ -111,16 +114,16 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public List<Classroom> findClassroomsByNumber(Integer classroomNumber) {
-        requireNonNull(classroomNumber);
-        log.info("FINDING... CLASSROOMS BY NUMBER - {}", classroomNumber);
-        List<Classroom> classrooms = classroomRepository.findClassroomsByNumberOrderByNumber(classroomNumber);
-        log.info("FOUND {} CLASSROOMS BY NUMBER - {} SUCCESSFULLY", classrooms.size(), classroomNumber);
-        return classrooms;
+    public Classroom findClassroomByNumber(Classroom classroom) {
+        requireNonNull(classroom);
+        log.info("FINDING... CLASSROOMS BY NUMBER - {}", classroom.getNumber());
+        Classroom result = classroomRepository.findOne(Example.of(classroom)).orElseThrow(() -> new GlobalNotFoundException(format("Classroom by number [%d] not found", classroom.getNumber())));
+        log.info("FOUND {} CLASSROOM BY NUMBER - {} SUCCESSFULLY", result, classroom.getNumber());
+        return result;
     }
 
     private void requiredClassroomExistence(Integer classroomId) {
-        if (!existsById(classroomId))
+        if (!classroomRepository.existsById(classroomId))
             throw new NotFoundException(format("Classroom by id - %d not exists", classroomId));
     }
 }

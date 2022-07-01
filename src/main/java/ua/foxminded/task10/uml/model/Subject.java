@@ -3,6 +3,7 @@ package ua.foxminded.task10.uml.model;
 import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.List;
 
 @Data
@@ -19,9 +20,10 @@ public class Subject {
 
     @Column(name = "subject_name")
     @NonNull
+    @NotBlank(message = "Can't be empty and consist on placeholders. Hint-'GEOMETRY'")
     private String name;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(name = "teachers_subjects",
     joinColumns = @JoinColumn(name = "subject_id"),
     inverseJoinColumns = @JoinColumn(name = "teacher_id"))
@@ -31,5 +33,14 @@ public class Subject {
 
     public Subject(@NonNull Integer id) {
         this.id = id;
+    }
+
+    public Subject(@NonNull String name) {
+        this.name = name;
+    }
+
+    public Subject(@NonNull Integer id, @NonNull String name) {
+        this.id = id;
+        this.name = name;
     }
 }
