@@ -2,15 +2,18 @@ package ua.foxminded.task10.uml.model;
 
 
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
 @Entity
-@NoArgsConstructor
 @Table(name = "students")
-@EqualsAndHashCode(callSuper = true)
 @ToString(onlyExplicitlyIncluded = true, callSuper = true)
 @AttributeOverride(name = "id", column = @Column(name = "student_id"))
 public class Student extends Person {
@@ -28,24 +31,16 @@ public class Student extends Person {
     @JoinColumn(name = "group_id", referencedColumnName = "group_id")
     private Group group;
 
-    public Student(String firstName, String lastName, @NonNull Integer course) {
-        super(firstName, lastName);
-        this.course = course;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Student student = (Student) o;
+        return getId() != null && Objects.equals(getId(), student.getId());
     }
 
-    public Student(Integer id, Group group) {
-        super(id);
-        this.group = group;
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
-
-    public Student(@NonNull Integer course) {
-        this.course = course;
-    }
-
-    public Student(Integer id, @NotBlank(message = "Can't be empty and consist on placeholders. Hint-'Aleksandr'") String firstName, @NotBlank(message = "Can't be empty and consist on placeholders. Hint-'Jordan'") String lastName, @NonNull Integer course, Group group) {
-        super(id, firstName, lastName);
-        this.course = course;
-        this.group = group;
-    }
-
 }

@@ -124,7 +124,7 @@ public class GroupController {
     public String findStudentsByGroupId(Model model, @PathVariable("groupId") Integer groupId){
         log.info("requested-> [GET]-'{groupId}/found/students'");
         Group group = groupService.findById(groupId);
-        List<Student> students = studentService.findStudentsByGroupId(groupId);
+        List<Student> students = studentService.findByGroupId(groupId);
         model.addAttribute("students", students);
         model.addAttribute("group", group);
         log.info("FOUND {} STUDENTS BY GROUP ID - {} SUCCESSFULLY", students.size(), groupId);

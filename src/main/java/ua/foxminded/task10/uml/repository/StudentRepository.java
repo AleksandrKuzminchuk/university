@@ -1,8 +1,7 @@
 package ua.foxminded.task10.uml.repository;
 
-import lombok.NonNull;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.model.Student;
 
@@ -19,7 +18,7 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     List<Student> findStudentsByCourseOrderByFirstName(Integer courseNumber);
 
-    List<Student> findStudentsByGroupNameOrderByFirstName(String groupName);
+    List<Student> findAllByGroup_Name(String groupName, Sort firstName);
 
     List<Student> findStudentsByFirstNameOrLastNameOrderByFirstName(String firstName, String lastName);
 

@@ -50,7 +50,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<Student> findStudentsByNameOrSurname(Student student) {
+    public List<Student> findByNameOrSurname(Student student) {
         requireNonNull(student);
         log.info("FINDING... STUDENTS BY NAME OR SURNAME");
         List<Student> result = studentRepository.findStudentsByFirstNameOrLastNameOrderByFirstName(student.getFirstName(), student.getLastName());
@@ -101,7 +101,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void deleteStudentsByCourseNumber(Integer courseNumber) {
+    public void deleteByCourseNumber(Integer courseNumber) {
         requireNonNull(courseNumber);
         log.info("DELETING... STUDENTS BY COURSE NUMBER - {}", courseNumber);
         studentRepository.deleteStudentsByCourse(courseNumber);
@@ -109,7 +109,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public void deleteStudentsByGroupId(Integer groupId) {
+    public void deleteByGroupId(Integer groupId) {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
         log.info("DELETING... STUDENTS BY GROUP ID {}", groupId);
@@ -130,7 +130,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public List<Student> findStudentsByGroupId(Integer groupId) {
+    public List<Student> findByGroupId(Integer groupId) {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
         log.info("FINDING... STUDENTS BY GROUP ID - {}", groupId);
@@ -156,34 +156,29 @@ public class StudentServiceImpl implements StudentService {
         return result;
     }
 
-    @Override
-    public void updateStudent(Integer studentId, Student updatedStudent) {
-        requireNonNull(updatedStudent);
-        requireNonNull(studentId);
-        requiredStudentExistence(studentId);
-        log.info("UPDATING STUDENT BY ID - {}", studentId);
-        updatedStudent.setId(studentId);
-        studentRepository.save(updatedStudent);
-        log.info("UPDATED STUDENT BY ID - {} SUCCESSFULLY", studentId);
+    public void update(Student student) {
+        log.info("UPDATING STUDENT - {}", student );
+        requiredStudentExistence(student.getId());
+        studentRepository.save(student);
+        log.info("UPDATED SUCCESSFULLY");
     }
 
     @Override
-    public void deleteTheStudentGroup(Integer studentId) {
-        requireNonNull(studentId);
+    public Student deleteFromGroupByStudentId(Integer studentId) {
         requiredStudentExistence(studentId);
         log.info("UPDATING... STUDENTS' BY ID - {} GROUP", studentId);
-        Student studentToBeDeleted = findById(studentId);
-        studentToBeDeleted.setGroup(null);
-        studentRepository.save(studentToBeDeleted);
+        Student student = findById(studentId);
+        student.setGroup(null);
+        studentRepository.save(student);
         log.info("UPDATED THE STUDENTS' BY ID - {} GROUP SUCCESSFULLY", studentId);
+        return student;
     }
 
     @Override
-    public List<Student> findStudentsByGroupName(Group group) {
-        requireNonNull(group.getName());
-        requiredGroupExistence(group.getId());
+    public List<Student> findByGroupName(Group group) {
+        requireNonNull(group.getName(), "group name must be present!");
         log.info("FINDING... STUDENTS BY NAME GROUP - {}", group.getName());
-        List<Student> result = studentRepository.findStudentsByGroupNameOrderByFirstName(group.getName());
+        List<Student> result = studentRepository.findAllByGroup_Name(group.getName(), Sort.by(Sort.Order.asc("firstName")));
         log.info("FOUND {} STUDENTS BY ID GROUP NAME - {}", result.size(), group.getName());
         return result;
     }
