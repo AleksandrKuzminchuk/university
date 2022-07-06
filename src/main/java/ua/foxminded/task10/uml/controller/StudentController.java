@@ -186,13 +186,13 @@ public class StudentController {
     }
 
     @GetMapping("/find/by_name_surname")
-    public String formForFindByNameSurname(@ModelAttribute("newStudent") Student student) {
+    public String formForFindByNameOrSurname(@ModelAttribute("newStudent") Student student) {
         log.info("requested-> [GET]-'find/by_name_surname'");
         return "students/formFindStudentByNameSurname";
     }
 
     @GetMapping("/found/by_name_surname")
-    public String findByNameSurname(Model model,
+    public String findByNameOrSurname(Model model,
                                     @ModelAttribute @Valid Student student,
                                     BindingResult bindingResult) {
         log.info("requested-> [GET]-'found/by_name_surname'");
