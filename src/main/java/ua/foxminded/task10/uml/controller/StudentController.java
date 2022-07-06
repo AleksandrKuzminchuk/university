@@ -30,7 +30,7 @@ public class StudentController {
     GroupService groupService;
 
     @GetMapping
-    public String findAllStudents(Model model) {
+    public String findAll(Model model) {
         log.info("requested-> [GET]-'/students'");
         List<Student> students = studentService.findAll();
         model.addAttribute("students", students);
@@ -122,19 +122,18 @@ public class StudentController {
     }
 
     @GetMapping("/find/by_course")
-    public String findByCourseNumber(@ModelAttribute("course") Integer courseNumber) { // FixMe!
+    public String findByCourseNumberForm(@ModelAttribute("student") Student courseNumber) {
         log.info("requested-> [GET]-'/find/by_course'");
         return "students/formFindStudentsByCourse";
     }
 
     @GetMapping("/found/by_course")
     public String findByCourseNumber(Model model,
-                                     @ModelAttribute @Valid Student student,
-                                     BindingResult bindingResult) {
+                                     @ModelAttribute Student student) {
         log.info("requested-> [GET]-'/found/by_course'");
-        if (bindingResult.hasErrors()) {
-            return "students/formFindStudentsByCourse";
-        }
+//        if (bindingResult.hasErrors()) {
+//            return "students/formFindStudentsByCourse";
+//        }
         List<Student> students = studentService.findByCourseNumber(student.getCourse());
         model.addAttribute("students", students);
         model.addAttribute("count", students.size());
@@ -165,7 +164,6 @@ public class StudentController {
     public String findByGroupName(Model model,
                                   @ModelAttribute Student student) {
         log.info("requested-> [GET]-'found/by_group'");
-        Objects.requireNonNull(student.getGroup(), "Group must be present!"); //FixMe!
         List<Student> result = studentService.findByGroupName(student.getGroup());
         model.addAttribute("students", result);
         model.addAttribute("count", result.size());

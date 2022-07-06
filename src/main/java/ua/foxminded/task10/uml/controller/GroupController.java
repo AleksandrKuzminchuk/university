@@ -30,8 +30,8 @@ public class GroupController {
 
     GroupValidator groupValidator;
 
-    @GetMapping()
-    public String findAllGroups(Model model){
+    @GetMapping
+    public String findAll(Model model){
         log.info("requested-> [GET]-'/groups'");
         List<Group> groups = groupService.findAll();
         model.addAttribute("groups", groups);
@@ -41,13 +41,13 @@ public class GroupController {
     }
 
     @GetMapping("/new")
-    public String createFormForSaveGroup(@ModelAttribute("newGroup") Group group){
+    public String saveForm(@ModelAttribute("newGroup") Group group){
         log.info("requested-> [GET]-'/new'");
         return "groups/formSaveGroup";
     }
 
     @PostMapping("/saved")
-    public String saveGroup(Model model, @ModelAttribute("newGroup") @Valid Group group, BindingResult bindingResult){
+    public String save(Model model, @ModelAttribute("newGroup") @Valid Group group, BindingResult bindingResult){
         log.info("requested-> [POST]-'/saved'");
         groupValidator.validate(group, bindingResult);
         if (bindingResult.hasErrors()){
@@ -59,32 +59,33 @@ public class GroupController {
         return "groups/formSavedGroup";
     }
 
-    @GetMapping("{groupId}/update")
-    public String createFormForUpdateGroup(Model model, @PathVariable("groupId") Integer groupId){
-        log.info("requested-> [GET]-'{groupId}/update'");
+    @GetMapping("{id}/update")
+    public String updateFrom(Model model, @PathVariable("id") Integer groupId){
+        log.info("requested-> [GET]-'{id}/update'");
         Group group = groupService.findById(groupId);
         model.addAttribute("group", group);
         log.info("UPDATING... {}", group);
         return "groups/formUpdateGroup";
     }
 
-    @PatchMapping("{groupId}/updated")
+    @PatchMapping("{id}/updated")
     public String updateGroup(Model model, @ModelAttribute @Valid Group group, BindingResult bindingResult,
-                              @PathVariable("groupId") Integer groupId){
-        log.info("requested-> [PATCH]-'/{groupId}/updated'");
+                              @PathVariable("id") Integer groupId){
+        log.info("requested-> [PATCH]-'/{id}/updated'");
         groupValidator.validate(group, bindingResult);
         if (bindingResult.hasErrors()){
             return "groups/formUpdateGroup";
         }
-        groupService.updateGroup(groupId, group);
-        model.addAttribute("updatedGroup", group);
-        log.info("UPDATED {} SUCCESSFULLY", group);
+        group.setId(groupId);
+        Group updatedGroup = groupService.update(group);
+        model.addAttribute("updatedGroup", updatedGroup);
+        log.info("UPDATED {} SUCCESSFULLY", updatedGroup);
         return "groups/formUpdatedGroup";
     }
 
-    @DeleteMapping("{groupId}/deleted")
-    public String deleteGroupById(Model model, @PathVariable("groupId") Integer groupId){
-        log.info("requested-> [DELETE]-'/{groupId}/deleted'");
+    @DeleteMapping("{id}/deleted")
+    public String deleteById(Model model, @PathVariable("id") Integer groupId){
+        log.info("requested-> [DELETE]-'/{id}/deleted'");
         Group group = groupService.findById(groupId);
         groupService.deleteById(groupId);
         model.addAttribute("deleteGroup", group);
@@ -93,7 +94,7 @@ public class GroupController {
     }
 
     @DeleteMapping("/delete/all")
-    public String deleteAllGroups(Model model){
+    public String deleteAll(Model model){
         log.info("requested-> [DELETE]-'/delete/all'");
         Long countGroups = groupService.count();
         groupService.deleteAll();
@@ -103,26 +104,26 @@ public class GroupController {
     }
 
     @GetMapping("find/by_name")
-    public String createFormForFindGroupByName(@ModelAttribute("group") Group group){
+    public String findByNameFrom(@ModelAttribute("group") Group group){
         log.info("requested-> [GET]-'find/by_name'");
         return "groups/formForFindGroupByName";
     }
 
     @GetMapping("found/by_name")
-    public String findGroupByName(Model model, @ModelAttribute @Valid Group group, BindingResult bindingResult){
+    public String findByName(Model model, @ModelAttribute @Valid Group group, BindingResult bindingResult){
         log.info("requested-> [GET]-'found/by_name'");
         if (bindingResult.hasErrors()){
             return "groups/formForFindGroupByName";
         }
-        Group result = groupService.findGroupByName(group);
+        Group result = groupService.findByName(group);
         model.addAttribute("groups", result);
         log.info("FOUND {} GROUPS BY NAME {} SUCCESSFULLY", result, group.getName());
         return "groups/groups";
     }
 
-    @GetMapping("{groupId}/found/students")
-    public String findStudentsByGroupId(Model model, @PathVariable("groupId") Integer groupId){
-        log.info("requested-> [GET]-'{groupId}/found/students'");
+    @GetMapping("{id}/found/students")
+    public String findStudentsByGroupId(Model model, @PathVariable("id") Integer groupId){
+        log.info("requested-> [GET]-'{id}/found/students'");
         Group group = groupService.findById(groupId);
         List<Student> students = studentService.findByGroupId(groupId);
         model.addAttribute("students", students);

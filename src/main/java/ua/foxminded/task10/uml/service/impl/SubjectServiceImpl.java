@@ -51,7 +51,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public Subject findSubjectsByName(Subject subject) {
+    public Subject findByName(Subject subject) {
         requireNonNull(subject);
         log.info("FINDING... SUBJECT BY NAME {}", subject.getName());
         Subject result = subjectRepository.findOne(Example.of(subject)).orElseThrow(() -> new NotFoundException(format("Can't find subject by name - %s", subject.getName())));
@@ -107,7 +107,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void deleteTheSubjectTeacher(Integer subjectId, Integer teacherId) {
+    public void deleteFromSubjectTeacher(Integer subjectId, Integer teacherId) {
         requireNonNull(subjectId);
         requireNonNull(teacherId);
         requiredSubjectExistence(subjectId);
@@ -129,18 +129,17 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void updateSubject(Integer subjectId, Subject subject) {
+    public Subject update(Subject subject) {
         requireNonNull(subject);
-        requireNonNull(subjectId);
-        requiredSubjectExistence(subjectId);
-        log.info("UPDATING... SUBJECT BY ID - {}", subjectId);
-        subject.setId(subjectId);
-        subjectRepository.save(new Subject(subjectId, subject.getName().toUpperCase()));
-        log.info("UPDATED {} SUCCESSFULLY", subject);
+        requiredSubjectExistence(subject.getId());
+        log.info("UPDATING... SUBJECT BY ID - {}", subject.getId());
+        Subject updatedSubject = subjectRepository.save(subject);
+        log.info("UPDATED {} SUCCESSFULLY", updatedSubject);
+        return updatedSubject;
     }
 
     @Override
-    public void updateTheSubjectTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId) {
+    public void updateAtSubjectTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId) {
         requireNonNull(subjectId);
         requireNonNull(oldTeacherId);
         requireNonNull(newTeacherId);

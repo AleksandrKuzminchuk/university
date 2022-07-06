@@ -29,7 +29,7 @@ public class EventController {
     ClassroomService classroomService;
 
     @GetMapping()
-    public String findAllEvents(Model model) {
+    public String findAll(Model model) {
         log.info("requested-> [GET]-'/events'");
         List<Event> events = eventService.findAll();
         model.addAttribute("events", events);
@@ -39,26 +39,24 @@ public class EventController {
     }
 
     @GetMapping("/new")
-    public String createFormForSaveEvent(Model model, @ModelAttribute("newEvent") Event event) {
+    public String saveForm(Model model, @ModelAttribute("newEvent") Event event) {
         log.info("requested-> [GET]-'/new'");
         extractedMethodFindAllSubjectsClassroomsTeachersGroupsToModel(model);
         return "events/formSaveEvent";
     }
 
     @PostMapping("/saved")
-    public String saveEvent(Model model, @ModelAttribute @Valid Event event,
-                            BindingResult bindingResult) {
+    public String save(Model model, @ModelAttribute Event event) {
         log.info("requested-> [POST]-'/saved'");
-        Event savedEvent = eventService.save(getNewEvent(event));
+        Event savedEvent = eventService.save(event);
         model.addAttribute("event", savedEvent);
         log.info("SAVED {} EVENT SUCCESSFULLY", savedEvent);
         return "events/fromSavedEvent";
     }
 
-    @GetMapping("/{eventId}/update")
-    public String createFormForUpdateEvent(Model model, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @ModelAttribute("newEvent") Event event,
-                                           @PathVariable("eventId") Integer eventId) {
-        log.info("requested-> [GET]-'/{eventId}/update'");
+    @GetMapping("/{id}/update")
+    public String updateForm(Model model, @ModelAttribute("newEvent") Event event, @PathVariable("id") Integer eventId) {
+        log.info("requested-> [GET]-'/{id}/update'");
         Event oldEvent = getEventById(eventId);
         model.addAttribute("oldEvent", oldEvent);
         extractedMethodFindAllSubjectsClassroomsTeachersGroupsToModel(model);
@@ -66,27 +64,28 @@ public class EventController {
         return "events/formUpdateEvent";
     }
 
-    @PatchMapping("/{eventId}/updated")
-    public String updateEvent(Model model, @ModelAttribute Event event, @PathVariable("eventId") Integer eventId) {
-        log.info("requested-> [PATCH]-'/{eventId}/updated'");
-        eventService.updateEvent(eventId, getNewEvent(event));
-        model.addAttribute("event", getEventById(eventId));
+    @PatchMapping("/{id}/updated")
+    public String update(Model model, @ModelAttribute Event event, @PathVariable("id") Integer eventId) {
+        log.info("requested-> [PATCH]-'/{id}/updated'");
+        event.setId(eventId);
+        Event updatedEvent = eventService.update(event);
+        model.addAttribute("event", updatedEvent);
         log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventId);
         return "events/formUpdatedEvent";
     }
 
-    @DeleteMapping("/{eventId}/deleted")
-    public String deleteEventById(Model model, @PathVariable("eventId") Integer eventId) {
-        log.info("requested-> [DELETE]-'/{eventId}/deleted'");
+    @DeleteMapping("/{id}/deleted")
+    public String deleteById(Model model, @PathVariable("id") Integer eventId) {
+        log.info("requested-> [DELETE]-'/{id}/deleted'");
         Event event = getEventById(eventId);
         eventService.deleteById(eventId);
         model.addAttribute("event", event);
-        log.info("DELETED EVENT BY ID - {} SUCCESSFULLY", eventId);
+        log.info("DELETED EVENT BY ID - {} SUCCESSFULLY", event);
         return "events/formDeletedEvent";
     }
 
     @GetMapping("/find")
-    public String createFormForFindEvents(@ModelAttribute("event") Event event) {
+    public String findEventsForm(@ModelAttribute("event") Event event) {
         log.info("requested-> [GET]-'/find'");
         return "events/formForFindEvents";
     }
@@ -103,24 +102,13 @@ public class EventController {
     }
 
     @DeleteMapping("/deleted/all")
-    public String deleteAllEvents(Model model) {
+    public String deleteAll(Model model) {
         log.info("requested-> [DELETE]-'delete_all_events'");
         Long countEvents = eventService.count();
         eventService.deleteAll();
         model.addAttribute("events", countEvents);
         log.info("DELETED ALL EVENTS SUCCESSFULLY");
         return "events/formDeleteAllEvents";
-    }
-
-
-    private Event getNewEvent(Event event) {
-        return new Event(
-                subjectService.findById(event.getSubject().getId()),
-                classroomService.findById(event.getClassroom().getId()),
-                groupService.findById(event.getGroup().getId()),
-                teacherService.findById(event.getTeacher().getId()),
-                event.getDateTime()
-        );
     }
 
     private void extractedMethodFindAllSubjectsClassroomsTeachersGroupsToModel(Model model) {

@@ -112,14 +112,13 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void updateEvent(Integer eventId, Event event) {
-        requireNonNull(event);
-        requireNonNull(eventId);
-        requiredEventByIdExistence(eventId);
-        log.info("UPDATING... EVENT BY ID - {}", eventId);
-        event.setId(eventId);
-        eventRepository.save(event);
-        log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventId);
+    public Event update(Event event) {
+        requireNonNull(event.getId());
+        requiredEventByIdExistence(event.getId());
+        log.info("UPDATING... EVENT BY ID - {}", event.getId());
+        Event updatedEvent = eventRepository.save(event);
+        log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", event.getId());
+        return updatedEvent;
     }
 
     @Override

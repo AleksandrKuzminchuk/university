@@ -70,7 +70,7 @@ public class TeacherServiceImpl implements TeacherService {
     public List<Teacher> findTeachersByNameOrSurname(Teacher teacher) {
         requireNonNull(teacher);
         log.info("FINDING... TEACHERS {}", teacher);
-        List<Teacher> result = teacherRepository.findTeachersByFirstNameOrLastNameOrderByFirstName(teacher.getFirstName(), teacher.getLastName());
+        List<Teacher> result = teacherRepository.findTeachersByFirstNameOrLastName(teacher.getFirstName(), teacher.getLastName(), Sort.by(Sort.Order.asc("firstName")));
         log.info("FOUND {} TEACHERS BY {} SUCCESSFULLY", result.size(), teacher);
         return result;
     }
@@ -105,7 +105,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void deleteTheTeacherSubject(Integer teacherId, Integer subjectId) {
+    public void deleteFromTeacherSubject(Integer teacherId, Integer subjectId) {
         requireNonNull(teacherId);
         requireNonNull(subjectId);
         requiredTeacherExistence(teacherId);
@@ -127,18 +127,17 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void updateTeacher(Integer teacherId, Teacher teacher) {
+    public Teacher update(Teacher teacher) {
         requireNonNull(teacher);
-        requireNonNull(teacherId);
-        requiredTeacherExistence(teacherId);
-        log.info("UPDATING... TEACHER BY ID - {}", teacherId);
-        teacher.setId(teacherId);
-        teacherRepository.save(teacher);
-        log.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", teacherId);
+        requiredTeacherExistence(teacher.getId());
+        log.info("UPDATING... TEACHER BY ID - {}", teacher.getId());
+        Teacher updatedTeacher = teacherRepository.save(teacher);
+        log.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", teacher.getId());
+        return updatedTeacher;
     }
 
     @Override
-    public void updateTheTeacherSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId) {
+    public void updateAtTeacherSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId) {
         requireNonNull(teacherId);
         requireNonNull(oldSubjectId);
         requireNonNull(newSubjectId);
@@ -179,7 +178,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Subject> findSubjectsByTeacherId(Integer teacherId) {
+    public List<Subject> findSubjectsByTeacher(Integer teacherId) {
         requireNonNull(teacherId);
         requiredTeacherExistence(teacherId);
         log.info("FINDING... SUBJECTS BY TEACHER ID - {}", teacherId);

@@ -106,7 +106,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group findGroupByName(Group group) {
+    public Group findByName(Group group) {
         requireNonNull(group);
         log.info("FINDING... GROUPS BY NAME - {}", group.getName());
         Group result = groupRepository.findOne(Example.of(group)).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", group.getName())));
@@ -115,14 +115,13 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void updateGroup(Integer groupId, Group group) {
+    public Group update(Group group) {
         requireNonNull(group);
-        requireNonNull(groupId);
-        requiredGroupExistence(groupId);
-        log.info("UPDATING... GROUP BY ID - {}", groupId);
-        group.setId(groupId);
-        groupRepository.save(group);
-        log.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", groupId);
+        requiredGroupExistence(group.getId());
+        log.info("UPDATING... GROUP BY ID - {}", group.getId());
+        Group updatedGroup = groupRepository.save(group);
+        log.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", group.getId());
+        return updatedGroup;
     }
 
     private void requiredGroupExistence(Integer groupId){

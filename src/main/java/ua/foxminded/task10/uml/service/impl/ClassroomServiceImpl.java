@@ -38,14 +38,13 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public void updateClassroom(Integer classroomId, Classroom classroom) {
+    public Classroom update(Classroom classroom) {
         requireNonNull(classroom);
-        requireNonNull(classroomId);
-        requiredClassroomExistence(classroomId);
-        log.info("UPDATING... CLASSROOM BY ID - {}", classroomId);
-        classroom.setId(classroomId);
-        classroomRepository.save(classroom);
-        log.info("UPDATED {} SUCCESSFULLY", classroom);
+        requiredClassroomExistence(classroom.getId());
+        log.info("UPDATING... CLASSROOM BY ID - {}", classroom.getId());
+        Classroom updatedClassroom = classroomRepository.save(classroom);
+        log.info("UPDATED {} SUCCESSFULLY", updatedClassroom);
+        return updatedClassroom;
     }
 
     @Override
@@ -114,7 +113,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public Classroom findClassroomByNumber(Classroom classroom) {
+    public Classroom findByNumber(Classroom classroom) {
         requireNonNull(classroom);
         log.info("FINDING... CLASSROOMS BY NUMBER - {}", classroom.getNumber());
         Classroom result = classroomRepository.findOne(Example.of(classroom)).orElseThrow(() -> new GlobalNotFoundException(format("Classroom by number [%d] not found", classroom.getNumber())));

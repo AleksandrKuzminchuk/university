@@ -17,8 +17,8 @@
     <div class="form">
         <form class="login-form" th:action="@{/students/found/by_group}" th:method="GET">
                         <span class="custom-dropdown big">
-            <select th:object="${student}" th:field="*{group.id}" id="student">
-                <option th:each="group : ${groups}" th:value="${group.id}"
+            <select th:object="${student}" th:field="*{group.name}" id="student">
+                <option th:each="group : ${groups}" th:value="${group.name}"
                         th:text="${group.name}"></option>
             </select>
             </span>
