@@ -1,20 +1,18 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 import ua.foxminded.task10.uml.repository.SubjectRepository;
-import ua.foxminded.task10.uml.repository.TeacherRepository;
 import ua.foxminded.task10.uml.service.SubjectService;
+import ua.foxminded.task10.uml.service.TeacherService;
 
 import java.util.List;
 
@@ -24,12 +22,17 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 @Service
 @Transactional
-@RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class SubjectServiceImpl implements SubjectService {
 
-    SubjectRepository subjectRepository;
-    TeacherRepository teacherRepository;
+
+    private final TeacherService teacherService;
+    private final SubjectRepository subjectRepository;
+
+    @Autowired
+    public SubjectServiceImpl(@Lazy TeacherService teacherService, SubjectRepository subjectRepository) {
+        this.teacherService = teacherService;
+        this.subjectRepository = subjectRepository;
+    }
 
     @Override
     public Subject save(Subject subject) {
@@ -45,16 +48,17 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... SUBJECT BY ID - {}", subjectId);
-        Subject result = generateFindByIdExtractorSubject(subjectId);
+        Subject result = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
         log.info("FOUND {} BY ID - {} SUCCESSFULLY", result, subjectId);
         return result;
     }
 
     @Override
     public Subject findByName(Subject subject) {
-        requireNonNull(subject);
         log.info("FINDING... SUBJECT BY NAME {}", subject.getName());
-        Subject result = subjectRepository.findOne(Example.of(subject)).orElseThrow(() -> new NotFoundException(format("Can't find subject by name - %s", subject.getName())));
+        Subject result = subjectRepository.findOne(Example.of(subject))
+                .orElseThrow(() -> new NotFoundException(format("Can't find subject by name - %s", subject.getName())));
         log.info("FOUND {} SUBJECT BY NAME {}", result, subject.getName());
         return result;
     }
@@ -71,7 +75,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public List<Subject> findAll() {
         log.info("FINDING... ALL SUBJECTS");
-        List<Subject> result = subjectRepository.findAll(Sort.by(Sort.Order.asc("name")));
+        List<Subject> result = subjectRepository.findAll();
         log.info("FOUND {} SUBJECTS SUCCESSFULLY", result.size());
         return result;
     }
@@ -113,8 +117,8 @@ public class SubjectServiceImpl implements SubjectService {
         requiredSubjectExistence(subjectId);
         requiredTeacherExistence(teacherId);
         log.info("DELETING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {}", subjectId, teacherId);
-        Subject subject = generateFindByIdExtractorSubject(subjectId);
-        Teacher teacherToRemove = generateFindByIdExtractorTeacher(teacherId);
+        Subject subject = findById(subjectId);
+        Teacher teacherToRemove = teacherService.findById(teacherId);
         subject.getTeachers().remove(teacherToRemove);
         teacherToRemove.getSubjects().remove(subject);
         log.info("DELETED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} SUCCESSFULLY", subjectId, teacherId);
@@ -143,13 +147,12 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requireNonNull(oldTeacherId);
         requireNonNull(newTeacherId);
-        requiredSubjectExistence(subjectId);
         requiredTeacherExistence(oldTeacherId);
         requiredTeacherExistence(newTeacherId);
         log.info("UPDATING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
-        Subject subject = generateFindByIdExtractorSubject(subjectId);
-        Teacher oldTeacher = generateFindByIdExtractorTeacher(oldTeacherId);
-        Teacher newTeacher = generateFindByIdExtractorTeacher(newTeacherId);
+        Subject subject = findById(subjectId);
+        Teacher oldTeacher = teacherService.findById(oldTeacherId);
+        Teacher newTeacher = teacherService.findById(newTeacherId);
         subject.getTeachers().remove(oldTeacher);
         subject.getTeachers().add(newTeacher);
         log.info("UPDATED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
@@ -160,7 +163,7 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... TEACHERS BY SUBJECT ID - {}", subjectId);
-        Subject subject = generateFindByIdExtractorSubject(subjectId);
+        Subject subject = findById(subjectId);
         log.info("FOUND {} TEACHERS BY TEACHER ID - {}", subject.getTeachers().size(), subjectId);
         return subject.getTeachers();
     }
@@ -169,11 +172,10 @@ public class SubjectServiceImpl implements SubjectService {
     public void addSubjectToTeacher(Subject subject, Teacher teacher) {
         requireNonNull(subject);
         requireNonNull(teacher);
-        requiredSubjectExistence(subject.getId());
         requiredTeacherExistence(teacher);
         log.info("ADDING... SUBJECT BY ID - {} TO TEACHER BY ID - {}", subject.getId(), teacher.getId());
-        Teacher teacherToBeSave = generateFindByIdExtractorTeacher(teacher.getId());
-        Subject subjectToBeSave = generateFindByIdExtractorSubject(subject.getId());
+        Teacher teacherToBeSave = teacherService.findById(teacher.getId());
+        Subject subjectToBeSave = findById(subject.getId());
         subjectToBeSave.getTeachers().add(teacherToBeSave);
         log.info("ADDED SUBJECT BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subject.getId(), teacher.getId());
     }
@@ -189,26 +191,18 @@ public class SubjectServiceImpl implements SubjectService {
         log.info("ADDED SUBJECT BY ID - {} TO TEACHERS - {} SUCCESSFULLY", subject.getId(), teachers.size());
     }
 
-    private Subject generateFindByIdExtractorSubject(Integer subjectId) {
-        return subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
-    }
-
-    private Teacher generateFindByIdExtractorTeacher(Integer teacherId) {
-        return teacherRepository.findById(teacherId).orElseThrow(() -> new NotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
-    }
-
     private void requiredSubjectExistence(Integer subjectId) {
         if (!subjectRepository.existsById(subjectId))
             throw new NotFoundException(format("Subject by id - %d not exists", subjectId));
     }
 
     private void requiredTeacherExistence(Teacher teacher) {
-        if (!teacherRepository.existsById(teacher.getId()))
+        if (!teacherService.existsById(teacher.getId()))
             throw new NotFoundException(format("Teacher by id - %d not exists", teacher.getId()));
     }
 
     private void requiredTeacherExistence(Integer teacherId) {
-        if (!teacherRepository.existsById(teacherId))
+        if (!teacherService.existsById(teacherId))
             throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
     }
 
