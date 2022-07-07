@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
-import ua.foxminded.task10.uml.repository.SubjectRepository;
 import ua.foxminded.task10.uml.repository.TeacherRepository;
+import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.service.TeacherService;
 
 import java.util.List;
@@ -28,7 +28,7 @@ import static java.util.Objects.requireNonNull;
 public class TeacherServiceImpl implements TeacherService {
 
     TeacherRepository teacherRepository;
-    SubjectRepository subjectRepository;
+    SubjectService subjectService;
 
     @Override
     public Teacher save(Teacher teacher) {
@@ -44,7 +44,8 @@ public class TeacherServiceImpl implements TeacherService {
         requireNonNull(teacherId);
         requiredTeacherExistence(teacherId);
         log.info("FINDING... TEACHER BY ID - {}", teacherId);
-        Teacher result = generateFindByIdExtractorTeacher(teacherId);
+        Teacher result = teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new NotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
         log.info("FOUND {} BY ID - {}", result, teacherId);
         return result;
     }
@@ -109,10 +110,9 @@ public class TeacherServiceImpl implements TeacherService {
         requireNonNull(teacherId);
         requireNonNull(subjectId);
         requiredTeacherExistence(teacherId);
-        requiredSubjectExistence(subjectId);
         log.info("DELETING... THE TEACHERS' BY ID - {} SUBJECT BY ID - {}", teacherId, subjectId);
-        Teacher teacher = generateFindByIdExtractorTeacher(teacherId);
-        Subject subjectToRemove = generateFindByIdExtractorSubject(subjectId);
+        Teacher teacher = findById(teacherId);
+        Subject subjectToRemove = subjectService.findById(subjectId);
         teacher.getSubjects().remove(subjectToRemove);
         subjectToRemove.getTeachers().remove(teacher);
         log.info("DELETED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} SUCCESSFULLY", teacherId, subjectId);
@@ -142,12 +142,10 @@ public class TeacherServiceImpl implements TeacherService {
         requireNonNull(oldSubjectId);
         requireNonNull(newSubjectId);
         requiredTeacherExistence(teacherId);
-        requiredSubjectExistence(newSubjectId);
-        requiredSubjectExistence(oldSubjectId);
         log.info("UPDATING... THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {}", teacherId, oldSubjectId, newSubjectId);
-        Teacher teacher = generateFindByIdExtractorTeacher(teacherId);
-        Subject oldSubject = generateFindByIdExtractorSubject(oldSubjectId);
-        Subject newSubject = generateFindByIdExtractorSubject(newSubjectId);
+        Teacher teacher = findById(teacherId);
+        Subject oldSubject = subjectService.findById(oldSubjectId);
+        Subject newSubject = subjectService.findById(newSubjectId);
         teacher.getSubjects().remove(oldSubject);
         teacher.getSubjects().add(newSubject);
         log.info("UPDATED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacherId, oldSubjectId, newSubjectId);
@@ -157,11 +155,10 @@ public class TeacherServiceImpl implements TeacherService {
     public void addTeacherToSubject(Teacher teacher, Subject subject) {
         requireNonNull(teacher);
         requireNonNull(subject);
-        requiredSubjectExistence(subject.getId());
         requiredTeacherExistence(teacher.getId());
         log.info("ADDING... TEACHER BY ID - {} TO SUBJECT BY ID - {}", teacher.getId(), subject.getId());
-        Teacher teacherToBeSave = generateFindByIdExtractorTeacher(teacher.getId());
-        Subject subjectToBeSave = generateFindByIdExtractorSubject(subject.getId());
+        Teacher teacherToBeSave = findById(teacher.getId());
+        Subject subjectToBeSave = subjectService.findById(subject.getId());
         teacherToBeSave.getSubjects().add(subjectToBeSave);
         log.info("ADDED TEACHER BT ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacher.getId(), subject.getId());
     }
@@ -171,7 +168,7 @@ public class TeacherServiceImpl implements TeacherService {
         requireNonNull(teacher);
         requireNonNull(subjects);
         requiredTeacherExistence(teacher.getId());
-        subjects.forEach(subject -> requiredSubjectExistence(subject.getId()));
+        subjects.forEach(subject -> subjectService.existsById(subject.getId()));
         log.info("ADDING... TEACHER BY ID - {} TO SUBJECTS {}", teacher.getId(), subjects.size());
         subjects.forEach(subject -> addTeacherToSubject(teacher, subject));
         log.info("ADDED TEACHER BY ID - {} TO SUBJECTS {} SUCCESSFULLY", teacher.getId(), subjects.size());
@@ -182,26 +179,14 @@ public class TeacherServiceImpl implements TeacherService {
         requireNonNull(teacherId);
         requiredTeacherExistence(teacherId);
         log.info("FINDING... SUBJECTS BY TEACHER ID - {}", teacherId);
-        Teacher teacher = generateFindByIdExtractorTeacher(teacherId);
+        Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() -> new NotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
         log.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", teacher.getSubjects().size(), teacherId);
         return teacher.getSubjects();
      }
-
-    private Teacher generateFindByIdExtractorTeacher(Integer teacherId) {
-        return teacherRepository.findById(teacherId).orElseThrow(() -> new NotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
-    }
-
-    private Subject generateFindByIdExtractorSubject(Integer subjectId) {
-        return subjectRepository.findById(subjectId).orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
-    }
 
     private void requiredTeacherExistence(Integer teacherId) {
         if (!teacherRepository.existsById(teacherId))
             throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
     }
 
-    private void requiredSubjectExistence(Integer subjectId) {
-        if (!subjectRepository.existsById(subjectId))
-            throw new NotFoundException(format("Subject by id - %d not exists", subjectId));
-    }
 }
