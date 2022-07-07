@@ -26,15 +26,13 @@ public class Event {
 
     @ToString.Include
     @Column(name = "date_time")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dateTime;
 
     @Transient
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime startDateTime;
 
     @Transient
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
     private LocalDateTime endDateTime;
 
     @ToString.Include

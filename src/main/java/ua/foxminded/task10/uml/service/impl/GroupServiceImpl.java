@@ -11,14 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Group;
-import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.repository.GroupRepository;
-import ua.foxminded.task10.uml.repository.StudentRepository;
 import ua.foxminded.task10.uml.service.GroupService;
 import ua.foxminded.task10.uml.util.GlobalNotFoundException;
 
 import java.util.List;
-import java.util.Optional;
 
 import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
@@ -109,7 +106,8 @@ public class GroupServiceImpl implements GroupService {
     public Group findByName(Group group) {
         requireNonNull(group);
         log.info("FINDING... GROUPS BY NAME - {}", group.getName());
-        Group result = groupRepository.findOne(Example.of(group)).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", group.getName())));
+        Group result = groupRepository.findOne(Example.of(group))
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", group.getName())));
         log.info("FOUND {} BY NAME - {} SUCCESSFULLY", result, group.getName());
         return result;
     }
@@ -124,8 +122,8 @@ public class GroupServiceImpl implements GroupService {
         return updatedGroup;
     }
 
-    private void requiredGroupExistence(Integer groupId){
-        if (!groupRepository.existsById(groupId)){
+    private void requiredGroupExistence(Integer groupId) {
+        if (!groupRepository.existsById(groupId)) {
             throw new NotFoundException(format("Group by id - %d not exists", groupId));
         }
     }
