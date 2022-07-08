@@ -1,29 +1,33 @@
 package ua.foxminded.task10.uml.controller;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.service.TeacherService;
+import ua.foxminded.task10.uml.util.SubjectValidator;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
+@Validated
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/subjects")
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class SubjectController {
 
-    SubjectService subjectService;
-    TeacherService teacherService;
+    private final SubjectService subjectService;
+    private final TeacherService teacherService;
+
+    private final SubjectValidator subjectValidator;
 
     @GetMapping
     public String findAll(Model model) {
@@ -36,15 +40,18 @@ public class SubjectController {
     }
 
     @GetMapping("/new")
-    @ResponseStatus(HttpStatus.OK)
     public String saveForm(@ModelAttribute("newSubject") Subject subject) {
         log.info("requested-> [GET]-'/new");
         return "subjects/formForSaveSubject";
     }
 
     @PostMapping("/saved")
-    public String save(Model model, @ModelAttribute Subject subject) {
+    public String save(Model model, @ModelAttribute("newSubject") @Valid Subject subject, BindingResult bindingResult) {
         log.info("requested-> [POST]-'/saved'");
+        subjectValidator.validate(subject, bindingResult);
+        if (bindingResult.hasErrors()){
+            return "subjects/formForSaveSubject";
+        }
         Subject newSubject = subjectService.save(subject);
         model.addAttribute("subject", newSubject);
         log.info("SAVED {} SUCCESSFULLY", newSubject);
@@ -61,8 +68,13 @@ public class SubjectController {
     }
 
     @PatchMapping("/{id}/updated")
-    public String update(Model model, @ModelAttribute Subject subject, @PathVariable("id") Integer id) {
+    public String update(Model model, @ModelAttribute @Valid Subject subject, BindingResult bindingResult,
+                         @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/{id}/updated'");
+        subjectValidator.validate(subject, bindingResult);
+        if (bindingResult.hasErrors()){
+            return "subjects/formForUpdateSubject";
+        }
         subject.setId(id);
         subjectService.update(subject);
         model.addAttribute("subjectUpdated", subject);
@@ -98,8 +110,11 @@ public class SubjectController {
     }
 
     @GetMapping("/found/by_name")
-    public String findByName(Model model, @ModelAttribute Subject subject) {
+    public String findByName(Model model, @ModelAttribute @Valid Subject subject, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/found/by_name'");
+        if (bindingResult.hasErrors()){
+            return "subjects/formForFindSubjectByName";
+        }
         Subject result = subjectService.findByName(subject);
         model.addAttribute("subjects", result);
         log.info("FOUND {} SUBJECT BY NAME {}", result, subject.getName());

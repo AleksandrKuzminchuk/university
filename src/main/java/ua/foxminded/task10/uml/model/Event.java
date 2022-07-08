@@ -18,10 +18,10 @@ import java.util.Objects;
 public class Event {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "event_id")
     @NonNull
     @ToString.Include
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "event_id")
     private Integer id;
 
     @ToString.Include
@@ -30,28 +30,30 @@ public class Event {
     private LocalDateTime dateTime;
 
     @Transient
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDateTime;
 
     @Transient
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDateTime;
 
-    @ToString.Include
     @OneToOne
+    @ToString.Include
     @JoinColumn(name = "subject_id", referencedColumnName = "subject_id")
     private Subject subject;
 
-    @ToString.Include
     @OneToOne
-    @JoinColumn(name = "classroom_id", referencedColumnName = "classroom_id")
+    @ToString.Include
+    @JoinColumn(name = "classroom_id", referencedColumnName = "classroom_id", unique = true)
     private Classroom classroom;
 
-    @ToString.Include
     @OneToOne
-    @JoinColumn(name = "group_id", referencedColumnName = "group_id")
+    @ToString.Include
+    @JoinColumn(name = "group_id", referencedColumnName = "group_id", unique = true)
     private Group group;
 
-    @ToString.Include
     @OneToOne
+    @ToString.Include
     @JoinColumn(name = "teacher_id", referencedColumnName = "teacher_id")
     private Teacher teacher;
 

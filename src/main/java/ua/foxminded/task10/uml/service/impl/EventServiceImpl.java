@@ -1,16 +1,14 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.*;
 import ua.foxminded.task10.uml.repository.*;
 import ua.foxminded.task10.uml.service.*;
+import ua.foxminded.task10.uml.util.GlobalNotFoundException;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -23,14 +21,13 @@ import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class EventServiceImpl implements EventService {
 
-    EventRepository eventRepository;
-    TeacherRepository teacherRepository;
-    GroupRepository groupRepository;
-    SubjectRepository subjectRepository;
-    ClassroomRepository classroomRepository;
+    private final EventRepository eventRepository;
+    private final TeacherService teacherService;
+    private final GroupService groupService;
+    private final SubjectService subjectService;
+    private final ClassroomService classroomService;
 
     @Override
     public Event save(Event event) {
@@ -47,7 +44,7 @@ public class EventServiceImpl implements EventService {
         requireNonNull(eventId);
         requiredEventByIdExistence(eventId);
         log.info("FINDING... EVENT BY ID - {}", eventId);
-        Event result = eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException(format("Can't find event by eventId - %d", eventId)));
+        Event result = eventRepository.findById(eventId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find event by eventId - %d", eventId)));
         log.info("FOUND {} BY ID - {}", result, eventId);
         return result;
     }
@@ -132,20 +129,20 @@ public class EventServiceImpl implements EventService {
     }
 
     private void requiredEventExistence(Event event) {
-        if (!teacherRepository.existsById(event.getTeacher().getId())) {
-            throw new NotFoundException(format("Teacher by id - %d not exists", event.getTeacher().getId()));
-        } else if (!groupRepository.existsById(event.getGroup().getId())) {
-            throw new NotFoundException(format("Group by id - %d not exists", event.getGroup().getId()));
-        } else if (!subjectRepository.existsById(event.getSubject().getId())) {
-            throw new NotFoundException(format("Subject by id - %d not exists", event.getSubject().getId()));
-        } else if (!classroomRepository.existsById(event.getClassroom().getId())) {
-            throw new NotFoundException(format("Classroom by id - %d not exists", event.getClassroom().getId()));
+        if (!teacherService.existsById(event.getTeacher().getId())) {
+            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", event.getTeacher().getId()));
+        } else if (!groupService.existsById(event.getGroup().getId())) {
+            throw new GlobalNotFoundException(format("Group by id - %d not exists", event.getGroup().getId()));
+        } else if (!subjectService.existsById(event.getSubject().getId())) {
+            throw new GlobalNotFoundException(format("Subject by id - %d not exists", event.getSubject().getId()));
+        } else if (!classroomService.existsById(event.getClassroom().getId())) {
+            throw new GlobalNotFoundException(format("Classroom by id - %d not exists", event.getClassroom().getId()));
         }
     }
 
     private void requiredEventByIdExistence(Integer eventId){
         if (!eventRepository.existsById(eventId)){
-            throw new NotFoundException(format("Event by id- %d not exists", eventId));
+            throw new GlobalNotFoundException(format("Event by id- %d not exists", eventId));
         }
     }
 }

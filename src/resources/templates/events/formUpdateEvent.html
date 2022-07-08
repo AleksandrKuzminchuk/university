@@ -13,7 +13,7 @@
 <div class="login-page">
     <div class="form">
         <form class="login-form" th:method="PATCH" th:action="@{/events/{eventId}/updated(eventId=${oldEvent.id})}">
-            <input type="text" th:field="${oldEvent.dateTime}" id="date time" placeholder="date time"/>
+            <input type="datetime-local" th:field="${oldEvent.dateTime}" id="date time" placeholder="date time"/>
             <input type="text" th:field="${oldEvent.subject.name}" id="subject" placeholder="subject name" readonly/>
             <span class="custom-dropdown big">
             <select th:object="${newEvent}" th:field="*{subject.id}">

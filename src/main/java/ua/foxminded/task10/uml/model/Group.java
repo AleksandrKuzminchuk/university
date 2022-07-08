@@ -1,13 +1,15 @@
 package ua.foxminded.task10.uml.model;
 
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.util.List;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @Table(name = "groups")
@@ -38,5 +40,18 @@ public class Group {
 
     public Group(@NonNull String name) {
         this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Group group = (Group) o;
+        return Objects.equals(getId(), group.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

@@ -4,15 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 import ua.foxminded.task10.uml.repository.SubjectRepository;
 import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.service.TeacherService;
+import ua.foxminded.task10.uml.util.GlobalNotFoundException;
 
 import java.util.List;
 
@@ -49,7 +48,7 @@ public class SubjectServiceImpl implements SubjectService {
         requiredSubjectExistence(subjectId);
         log.info("FINDING... SUBJECT BY ID - {}", subjectId);
         Subject result = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
         log.info("FOUND {} BY ID - {} SUCCESSFULLY", result, subjectId);
         return result;
     }
@@ -57,8 +56,8 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public Subject findByName(Subject subject) {
         log.info("FINDING... SUBJECT BY NAME {}", subject.getName());
-        Subject result = subjectRepository.findOne(Example.of(subject))
-                .orElseThrow(() -> new NotFoundException(format("Can't find subject by name - %s", subject.getName())));
+        Subject result = subjectRepository.findSubjectsByName(subject.getName())
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subject by name - %s", subject.getName())));
         log.info("FOUND {} SUBJECT BY NAME {}", result, subject.getName());
         return result;
     }
@@ -134,7 +133,6 @@ public class SubjectServiceImpl implements SubjectService {
 
     @Override
     public Subject update(Subject subject) {
-        requireNonNull(subject);
         requiredSubjectExistence(subject.getId());
         log.info("UPDATING... SUBJECT BY ID - {}", subject.getId());
         Subject updatedSubject = subjectRepository.save(subject);
@@ -193,17 +191,17 @@ public class SubjectServiceImpl implements SubjectService {
 
     private void requiredSubjectExistence(Integer subjectId) {
         if (!subjectRepository.existsById(subjectId))
-            throw new NotFoundException(format("Subject by id - %d not exists", subjectId));
+            throw new GlobalNotFoundException(format("Subject by id - %d not exists", subjectId));
     }
 
     private void requiredTeacherExistence(Teacher teacher) {
         if (!teacherService.existsById(teacher.getId()))
-            throw new NotFoundException(format("Teacher by id - %d not exists", teacher.getId()));
+            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", teacher.getId()));
     }
 
     private void requiredTeacherExistence(Integer teacherId) {
         if (!teacherService.existsById(teacherId))
-            throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
+            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", teacherId));
     }
 
 }

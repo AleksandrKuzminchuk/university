@@ -4,15 +4,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.model.*;
 import ua.foxminded.task10.uml.service.*;
 
-import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -22,11 +19,11 @@ import java.util.List;
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class EventController {
 
-    EventService eventService;
-    SubjectService subjectService;
-    TeacherService teacherService;
-    GroupService groupService;
-    ClassroomService classroomService;
+    private final EventService eventService;
+    private final SubjectService subjectService;
+    private final TeacherService teacherService;
+    private final GroupService groupService;
+    private final ClassroomService classroomService;
 
     @GetMapping()
     public String findAll(Model model) {

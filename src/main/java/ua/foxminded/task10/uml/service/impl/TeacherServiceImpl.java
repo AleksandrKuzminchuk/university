@@ -1,19 +1,17 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 import ua.foxminded.task10.uml.repository.TeacherRepository;
 import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.service.TeacherService;
+import ua.foxminded.task10.uml.util.GlobalNotFoundException;
 
 import java.util.List;
 
@@ -23,16 +21,18 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 @Service
 @Transactional
-@RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class TeacherServiceImpl implements TeacherService {
 
-    TeacherRepository teacherRepository;
-    SubjectService subjectService;
+    private final TeacherRepository teacherRepository;
+    private final SubjectService subjectService;
+
+    public TeacherServiceImpl(TeacherRepository teacherRepository, @Lazy SubjectService subjectService) {
+        this.teacherRepository = teacherRepository;
+        this.subjectService = subjectService;
+    }
 
     @Override
     public Teacher save(Teacher teacher) {
-        requireNonNull(teacher);
         log.info("SAVING... {}", teacher);
         teacherRepository.save(teacher);
         log.info("SAVED {} SUCCESSFULLY", teacher);
@@ -45,7 +45,7 @@ public class TeacherServiceImpl implements TeacherService {
         requiredTeacherExistence(teacherId);
         log.info("FINDING... TEACHER BY ID - {}", teacherId);
         Teacher result = teacherRepository.findById(teacherId)
-                .orElseThrow(() -> new NotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
         log.info("FOUND {} BY ID - {}", result, teacherId);
         return result;
     }
@@ -69,7 +69,6 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public List<Teacher> findTeachersByNameOrSurname(Teacher teacher) {
-        requireNonNull(teacher);
         log.info("FINDING... TEACHERS {}", teacher);
         List<Teacher> result = teacherRepository.findTeachersByFirstNameOrLastName(teacher.getFirstName(), teacher.getLastName(), Sort.by(Sort.Order.asc("firstName")));
         log.info("FOUND {} TEACHERS BY {} SUCCESSFULLY", result.size(), teacher);
@@ -128,7 +127,6 @@ public class TeacherServiceImpl implements TeacherService {
 
     @Override
     public Teacher update(Teacher teacher) {
-        requireNonNull(teacher);
         requiredTeacherExistence(teacher.getId());
         log.info("UPDATING... TEACHER BY ID - {}", teacher.getId());
         Teacher updatedTeacher = teacherRepository.save(teacher);
@@ -179,14 +177,14 @@ public class TeacherServiceImpl implements TeacherService {
         requireNonNull(teacherId);
         requiredTeacherExistence(teacherId);
         log.info("FINDING... SUBJECTS BY TEACHER ID - {}", teacherId);
-        Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() -> new NotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
+        Teacher teacher = teacherRepository.findById(teacherId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
         log.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", teacher.getSubjects().size(), teacherId);
         return teacher.getSubjects();
      }
 
     private void requiredTeacherExistence(Integer teacherId) {
         if (!teacherRepository.existsById(teacherId))
-            throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
+            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", teacherId));
     }
 
 }

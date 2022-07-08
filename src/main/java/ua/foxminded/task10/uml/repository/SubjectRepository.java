@@ -7,7 +7,9 @@ import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, Integer> {
+    Optional<Subject> findSubjectsByName(String name);
 }

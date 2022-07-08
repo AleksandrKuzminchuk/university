@@ -1,15 +1,11 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.repository.GroupRepository;
 import ua.foxminded.task10.uml.service.GroupService;
@@ -24,14 +20,12 @@ import static java.util.Objects.requireNonNull;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class GroupServiceImpl implements GroupService {
 
-    GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
 
     @Override
     public Group save(Group group) {
-        requireNonNull(group);
         log.info("SAVING... {}", group);
         groupRepository.save(group);
         log.info("SAVED {} SUCCESSFULLY", group);
@@ -104,17 +98,14 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public Group findByName(Group group) {
-        requireNonNull(group);
         log.info("FINDING... GROUPS BY NAME - {}", group.getName());
-        Group result = groupRepository.findOne(Example.of(group))
-                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", group.getName())));
+        Group result = groupRepository.findGroupByName(group.getName()).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", group.getName())));
         log.info("FOUND {} BY NAME - {} SUCCESSFULLY", result, group.getName());
         return result;
     }
 
     @Override
     public Group update(Group group) {
-        requireNonNull(group);
         requiredGroupExistence(group.getId());
         log.info("UPDATING... GROUP BY ID - {}", group.getId());
         Group updatedGroup = groupRepository.save(group);
@@ -122,9 +113,9 @@ public class GroupServiceImpl implements GroupService {
         return updatedGroup;
     }
 
-    private void requiredGroupExistence(Integer groupId) {
-        if (!groupRepository.existsById(groupId)) {
-            throw new NotFoundException(format("Group by id - %d not exists", groupId));
+    private void requiredGroupExistence(Integer groupId){
+        if (!groupRepository.existsById(groupId)){
+            throw new GlobalNotFoundException(format("Group by id - %d not exists", groupId));
         }
     }
 }

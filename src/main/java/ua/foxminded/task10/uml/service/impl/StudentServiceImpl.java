@@ -1,19 +1,17 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
-import ua.foxminded.task10.uml.repository.GroupRepository;
 import ua.foxminded.task10.uml.repository.StudentRepository;
+import ua.foxminded.task10.uml.service.GroupService;
 import ua.foxminded.task10.uml.service.StudentService;
+import ua.foxminded.task10.uml.util.GlobalNotFoundException;
 
 import java.util.List;
 
@@ -24,15 +22,13 @@ import static java.util.Objects.requireNonNull;
 @Service
 @Transactional
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class StudentServiceImpl implements StudentService {
 
-    StudentRepository studentRepository;
-    GroupRepository groupRepository;
+    private final StudentRepository studentRepository;
+    private final GroupService groupService;
 
     @Override
     public Student save(Student student) {
-        requireNonNull(student);
         log.info("SAVING... {}", student);
         studentRepository.save(student);
         log.info("SAVED {} SUCCESSFULLY", student);
@@ -44,16 +40,15 @@ public class StudentServiceImpl implements StudentService {
         requireNonNull(studentId);
         requiredStudentExistence(studentId);
         log.info("FINDING... STUDENT BY ID - {}", studentId);
-        Student result = studentRepository.findById(studentId).orElseThrow(() -> new NotFoundException(format("Can't find student by studentId - %d", studentId)));
+        Student result = studentRepository.findById(studentId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find student by studentId - %d", studentId)));
         log.info("FOUND {} BY ID - {}", result, studentId);
         return result;
     }
 
     @Override
-    public List<Student> findByNameOrSurname(Student student) {
-        requireNonNull(student);
+    public List<Student> findByNameOrSurname(String firstName, String lastName) {
         log.info("FINDING... STUDENTS BY NAME OR SURNAME");
-        List<Student> result = studentRepository.findStudentsByFirstNameOrLastNameOrderByFirstName(student.getFirstName(), student.getLastName());
+        List<Student> result = studentRepository.findStudentsByFirstNameOrLastNameOrderByFirstName(firstName, lastName);
         log.info("FOUND STUDENTS {} BY NAME OR SURNAME", result.size());
         return result;
     }
@@ -131,7 +126,6 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> findByGroupId(Integer groupId) {
-        requireNonNull(groupId);
         requiredGroupExistence(groupId);
         log.info("FINDING... STUDENTS BY GROUP ID - {}", groupId);
         List<Student> students = studentRepository.findStudentsByGroupIdOrderByFirstName(groupId);
@@ -149,7 +143,6 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> findByCourseNumber(Integer courseNumber) {
-        requireNonNull(courseNumber);
         log.info("FINDING... STUDENTS BY COURSE NUMBER - {}", courseNumber);
         List<Student> result = studentRepository.findStudentsByCourseOrderByFirstName(courseNumber);
         log.info("FOUND {} STUDENTS BY COURSE NUMBER - {} SUCCESSFULLY", result.size(), courseNumber);
@@ -176,7 +169,6 @@ public class StudentServiceImpl implements StudentService {
 
     @Override
     public List<Student> findByGroupName(Group group) {
-        requireNonNull(group.getName(), "group name must be present!");
         log.info("FINDING... STUDENTS BY NAME GROUP - {}", group.getName());
         List<Student> result = studentRepository.findAllByGroup_Name(group.getName(), Sort.by(Sort.Order.asc("firstName")));
         log.info("FOUND {} STUDENTS BY ID GROUP NAME - {}", result.size(), group.getName());
@@ -184,14 +176,14 @@ public class StudentServiceImpl implements StudentService {
     }
 
     private void requiredGroupExistence(Integer groupId) {
-        if (!groupRepository.existsById(groupId)) {
-            throw new NotFoundException(format("Group by id - %s not exists", groupId));
+        if (!groupService.existsById(groupId)) {
+            throw new GlobalNotFoundException(format("Group by id - %s not exists", groupId));
         }
     }
 
     private void requiredStudentExistence(Integer studentId) {
         if (!studentRepository.existsById(studentId)) {
-            throw new NotFoundException(format("Student by id- %d not exists", studentId));
+            throw new GlobalNotFoundException(format("Student by id- %d not exists", studentId));
         }
     }
 }

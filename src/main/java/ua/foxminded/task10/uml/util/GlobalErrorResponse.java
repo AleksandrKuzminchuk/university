@@ -1,19 +1,17 @@
 package ua.foxminded.task10.uml.util;
 
-import lombok.*;
-import lombok.experimental.FieldDefaults;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Data
 @Component
+@NoArgsConstructor
 @AllArgsConstructor
-@RequiredArgsConstructor
-@FieldDefaults(level = AccessLevel.PRIVATE)
 public class GlobalErrorResponse {
 
-    String fieldName;
-    String message;
-    String dateTime;
-
-
+    private String fieldName;
+    private String message;
+    private String dateTime;
 }

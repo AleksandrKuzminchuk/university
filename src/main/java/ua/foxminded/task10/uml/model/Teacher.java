@@ -1,22 +1,24 @@
 package ua.foxminded.task10.uml.model;
 
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Objects;
 
-@Data
+@Getter
+@Setter
 @Entity
 @NoArgsConstructor
 @Table(name = "teachers")
 @ToString(callSuper = true)
-@EqualsAndHashCode(callSuper = true)
 @AttributeOverride(name = "id", column = @Column(name = "teacher_id"))
 public class Teacher extends Person {
 
     @Singular
-    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @ToString.Exclude
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(name = "teachers_subjects",
             joinColumns = @JoinColumn(name = "teacher_id"),
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
@@ -28,5 +30,18 @@ public class Teacher extends Person {
 
     public Teacher(String firstName, String lastName) {
         super(firstName, lastName);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Teacher teacher = (Teacher) o;
+        return Objects.equals(getId(), teacher.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

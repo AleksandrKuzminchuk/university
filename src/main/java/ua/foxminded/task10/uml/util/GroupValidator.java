@@ -15,10 +15,9 @@ import ua.foxminded.task10.uml.repository.GroupRepository;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class GroupValidator implements Validator {
 
-    GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -29,7 +28,7 @@ public class GroupValidator implements Validator {
     public void validate(Object target, Errors errors) {
         log.info("VALIDATING GROUP BY NAME {}", target);
         Group group = (Group) target;
-        if (groupRepository.findOne(Example.of(group)).isPresent()){
+        if (groupRepository.findGroupByName(group.getName()).isPresent()){
             errors.rejectValue("name", "", "This name is already taken");
         }
     }

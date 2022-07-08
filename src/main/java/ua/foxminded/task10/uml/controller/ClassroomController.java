@@ -1,8 +1,6 @@
 package ua.foxminded.task10.uml.controller;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,15 +15,14 @@ import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
+@Validated
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/classrooms")
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
-@Validated
 public class ClassroomController {
 
-    ClassroomService classroomService;
-    ClassroomValidator classroomValidator;
+    private final ClassroomService classroomService;
+    private final ClassroomValidator classroomValidator;
 
     @GetMapping()
     public String findAll(Model model) {
@@ -44,11 +41,11 @@ public class ClassroomController {
     }
 
     @PostMapping("/saved")
-    public String save(Model model, @Valid @ModelAttribute("newClassroom") Classroom classroom,
+    public String save(Model model, @ModelAttribute("newClassroom") @Valid Classroom classroom,
                                 BindingResult bindingResult) {
         log.info("requested-> [POST]-'/saved'");
         classroomValidator.validate(classroom, bindingResult);
-        if (bindingResult.hasErrors()) {
+        if (bindingResult.hasFieldErrors()) {
             return "classrooms/formSaveClassroom";
         }
         Classroom newClassroom = classroomService.save(classroom);
@@ -66,12 +63,11 @@ public class ClassroomController {
     }
 
     @PatchMapping("/{id}/updated")
-    public String update(Model model, @ModelAttribute("classroom") @Valid Classroom classroom,
-                                  BindingResult bindingResult,
-                                  @PathVariable("id") Integer classroomId) {
+    public String update(Model model, @PathVariable("id") Integer classroomId,
+                         @ModelAttribute("classroom") @Valid Classroom classroom, BindingResult bindingResult) {
         log.info("requested-> [PATCH]-'/{id}/updated'");
         classroomValidator.validate(classroom, bindingResult);
-        if (bindingResult.hasErrors()) {
+        if (bindingResult.hasFieldErrors("number")) {
             return "classrooms/formUpdateClassroom";
         }
         classroom.setId(classroomId);

@@ -21,7 +21,7 @@ public interface StudentService extends CrudRepositoryService<Student, Integer> 
 
     void deleteByGroupId(Integer id);
 
-    List<Student> findByNameOrSurname(Student student);
+    List<Student> findByNameOrSurname(String firstName, String lastName);
 
     List<Student> findByGroupId(Integer id);
 

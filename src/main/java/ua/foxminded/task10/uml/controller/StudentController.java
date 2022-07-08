@@ -1,33 +1,31 @@
 package ua.foxminded.task10.uml.controller;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ua.foxminded.task10.uml.model.Course;
 import ua.foxminded.task10.uml.model.Group;
+import ua.foxminded.task10.uml.model.Person;
 import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.service.GroupService;
 import ua.foxminded.task10.uml.service.StudentService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.Objects;
 
 @Slf4j
 @Validated
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/students")
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class StudentController {
 
-    StudentService studentService;
-    GroupService groupService;
+    private final StudentService studentService;
+    private final GroupService groupService;
 
     @GetMapping
     public String findAll(Model model) {
@@ -122,23 +120,23 @@ public class StudentController {
     }
 
     @GetMapping("/find/by_course")
-    public String findByCourseNumberForm(@ModelAttribute("student") Student courseNumber) {
+    public String findByCourseNumberForm(@ModelAttribute("course") Course course) {
         log.info("requested-> [GET]-'/find/by_course'");
         return "students/formFindStudentsByCourse";
     }
 
     @GetMapping("/found/by_course")
     public String findByCourseNumber(Model model,
-                                     @ModelAttribute Student student) {
+                                     @ModelAttribute @Valid Course course, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/found/by_course'");
-//        if (bindingResult.hasErrors()) {
-//            return "students/formFindStudentsByCourse";
-//        }
-        List<Student> students = studentService.findByCourseNumber(student.getCourse());
+        if (bindingResult.hasErrors()) {
+            return "students/formFindStudentsByCourse";
+        }
+        List<Student> students = studentService.findByCourseNumber(course.getCourse());
         model.addAttribute("students", students);
         model.addAttribute("count", students.size());
-        model.addAttribute("courseNumber", student.getCourse());
-        log.info("FOUND STUDENTS {} BY COURSE NUMBER {}", students.size(), student);
+        model.addAttribute("courseNumber", course.getCourse());
+        log.info("FOUND STUDENTS {} BY COURSE NUMBER {}", students.size(), course.getCourse());
         return "students/students";
     }
 
@@ -186,20 +184,20 @@ public class StudentController {
     }
 
     @GetMapping("/find/by_name_surname")
-    public String formForFindByNameOrSurname(@ModelAttribute("newStudent") Student student) {
+    public String formForFindByNameOrSurname(@ModelAttribute("newStudent") Person student) {
         log.info("requested-> [GET]-'find/by_name_surname'");
         return "students/formFindStudentByNameSurname";
     }
 
     @GetMapping("/found/by_name_surname")
     public String findByNameOrSurname(Model model,
-                                    @ModelAttribute @Valid Student student,
+                                    @ModelAttribute @Valid Person student,
                                     BindingResult bindingResult) {
         log.info("requested-> [GET]-'found/by_name_surname'");
         if (bindingResult.hasErrors()) {
             return "students/formFindStudentByNameSurname";
         }
-        List<Student> result = studentService.findByNameOrSurname(student);
+        List<Student> result = studentService.findByNameOrSurname(student.getFirstName(), student.getLastName());
         model.addAttribute("students", result);
         log.info("FOUND STUDENT {} BY NAME OR SURNAME SUCCESSFULLY", result);
         return "students/students";

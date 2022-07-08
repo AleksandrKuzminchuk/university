@@ -1,12 +1,11 @@
 package ua.foxminded.task10.uml.controller;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
@@ -18,17 +17,16 @@ import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
+@Validated
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/groups")
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class GroupController {
 
 
-    GroupService groupService;
-    StudentService studentService;
-
-    GroupValidator groupValidator;
+    private final GroupService groupService;
+    private final StudentService studentService;
+    private final GroupValidator groupValidator;
 
     @GetMapping
     public String findAll(Model model){
@@ -69,7 +67,7 @@ public class GroupController {
     }
 
     @PatchMapping("{id}/updated")
-    public String updateGroup(Model model, @ModelAttribute @Valid Group group, BindingResult bindingResult,
+    public String update(Model model, @ModelAttribute @Valid Group group, BindingResult bindingResult,
                               @PathVariable("id") Integer groupId){
         log.info("requested-> [PATCH]-'/{id}/updated'");
         groupValidator.validate(group, bindingResult);
@@ -104,7 +102,7 @@ public class GroupController {
     }
 
     @GetMapping("find/by_name")
-    public String findByNameFrom(@ModelAttribute("group") Group group){
+    public String findByNameForm(@ModelAttribute("group") Group group){
         log.info("requested-> [GET]-'find/by_name'");
         return "groups/formForFindGroupByName";
     }
@@ -122,7 +120,7 @@ public class GroupController {
     }
 
     @GetMapping("{id}/found/students")
-    public String findStudentsByGroupId(Model model, @PathVariable("id") Integer groupId){
+    public String findStudentsByGroup(Model model, @PathVariable("id") Integer groupId){
         log.info("requested-> [GET]-'{id}/found/students'");
         Group group = groupService.findById(groupId);
         List<Student> students = studentService.findByGroupId(groupId);
