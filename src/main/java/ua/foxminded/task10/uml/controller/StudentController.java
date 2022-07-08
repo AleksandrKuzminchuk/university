@@ -191,7 +191,7 @@ public class StudentController {
 
     @GetMapping("/found/by_name_surname")
     public String findByNameOrSurname(Model model,
-                                    @ModelAttribute @Valid Person student,
+                                    @ModelAttribute Person student,
                                     BindingResult bindingResult) {
         log.info("requested-> [GET]-'found/by_name_surname'");
         if (bindingResult.hasErrors()) {

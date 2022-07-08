@@ -47,7 +47,7 @@ public class TeacherController {
                        @ModelAttribute("newTeacher") @Valid Teacher teacher,
                        BindingResult bindingResult) {
         log.info("requested-> [POST]-'/saved'");
-        if (bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             return "teachers/formSaveTeacher";
         }
         Teacher newTeacher = teacherService.save(teacher);
@@ -83,7 +83,7 @@ public class TeacherController {
                          BindingResult bindingResult,
                          @PathVariable("id") Integer teacherId) {
         log.info("requested-> [PATCH]-'{id}/updated'");
-        if (bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             return "teachers/formUpdateTeacher";
         }
         teacher.setId(teacherId);
@@ -136,17 +136,17 @@ public class TeacherController {
     }
 
     @GetMapping("/find/by_name_surname")
-    public String findTeachersByNameOrSurnameForm(@ModelAttribute("newTeacher") Teacher teacher) {
+    public String findTeachersByNameOrSurnameForm(@ModelAttribute("newTeacher") Teacher teacher) {//ToDo: remove 'Teacher(s)' from all method names!
         log.info("requested-> [GET]-'/find/by_name_surname'");
         return "teachers/formFindTeacherByNameSurname";
     }
 
     @GetMapping("/found/by_name_surname")
     public String findTeachersByNameOrSurname(Model model,
-                                              @ModelAttribute("newTeacher") @Valid Teacher teacher,
+                                              @ModelAttribute("newTeacher") Teacher teacher,
                                               BindingResult bindingResult) {
         log.info("requested-> [GET]-'/found/by_name_surname'");
-        if (bindingResult.hasErrors()){
+        if (bindingResult.hasErrors()) {
             return "teachers/formFindTeacherByNameSurname";
         }
         List<Teacher> result = teacherService.findTeachersByNameOrSurname(teacher);
