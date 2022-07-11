@@ -90,7 +90,7 @@ public class EventController {
     @GetMapping("/found")
     public String findEvents(Model model, @ModelAttribute Event event) {
         log.info("requested-> [GET]->'/found'");
-        List<Event> events = eventService.findEvents(event.getStartDateTime(), event.getEndDateTime());
+        List<Event> events = eventService.find(event.getStartDateTime(), event.getEndDateTime());
         model.addAttribute("events", events);
         model.addAttribute("event", event);
         model.addAttribute("count", events.size());

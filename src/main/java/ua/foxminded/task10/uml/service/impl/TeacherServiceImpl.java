@@ -68,9 +68,9 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public List<Teacher> findTeachersByNameOrSurname(Teacher teacher) {
+    public List<Teacher> findByNameOrSurname(Teacher teacher) {
         log.info("FINDING... TEACHERS {}", teacher);
-        List<Teacher> result = teacherRepository.findTeachersByFirstNameOrLastName(teacher.getFirstName(), teacher.getLastName(), Sort.by(Sort.Order.asc("firstName")));
+        List<Teacher> result = teacherRepository.findByFirstNameOrLastName(teacher.getFirstName(), teacher.getLastName(), Sort.by(Sort.Order.asc("firstName")));
         log.info("FOUND {} TEACHERS BY {} SUCCESSFULLY", result.size(), teacher);
         return result;
     }
@@ -105,7 +105,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void deleteFromTeacherSubject(Integer teacherId, Integer subjectId) {
+    public void deleteSubject(Integer teacherId, Integer subjectId) {
         requireNonNull(teacherId);
         requireNonNull(subjectId);
         requiredTeacherExistence(teacherId);
@@ -135,7 +135,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void updateAtTeacherSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId) {
+    public void updateSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId) {
         requireNonNull(teacherId);
         requireNonNull(oldSubjectId);
         requireNonNull(newSubjectId);
@@ -150,7 +150,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void addTeacherToSubject(Teacher teacher, Subject subject) {
+    public void addSubject(Teacher teacher, Subject subject) {
         requireNonNull(teacher);
         requireNonNull(subject);
         requiredTeacherExistence(teacher.getId());
@@ -162,18 +162,18 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void addTeacherToSubjects(Teacher teacher, List<Subject> subjects) {
+    public void addSubjects(Teacher teacher, List<Subject> subjects) {
         requireNonNull(teacher);
         requireNonNull(subjects);
         requiredTeacherExistence(teacher.getId());
         subjects.forEach(subject -> subjectService.existsById(subject.getId()));
         log.info("ADDING... TEACHER BY ID - {} TO SUBJECTS {}", teacher.getId(), subjects.size());
-        subjects.forEach(subject -> addTeacherToSubject(teacher, subject));
+        subjects.forEach(subject -> addSubject(teacher, subject));
         log.info("ADDED TEACHER BY ID - {} TO SUBJECTS {} SUCCESSFULLY", teacher.getId(), subjects.size());
     }
 
     @Override
-    public List<Subject> findSubjectsByTeacher(Integer teacherId) {
+    public List<Subject> findSubjects(Integer teacherId) {
         requireNonNull(teacherId);
         requiredTeacherExistence(teacherId);
         log.info("FINDING... SUBJECTS BY TEACHER ID - {}", teacherId);

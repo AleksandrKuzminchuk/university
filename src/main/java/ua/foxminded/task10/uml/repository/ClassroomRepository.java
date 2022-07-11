@@ -10,5 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ClassroomRepository extends JpaRepository<Classroom, Integer> {
 
-    Optional<Classroom> findClassroomByNumber(Integer number);
+    Optional<Classroom> findByNumber(Integer number);
 }

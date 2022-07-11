@@ -13,5 +13,5 @@ public interface EventService extends CrudRepositoryService<Event, Integer> {
 
     Event update(Event event);
 
-    List<Event> findEvents(LocalDateTime startDateTime, LocalDateTime endDateTime);
+    List<Event> find(LocalDateTime startDateTime, LocalDateTime endDateTime);
 }

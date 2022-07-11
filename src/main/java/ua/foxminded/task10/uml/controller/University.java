@@ -24,7 +24,7 @@ public class University {
     @GetMapping
     public String showUniversity(Model model) {
         log.info("University home page");
-        List<Event> eventList = eventService.findEvents(LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
+        List<Event> eventList = eventService.find(LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
                 LocalDateTime.of(LocalDate.now(), LocalTime.MAX));
         model.addAttribute("events", eventList);
         model.addAttribute("count", eventList.size());

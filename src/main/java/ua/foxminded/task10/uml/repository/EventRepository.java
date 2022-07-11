@@ -12,5 +12,5 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event, Integer> {
 
     @Query("FROM Event e WHERE e.dateTime BETWEEN :startDateTime AND :endDateTime")
-    List<Event> findEventsByDateTimeOrderByDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime);
+    List<Event> findByDateTimeOrderByDateTime(LocalDateTime startDateTime, LocalDateTime endDateTime);
 }

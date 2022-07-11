@@ -12,15 +12,15 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     Long countByGroupId(Integer groupId);
 
-    void deleteStudentsByCourse(Integer courseNumber);
+    void deleteByCourse(Integer courseNumber);
 
-    List<Student> findStudentsByGroupIdOrderByFirstName(Integer groupId);
+    List<Student> findByGroupIdOrderByFirstName(Integer groupId);
 
-    List<Student> findStudentsByCourseOrderByFirstName(Integer courseNumber);
+    List<Student> findByCourseOrderByFirstName(Integer courseNumber);
 
     List<Student> findAllByGroup_Name(String groupName, Sort firstName);
 
-    List<Student> findStudentsByFirstNameOrLastNameOrderByFirstName(String firstName, String lastName);
+    List<Student> findByFirstNameOrLastNameOrderByFirstName(String firstName, String lastName);
 
-    void deleteStudentsByGroupId(Integer groupId);
+    void deleteByGroupId(Integer groupId);
 }

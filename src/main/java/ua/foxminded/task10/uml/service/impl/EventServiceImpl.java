@@ -119,11 +119,11 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> findEvents(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    public List<Event> find(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         requireNonNull(startDateTime);
         requireNonNull(endDateTime);
         log.info("FINDING... EVENT FROM {} TO {}", startDateTime.format(formatter), endDateTime.format(formatter));
-        List<Event> result = eventRepository.findEventsByDateTimeOrderByDateTime(startDateTime, endDateTime);
+        List<Event> result = eventRepository.findByDateTimeOrderByDateTime(startDateTime, endDateTime);
         log.info("FOUND {} EVENT FROM {} TO {}", result.size(), startDateTime.format(formatter), endDateTime.format(formatter));
         return result;
     }

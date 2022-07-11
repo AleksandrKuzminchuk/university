@@ -17,7 +17,7 @@ public interface StudentService extends CrudRepositoryService<Student, Integer> 
 
     void deleteByCourseNumber(Integer courseNumber);
 
-    Student deleteFromGroupByStudentId(Integer studentId);
+    Student deleteGroup(Integer studentId);
 
     void deleteByGroupId(Integer id);
 

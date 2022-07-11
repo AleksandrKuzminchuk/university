@@ -108,7 +108,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public Classroom findByNumber(Classroom classroom) {
         log.info("FINDING... CLASSROOMS BY NUMBER - {}", classroom.getNumber());
-        Classroom result = classroomRepository.findClassroomByNumber(classroom.getNumber()).orElseThrow(() -> new GlobalNotFoundException(format("Classroom by number [%d] not found", classroom.getNumber())));
+        Classroom result = classroomRepository.findByNumber(classroom.getNumber()).orElseThrow(() -> new GlobalNotFoundException(format("Classroom by number [%d] not found", classroom.getNumber())));
         log.info("FOUND {} CLASSROOM BY NUMBER - {} SUCCESSFULLY", result, classroom.getNumber());
         return result;
     }

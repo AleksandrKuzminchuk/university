@@ -120,7 +120,7 @@ public class GroupController {
     }
 
     @GetMapping("{id}/found/students")
-    public String findStudentsByGroup(Model model, @PathVariable("id") Integer groupId){
+    public String findStudents(Model model, @PathVariable("id") Integer groupId){
         log.info("requested-> [GET]-'{id}/found/students'");
         Group group = groupService.findById(groupId);
         List<Student> students = studentService.findByGroupId(groupId);

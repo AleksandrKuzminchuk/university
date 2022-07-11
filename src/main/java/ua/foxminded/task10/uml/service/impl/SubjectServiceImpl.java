@@ -56,7 +56,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public Subject findByName(Subject subject) {
         log.info("FINDING... SUBJECT BY NAME {}", subject.getName());
-        Subject result = subjectRepository.findSubjectsByName(subject.getName())
+        Subject result = subjectRepository.findByName(subject.getName())
                 .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subject by name - %s", subject.getName())));
         log.info("FOUND {} SUBJECT BY NAME {}", result, subject.getName());
         return result;
@@ -110,7 +110,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void deleteFromSubjectTeacher(Integer subjectId, Integer teacherId) {
+    public void deleteTeacher(Integer subjectId, Integer teacherId) {
         requireNonNull(subjectId);
         requireNonNull(teacherId);
         requiredSubjectExistence(subjectId);
@@ -141,7 +141,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void updateAtSubjectTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId) {
+    public void updateTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId) {
         requireNonNull(subjectId);
         requireNonNull(oldTeacherId);
         requireNonNull(newTeacherId);
@@ -157,7 +157,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public List<Teacher> findTeachersBySubject(Integer subjectId) {
+    public List<Teacher> findTeachers(Integer subjectId) {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... TEACHERS BY SUBJECT ID - {}", subjectId);
@@ -167,7 +167,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void addSubjectToTeacher(Subject subject, Teacher teacher) {
+    public void addTeacher(Subject subject, Teacher teacher) {
         requireNonNull(subject);
         requireNonNull(teacher);
         requiredTeacherExistence(teacher);
@@ -179,13 +179,13 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void addSubjectToTeachers(Subject subject, List<Teacher> teachers) {
+    public void addTeachers(Subject subject, List<Teacher> teachers) {
         requireNonNull(subject);
         requireNonNull(teachers);
         requiredSubjectExistence(subject.getId());
         teachers.forEach(this::requiredTeacherExistence);
         log.info("ADDING... SUBJECT BY ID - {} TO TEACHERS - {}", subject, teachers.size());
-        teachers.forEach(teacher -> addSubjectToTeacher(subject, teacher));
+        teachers.forEach(teacher -> addTeacher(subject, teacher));
         log.info("ADDED SUBJECT BY ID - {} TO TEACHERS - {} SUCCESSFULLY", subject.getId(), teachers.size());
     }
 

@@ -9,5 +9,5 @@ import java.util.List;
 
 @Repository
 public interface TeacherRepository extends JpaRepository<Teacher, Integer> {
-    List<Teacher> findTeachersByFirstNameOrLastName(String firstName, String lastName, Sort name);
+    List<Teacher> findByFirstNameOrLastName(String firstName, String lastName, Sort name);
 }

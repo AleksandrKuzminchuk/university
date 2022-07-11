@@ -100,7 +100,7 @@ public class StudentController {
     public String deleteFromGroup(Model model,
                                   @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'{id}/delete/from_group'");
-        Student student = studentService.deleteFromGroupByStudentId(id);
+        Student student = studentService.deleteGroup(id);
         model.addAttribute("student", student);
         model.addAttribute("group", new Group());
         log.info("DELETED THE STUDENTS' BY ID - {} GROUP SUCCESSFULLY", id);

@@ -25,7 +25,7 @@ public class SubjectValidator implements Validator {
     public void validate(Object target, Errors errors) {
         log.info("VALIDATING SUBJECT BY NAME {}", target);
         Subject subject = (Subject) target;
-        if (subjectRepository.findSubjectsByName(subject.getName()).isPresent()){
+        if (subjectRepository.findByName(subject.getName()).isPresent()){
             errors.rejectValue("name", "", "This name is already taken");
         }
     }

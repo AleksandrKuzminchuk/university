@@ -11,15 +11,15 @@ public interface SubjectService extends CrudRepositoryService<Subject, Integer>{
 
     Subject update(Subject subject);
 
-    List<Teacher> findTeachersBySubject(Integer subjectId);
+    List<Teacher> findTeachers(Integer subjectId);
 
     Subject findByName(Subject subject);
 
-    void addSubjectToTeacher(Subject subject, Teacher teacher);
+    void addTeacher(Subject subject, Teacher teacher);
 
-    void addSubjectToTeachers(Subject subject, List<Teacher> teachers);
+    void addTeachers(Subject subject, List<Teacher> teachers);
 
-    void updateAtSubjectTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId);
+    void updateTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId);
 
-    void deleteFromSubjectTeacher(Integer subjectId, Integer teacherId);
+    void deleteTeacher(Integer subjectId, Integer teacherId);
 }

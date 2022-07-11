@@ -48,7 +48,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> findByNameOrSurname(String firstName, String lastName) {
         log.info("FINDING... STUDENTS BY NAME OR SURNAME");
-        List<Student> result = studentRepository.findStudentsByFirstNameOrLastNameOrderByFirstName(firstName, lastName);
+        List<Student> result = studentRepository.findByFirstNameOrLastNameOrderByFirstName(firstName, lastName);
         log.info("FOUND STUDENTS {} BY NAME OR SURNAME", result.size());
         return result;
     }
@@ -99,7 +99,7 @@ public class StudentServiceImpl implements StudentService {
     public void deleteByCourseNumber(Integer courseNumber) {
         requireNonNull(courseNumber);
         log.info("DELETING... STUDENTS BY COURSE NUMBER - {}", courseNumber);
-        studentRepository.deleteStudentsByCourse(courseNumber);
+        studentRepository.deleteByCourse(courseNumber);
         log.info("DELETED STUDENTS BY COURSE NUMBER - {} SUCCESSFULLY", courseNumber);
     }
 
@@ -108,7 +108,7 @@ public class StudentServiceImpl implements StudentService {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
         log.info("DELETING... STUDENTS BY GROUP ID {}", groupId);
-        studentRepository.deleteStudentsByGroupId(groupId);
+        studentRepository.deleteByGroupId(groupId);
         log.info("DELETED STUDENTS BY GROUP ID {}", groupId);
     }
 
@@ -128,7 +128,7 @@ public class StudentServiceImpl implements StudentService {
     public List<Student> findByGroupId(Integer groupId) {
         requiredGroupExistence(groupId);
         log.info("FINDING... STUDENTS BY GROUP ID - {}", groupId);
-        List<Student> students = studentRepository.findStudentsByGroupIdOrderByFirstName(groupId);
+        List<Student> students = studentRepository.findByGroupIdOrderByFirstName(groupId);
         log.info("FOUND {} STUDENTS BY GROUP ID - {} SUCCESSFULLY", students.size(), groupId);
         return students;
     }
@@ -144,7 +144,7 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public List<Student> findByCourseNumber(Integer courseNumber) {
         log.info("FINDING... STUDENTS BY COURSE NUMBER - {}", courseNumber);
-        List<Student> result = studentRepository.findStudentsByCourseOrderByFirstName(courseNumber);
+        List<Student> result = studentRepository.findByCourseOrderByFirstName(courseNumber);
         log.info("FOUND {} STUDENTS BY COURSE NUMBER - {} SUCCESSFULLY", result.size(), courseNumber);
         return result;
     }
@@ -157,7 +157,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Student deleteFromGroupByStudentId(Integer studentId) {
+    public Student deleteGroup(Integer studentId) {
         requiredStudentExistence(studentId);
         log.info("UPDATING... STUDENTS' BY ID - {} GROUP", studentId);
         Student student = findById(studentId);

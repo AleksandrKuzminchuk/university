@@ -99,7 +99,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Group findByName(Group group) {
         log.info("FINDING... GROUPS BY NAME - {}", group.getName());
-        Group result = groupRepository.findGroupByName(group.getName()).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", group.getName())));
+        Group result = groupRepository.findByName(group.getName()).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", group.getName())));
         log.info("FOUND {} BY NAME - {} SUCCESSFULLY", result, group.getName());
         return result;
     }
