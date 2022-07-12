@@ -16,6 +16,7 @@
     <div class="form">
         <form class="login-form" th:method="POST" th:action="@{/groups/saved}" th:object="${newGroup}">
             <input type="text" th:field="*{name}" id="name" placeholder="name group"/>
+            <div style="color:red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></div>
             <button type="submit">save</button>
         </form>
     </div>

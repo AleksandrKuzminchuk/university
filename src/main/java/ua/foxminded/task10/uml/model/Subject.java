@@ -1,34 +1,67 @@
 package ua.foxminded.task10.uml.model;
 
 import lombok.*;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 import java.util.List;
+import java.util.Objects;
 
-@Data
+@Setter
+@Getter
 @Entity
 @NoArgsConstructor
 @Table(name = "subjects")
+@ToString(onlyExplicitlyIncluded = true)
 public class Subject {
 
     @Id
+    @NonNull
+    @ToString.Include
     @Column(name = "subject_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NonNull
     private Integer id;
 
-    @Column(name = "subject_name")
     @NonNull
+    @ToString.Include
+    @Column(name = "subject_name")
+    @NotBlank(message = "Can't be empty and consist on placeholders. Hint-'GEOMETRY'")
+    @Pattern(regexp = "[A-Z]{1,30}", message = "All letters must be capital and be limited to 30 characters. Hint-'GEOMETRY'")
     private String name;
 
-    @ManyToMany(cascade = {CascadeType.DETACH, CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @NonNull
+    @ToString.Exclude
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     @JoinTable(name = "teachers_subjects",
     joinColumns = @JoinColumn(name = "subject_id"),
     inverseJoinColumns = @JoinColumn(name = "teacher_id"))
-    @NonNull
     private List<Teacher> teachers;
 
     public Subject(@NonNull Integer id) {
         this.id = id;
+    }
+
+    public Subject(@NonNull String name) {
+        this.name = name;
+    }
+
+    public Subject(@NonNull Integer id, @NonNull String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        Subject subject = (Subject) o;
+        return Objects.equals(getId(), subject.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
 }

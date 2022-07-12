@@ -1,31 +1,34 @@
 package ua.foxminded.task10.uml.controller;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ua.foxminded.task10.uml.model.Course;
 import ua.foxminded.task10.uml.model.Group;
+import ua.foxminded.task10.uml.model.Person;
 import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.service.GroupService;
 import ua.foxminded.task10.uml.service.StudentService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
+@Validated
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/students")
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class StudentController {
 
-    StudentService studentService;
-    GroupService groupService;
+    private final StudentService studentService;
+    private final GroupService groupService;
 
     @GetMapping
-    public String findAllStudents(Model model) {
+    public String findAll(Model model) {
         log.info("requested-> [GET]-'/students'");
         List<Student> students = studentService.findAll();
         model.addAttribute("students", students);
@@ -35,157 +38,131 @@ public class StudentController {
     }
 
     @GetMapping("/new")
-    public String createFormForSaveStudent(@ModelAttribute("newStudent") Student student) {
+    public String saveForm(@ModelAttribute("newStudent") Student student) {
         log.info("requested-> [GET]-'/new_student'");
         return "students/formSaveStudent";
     }
 
     @PostMapping("/saved")
-    public String saveStudent(Model model,
-                              @ModelAttribute Student student) {
+    public String save(Model model,
+                       @ModelAttribute @Valid Student student,
+                       BindingResult bindingResult) {
         log.info("requested-> [POST]-'/savedStudent'");
+        if (bindingResult.hasErrors()) {
+            return "students/formSaveStudent";
+        }
         Student newStudent = studentService.save(student);
         model.addAttribute("student", newStudent);
         log.info("SAVED {} SUCCESSFULLY", newStudent);
         return "students/formSavedStudent";
     }
 
-    @GetMapping("/{studentId}/update")
-    public String createFormForUpdateStudent(Model model,
-                                             @PathVariable("studentId") Integer studentId) {
+    @GetMapping("/{id}/update")
+    public String updateForm(Model model,
+                             @PathVariable("id") Integer id) {
         log.info("requested-> [GET]-'/{studentId}/update'");
-        Student student = studentService.findById(studentId);
+        Student student = studentService.findById(id);
+        List<Group> groups = groupService.findAll();
         model.addAttribute("student", student);
+        model.addAttribute("groups", groups);
         log.info("UPDATING... {}", student);
         return "students/formUpdateStudent";
     }
 
-    @PatchMapping("/{studentId}/updated")
-    public String updateStudent(Model model,
-                                @ModelAttribute Student student,
-                                @PathVariable("studentId") Integer studentId) {
-        log.info("requested-> [PATCH]-'/{studentId}/updated'");
-        studentService.updateStudent(studentId, student);
+    @PatchMapping("/{id}/updated")
+    public String update(Model model,
+                         @ModelAttribute @Valid Student student,
+                         BindingResult bindingResult,
+                         @PathVariable("id") Integer id) {
+        log.info("requested-> [PATCH]-'/{id}/updated'");
+        if (bindingResult.hasErrors()) {
+            return "students/formUpdateStudent";
+        }
+        student.setId(id);
+        studentService.update(student);
         model.addAttribute("studentUpdated", student);
         log.info("UPDATED {} SUCCESSFULLY", student);
         return "students/formUpdatedStudent";
     }
 
-    @DeleteMapping("/{studentId}/deleted")
-    public String deleteStudentById(Model model,
-                                    @PathVariable("studentId") Integer studentId) {
-        log.info("requested-> [DELETE]-'/{studentId}/delete_student'");
-        Student student = studentService.findById(studentId);
-        studentService.deleteById(studentId);
+    @DeleteMapping("/{id}/deleted")
+    public String deleteById(Model model,
+                             @PathVariable("id") Integer id) {
+        log.info("requested-> [DELETE]-'/{id}/delete_student'");
+        Student student = studentService.findById(id);
+        studentService.deleteById(id);
         model.addAttribute("deleteStudentById", student);
-        log.info("DELETED STUDENT BY ID - {}", studentId);
+        log.info("DELETED STUDENT BY ID - {}", id);
         return "students/formDeletedStudent";
     }
 
-    @PatchMapping("/{studentId}/delete/from_group")
-    public String deleteStudentFromGroup(Model model,
-                                         @PathVariable("studentId") Integer studentId) {
-        log.info("requested-> [PATCH]-'{studentId}/delete/from_group'");
-        Student student = studentService.findById(studentId);
-        Group group = groupService.findById(student.getGroup().getId());
-        studentService.deleteTheStudentGroup(studentId);
+    @PatchMapping("/{id}/delete/from_group")
+    public String deleteFromGroup(Model model,
+                                  @PathVariable("id") Integer id) {
+        log.info("requested-> [PATCH]-'{id}/delete/from_group'");
+        Student student = studentService.deleteGroup(id);
         model.addAttribute("student", student);
-        model.addAttribute("group", group);
-        log.info("DELETED THE STUDENTS' BY ID - {} GROUP SUCCESSFULLY", studentId);
+        model.addAttribute("group", new Group());
+        log.info("DELETED THE STUDENTS' BY ID - {} GROUP SUCCESSFULLY", id);
         return "students/formDeletedTheStudents'Group";
     }
 
 
     @DeleteMapping("/delete/all/by_group/{groupId}")
-    public String deleteAllStudentsByGroupId(Model model, @PathVariable("groupId") Integer groupId) {
+    public String deleteAllByGroupId(Model model,
+                                     @PathVariable("groupId") Integer groupId) {
         log.info("requested-> [DELETE]-'/delete/all/by_group/{groupId}'");
         Long countStudentsByGroupId = studentService.countByGroupId(groupId);
-        studentService.deleteStudentsByGroupId(groupId);
+        studentService.deleteByGroupId(groupId);
         model.addAttribute("count", countStudentsByGroupId);
         log.info("DELETED {} BY GROUP ID - {} STUDENTS SUCCESSFULLY", countStudentsByGroupId, groupId);
         return "students/deletedAllStudentsByGroupId";
     }
 
     @GetMapping("/find/by_course")
-    public String createFormForFindStudentsByCourseNumber(@ModelAttribute("student") Student student) {
+    public String findByCourseNumberForm(@ModelAttribute("course") Course course) {
         log.info("requested-> [GET]-'/find/by_course'");
         return "students/formFindStudentsByCourse";
     }
 
     @GetMapping("/found/by_course")
-    public String findStudentsByCourseNumber(Model model,
-                                             @ModelAttribute Student studentCourse) {
+    public String findByCourseNumber(Model model,
+                                     @ModelAttribute @Valid Course course, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/found/by_course'");
-        List<Student> students = studentService.findByCourseNumber(studentCourse.getCourse());
+        if (bindingResult.hasErrors()) {
+            return "students/formFindStudentsByCourse";
+        }
+        List<Student> students = studentService.findByCourseNumber(course.getCourse());
         model.addAttribute("students", students);
         model.addAttribute("count", students.size());
-        model.addAttribute("courseNumber", studentCourse.getCourse());
-        log.info("FOUND STUDENTS {} BY COURSE NUMBER {}", students.size(), studentCourse);
+        model.addAttribute("courseNumber", course.getCourse());
+        log.info("FOUND STUDENTS {} BY COURSE NUMBER {}", students.size(), course.getCourse());
         return "students/students";
     }
 
-    @DeleteMapping("/delete/by_course/{course}")
-    public String deleteStudentsByCourseNumber(Model model,
-                                               @PathVariable("course") Integer studentCourse) {
+    @DeleteMapping("/delete/by_course/{courseNumber}")
+    public String deleteAllByCourseNumber(Model model,
+                                          @PathVariable("courseNumber") Integer courseNumber) {
         log.info("requested-> [DELETE]-'/delete/by_course/{course}'");
-        studentService.deleteStudentsByCourseNumber(studentCourse);
-        model.addAttribute("courseNumber", studentCourse);
-        log.info("DELETED STUDENTS BY COURSE NUMBER - {} SUCCESSFULLY", studentCourse);
+        studentService.deleteByCourseNumber(courseNumber);
+        model.addAttribute("courseNumber", courseNumber);
+        log.info("DELETED STUDENTS BY COURSE NUMBER - {} SUCCESSFULLY", courseNumber);
         return "students/formDeletedStudentsByCourseNumber";
     }
 
-    @PatchMapping("/delete/by_group/{groupId}")
-    public String deleteStudentsByGroupId(Model model,
-                                          @PathVariable("groupId") Integer groupId) {
-        log.info("requested-> [PATCH]-'/delete/by_group/{groupId}'");
-        Long countStudentsByGroupId = studentService.countByGroupId(groupId);
-        Group group = groupService.findById(groupId);
-        studentService.deleteStudentsByGroupId(groupId);
-        model.addAttribute("groupName", group);
-        model.addAttribute("count", countStudentsByGroupId);
-        log.info("DELETED STUDENTS BY GROUP ID - {} SUCCESSFULLY", groupId);
-        return "students/formDeletedStudentsByGroupName";
-    }
-
-    @GetMapping("/{studentId}/update/group")
-    public String createFormForChangeGroupTheStudent(Model model,
-                                                     @ModelAttribute("group") Group group,
-                                                     @PathVariable("studentId") Integer studentId) {
-        log.info("requested-> [GET]-'{studentId}/update/group'");
-        Student resultStudent = studentService.findById(studentId);
-        List<Group> groups = groupService.findAll();
-        model.addAttribute("student", resultStudent);
-        model.addAttribute("groups", groups);
-        log.info("UPDATING... STUDENTS' {} GROUP {}", resultStudent, group);
-        return "students/formForUpdateTheStudents'Group";
-    }
-
-    @PatchMapping("/{studentId}/updated/group")
-    public String updateTheStudentGroup(Model model,
-                                        @ModelAttribute Group group,
-                                        @PathVariable("studentId") Integer studentId) {
-        log.info("requested-> [PATCH]-'{id}/updated/group'");
-        Group resultGroup = groupService.findById(group.getId());
-        Student student = studentService.findById(studentId);
-        studentService.updateTheStudentGroup(resultGroup.getId(), student.getId());
-        model.addAttribute("group", resultGroup);
-        model.addAttribute("student", student);
-        log.info("UPDATED THE STUDENTS' {} GROUP {} SUCCESSFULLY", student, resultGroup);
-        return "students/formUpdatedTheStudentGroup";
-    }
-
     @GetMapping("/find/by_group")
-    public String createFormForFindStudentsByGroupName(Model model, @ModelAttribute("student") Student student) {
+    public String formForFindByGroupName(Model model,
+                                         @ModelAttribute("student") Student student) {
         log.info("requested-> [GET]-'find/by_group'");
         model.addAttribute("groups", groupService.findAll());
         return "students/formForFindStudentsByGroupName";
     }
 
     @GetMapping("/found/by_group")
-    public String findStudentsByGroupName(Model model,
-                                          @ModelAttribute Student student) {
+    public String findByGroupName(Model model,
+                                  @ModelAttribute Student student) {
         log.info("requested-> [GET]-'found/by_group'");
-        List<Student> result = studentService.findStudentsByGroupId(student.getGroup().getId());
+        List<Student> result = studentService.findByGroupName(student.getGroup());
         model.addAttribute("students", result);
         model.addAttribute("count", result.size());
         model.addAttribute("groupId", student.getGroup().getId());
@@ -195,10 +172,10 @@ public class StudentController {
     }
 
     @GetMapping("/found/by_group/{groupId}")
-    public String findStudentsByGroupId(Model model,
-                                        @PathVariable("groupId") Integer groupId) {
+    public String findByGroupId(Model model,
+                                @PathVariable("groupId") Integer groupId) {
         log.info("requested-> [GET]-'/found/by_group/{groupId}'");
-        List<Student> result = studentService.findStudentsByGroupId(groupId);
+        List<Student> result = studentService.findByGroupId(groupId);
         model.addAttribute("students", result);
         model.addAttribute("count", result.size());
         model.addAttribute("group", groupId);
@@ -207,49 +184,27 @@ public class StudentController {
     }
 
     @GetMapping("/find/by_name_surname")
-    public String createFormForFindStudentByNameSurname(@ModelAttribute("newStudent") Student student) {
+    public String formForFindByNameOrSurname(@ModelAttribute("newStudent") Person student) {
         log.info("requested-> [GET]-'find/by_name_surname'");
         return "students/formFindStudentByNameSurname";
     }
 
     @GetMapping("/found/by_name_surname")
-    public String findStudentByNameSurname(Model model,
-                                           @ModelAttribute Student student) {
+    public String findByNameOrSurname(Model model,
+                                    @ModelAttribute Person student,
+                                    BindingResult bindingResult) {
         log.info("requested-> [GET]-'found/by_name_surname'");
-        List<Student> result = studentService.findStudentsByNameOrSurname(student);
+        if (bindingResult.hasErrors()) {
+            return "students/formFindStudentByNameSurname";
+        }
+        List<Student> result = studentService.findByNameOrSurname(student.getFirstName(), student.getLastName());
         model.addAttribute("students", result);
         log.info("FOUND STUDENT {} BY NAME OR SURNAME SUCCESSFULLY", result);
         return "students/students";
     }
 
-    @GetMapping("/{studentId}/to_group")
-    public String createFormForAssignStudentToGroup(Model model,
-                                                    @ModelAttribute("student") Student student,
-                                                    @PathVariable("studentId") Integer studentId) {
-        log.info("requested-> [GET]-'{studentId}/to_group'");
-        Student foundStudent = studentService.findById(studentId);
-        model.addAttribute("student", foundStudent);
-        model.addAttribute("groups", groupService.findAll());
-        log.info("FOUND STUDENT {} FOR ASSIGN TO GROUP SUCCESSFULLY", foundStudent);
-        return "students/formForAssignStudentToGroup";
-    }
-
-    @PatchMapping("/{studentId}/to_group")
-    public String assignStudentToGroup(Model model,
-                                       @ModelAttribute Student newStudent,
-                                       @PathVariable("studentId") Integer studentId) {
-        log.info("requested-> [PATCH]-'{studentId}/to_group'");
-        Group resultGroup = groupService.findById(newStudent.getGroup().getId());
-        Student student = studentService.findById(studentId);
-        groupService.assignStudentToGroup(student, resultGroup);
-        model.addAttribute("assignedStudent", student);
-        model.addAttribute("groupName", resultGroup);
-        log.info("ASSIGNED STUDENT {} TO GROUP {} SUCCESSFULLY", student, resultGroup);
-        return "students/formAssignedStudentToGroup";
-    }
-
     @DeleteMapping("/deleted/all")
-    public String deleteAllStudents(Model model) {
+    public String deleteAll(Model model) {
         log.info("requested- [DELETE]-'/delete/all'");
         Long countStudents = studentService.count();
         studentService.deleteAll();

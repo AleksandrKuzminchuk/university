@@ -16,6 +16,7 @@
     <div class="form">
         <form class="login-form" th:action="@{/classrooms/found/by_number}" th:object="${classroom}" th:method="GET">
             <input type="text" th:field="*{number}" id="number" placeholder="number classroom"/>
+            <div style="color:red" th:if="${#fields.hasErrors('number')}" th:errors="*{number}"></div>
             <button type="submit">find</button>
         </form>
     </div>

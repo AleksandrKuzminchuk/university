@@ -9,23 +9,21 @@ public interface StudentService extends CrudRepositoryService<Student, Integer> 
 
     void saveAll(List<Student> students);
 
-    List<Student> findByCourseNumber(Integer courseNumber);
+    List<Student> findByCourseNumber(Integer number);
 
-    void updateStudent(Integer studentId, Student updatedStudent);
+    void update ( Student student);
 
-    List<Student> findStudentsByGroupName(Group group);
+    List<Student> findByGroupName(Group group);
 
-    void deleteStudentsByCourseNumber(Integer courseNumber);
+    void deleteByCourseNumber(Integer courseNumber);
 
-    void deleteStudentsByGroupId(Integer groupId);
+    Student deleteGroup(Integer studentId);
 
-    List<Student> findStudentsByNameOrSurname(Student student);
+    void deleteByGroupId(Integer id);
 
-    void deleteTheStudentGroup(Integer studentId);
+    List<Student> findByNameOrSurname(String firstName, String lastName);
 
-    void updateTheStudentGroup(Integer groupId, Integer studentId);
+    List<Student> findByGroupId(Integer id);
 
-    List<Student> findStudentsByGroupId(Integer groupId);
-
-    Long countByGroupId(Integer groupId);
+    Long countByGroupId(Integer id);
 }

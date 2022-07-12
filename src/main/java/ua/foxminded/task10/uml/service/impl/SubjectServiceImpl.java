@@ -1,18 +1,17 @@
 package ua.foxminded.task10.uml.service.impl;
 
-import lombok.AccessLevel;
-import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.foxminded.task10.uml.dao.SubjectDao;
-import ua.foxminded.task10.uml.dao.TeacherDao;
-import ua.foxminded.task10.uml.exceptions.NotFoundException;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
+import ua.foxminded.task10.uml.repository.SubjectRepository;
 import ua.foxminded.task10.uml.service.SubjectService;
+import ua.foxminded.task10.uml.service.TeacherService;
+import ua.foxminded.task10.uml.util.GlobalNotFoundException;
 
 import java.util.List;
 
@@ -22,20 +21,25 @@ import static java.util.Objects.requireNonNull;
 @Slf4j
 @Service
 @Transactional
-@RequiredArgsConstructor
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class SubjectServiceImpl implements SubjectService {
 
-    SubjectDao subjectDao;
-    TeacherDao teacherDao;
+
+    private final TeacherService teacherService;
+    private final SubjectRepository subjectRepository;
+
+    @Autowired
+    public SubjectServiceImpl(@Lazy TeacherService teacherService, SubjectRepository subjectRepository) {
+        this.teacherService = teacherService;
+        this.subjectRepository = subjectRepository;
+    }
 
     @Override
     public Subject save(Subject subject) {
         requireNonNull(subject);
         log.info("SAVING... {}", subject);
-        Subject result = subjectDao.save(subject).orElseThrow(() -> new NotFoundException(format("Can't save %s", subject)));
+        subjectRepository.save(new Subject(subject.getName().toUpperCase()));
         log.info("SAVED {} SUCCESSFULLY", subject);
-        return result;
+        return subject;
     }
 
     @Override
@@ -43,17 +47,18 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... SUBJECT BY ID - {}", subjectId);
-        Subject result = subjectDao.findById(subjectId).orElseThrow(() -> new NotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
+        Subject result = subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
         log.info("FOUND {} BY ID - {} SUCCESSFULLY", result, subjectId);
         return result;
     }
 
     @Override
-    public List<Subject> findSubjectsByName(Subject subject) {
-        requireNonNull(subject);
-        log.info("FINDING... SUBJECTS BY NAME {}", subject.getName());
-        List<Subject> result = subjectDao.findSubjectsByName(subject);
-        log.info("FOUND {} SUBJECTS BY NAME {}", result.size(), subject.getName());
+    public Subject findByName(Subject subject) {
+        log.info("FINDING... SUBJECT BY NAME {}", subject.getName());
+        Subject result = subjectRepository.findByName(subject.getName())
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subject by name - %s", subject.getName())));
+        log.info("FOUND {} SUBJECT BY NAME {}", result, subject.getName());
         return result;
     }
 
@@ -61,7 +66,7 @@ public class SubjectServiceImpl implements SubjectService {
     public boolean existsById(Integer subjectId) {
         requireNonNull(subjectId);
         log.info("CHECKING... SUBJECT EXISTS BY ID - {}", subjectId);
-        boolean result = subjectDao.existsById(subjectId);
+        boolean result = subjectRepository.existsById(subjectId);
         log.info("SUBJECT BY ID - {} EXISTS - {}", subjectId, result);
         return result;
     }
@@ -69,7 +74,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public List<Subject> findAll() {
         log.info("FINDING... ALL SUBJECTS");
-        List<Subject> result = subjectDao.findAll();
+        List<Subject> result = subjectRepository.findAll();
         log.info("FOUND {} SUBJECTS SUCCESSFULLY", result.size());
         return result;
     }
@@ -77,7 +82,7 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public Long count() {
         log.info("FINDING... COUNT SUBJECTS");
-        Long result = subjectDao.count();
+        Long result = subjectRepository.count();
         log.info("FOUND {} SUBJECTS SUCCESSFULLY", result);
         return result;
     }
@@ -87,7 +92,7 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("DELETING SUBJECT BY ID - {}", subjectId);
-        subjectDao.deleteById(subjectId);
+        subjectRepository.deleteById(subjectId);
         log.info("DELETED SUBJECT BY ID - {} SUCCESSFULLY", subjectId);
     }
 
@@ -100,18 +105,21 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL SUBJECTS");
-        subjectDao.deleteAll();
+        subjectRepository.deleteAll();
         log.info("DELETED ALL SUBJECTS SUCCESSFULLY");
     }
 
     @Override
-    public void deleteTheSubjectTeacher(Integer subjectId, Integer teacherId) {
+    public void deleteTeacher(Integer subjectId, Integer teacherId) {
         requireNonNull(subjectId);
         requireNonNull(teacherId);
         requiredSubjectExistence(subjectId);
         requiredTeacherExistence(teacherId);
         log.info("DELETING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {}", subjectId, teacherId);
-        subjectDao.deleteTheSubjectTeacher(subjectId, teacherId);
+        Subject subject = findById(subjectId);
+        Teacher teacherToRemove = teacherService.findById(teacherId);
+        subject.getTeachers().remove(teacherToRemove);
+        teacherToRemove.getSubjects().remove(subject);
         log.info("DELETED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} SUCCESSFULLY", subjectId, teacherId);
     }
 
@@ -119,78 +127,81 @@ public class SubjectServiceImpl implements SubjectService {
     public void saveAll(List<Subject> subjects) {
         requireNonNull(subjects);
         log.info("SAVING {} SUBJECTS", subjects.size());
-        subjectDao.saveAll(subjects);
+        subjectRepository.saveAll(subjects);
         log.info("SAVED {} SUBJECTS SUCCESSFULLY", subjects.size());
     }
 
     @Override
-    public void updateSubject(Integer subjectId, Subject subject) {
-        requireNonNull(subject);
-        requireNonNull(subjectId);
-        requiredSubjectExistence(subjectId);
-        log.info("UPDATING... SUBJECT BY ID - {}", subjectId);
-        subjectDao.updateSubject(subjectId, subject);
-        log.info("UPDATED {} SUCCESSFULLY", subject);
+    public Subject update(Subject subject) {
+        requiredSubjectExistence(subject.getId());
+        log.info("UPDATING... SUBJECT BY ID - {}", subject.getId());
+        Subject updatedSubject = subjectRepository.save(subject);
+        log.info("UPDATED {} SUCCESSFULLY", updatedSubject);
+        return updatedSubject;
     }
 
     @Override
-    public void updateTheSubjectTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId) {
+    public void updateTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId) {
         requireNonNull(subjectId);
         requireNonNull(oldTeacherId);
         requireNonNull(newTeacherId);
-        requiredSubjectExistence(subjectId);
         requiredTeacherExistence(oldTeacherId);
         requiredTeacherExistence(newTeacherId);
         log.info("UPDATING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
-        subjectDao.updateTheSubjectTeacher(subjectId, oldTeacherId, newTeacherId);
+        Subject subject = findById(subjectId);
+        Teacher oldTeacher = teacherService.findById(oldTeacherId);
+        Teacher newTeacher = teacherService.findById(newTeacherId);
+        subject.getTeachers().remove(oldTeacher);
+        subject.getTeachers().add(newTeacher);
         log.info("UPDATED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
     }
 
     @Override
-    public List<Teacher> findTeachersBySubject(Integer subjectId) {
+    public List<Teacher> findTeachers(Integer subjectId) {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... TEACHERS BY SUBJECT ID - {}", subjectId);
-        List<Teacher> teachers = subjectDao.findTeachersBySubject(subjectId);
-        log.info("FOUND {} TEACHERS BY TEACHER ID - {}", teachers.size(), subjectId);
-        return teachers;
+        Subject subject = findById(subjectId);
+        log.info("FOUND {} TEACHERS BY TEACHER ID - {}", subject.getTeachers().size(), subjectId);
+        return subject.getTeachers();
     }
 
     @Override
-    public void addSubjectToTeacher(Subject subject, Teacher teacher) {
+    public void addTeacher(Subject subject, Teacher teacher) {
         requireNonNull(subject);
         requireNonNull(teacher);
-        requiredSubjectExistence(subject.getId());
         requiredTeacherExistence(teacher);
         log.info("ADDING... SUBJECT BY ID - {} TO TEACHER BY ID - {}", subject.getId(), teacher.getId());
-        subjectDao.addSubjectToTeacher(subject, teacher);
+        Teacher teacherToBeSave = teacherService.findById(teacher.getId());
+        Subject subjectToBeSave = findById(subject.getId());
+        subjectToBeSave.getTeachers().add(teacherToBeSave);
         log.info("ADDED SUBJECT BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subject.getId(), teacher.getId());
     }
 
     @Override
-    public void addSubjectToTeachers(Subject subject, List<Teacher> teachers) {
+    public void addTeachers(Subject subject, List<Teacher> teachers) {
         requireNonNull(subject);
         requireNonNull(teachers);
         requiredSubjectExistence(subject.getId());
         teachers.forEach(this::requiredTeacherExistence);
         log.info("ADDING... SUBJECT BY ID - {} TO TEACHERS - {}", subject, teachers.size());
-        teachers.forEach(teacher -> addSubjectToTeacher(subject, teacher));
+        teachers.forEach(teacher -> addTeacher(subject, teacher));
         log.info("ADDED SUBJECT BY ID - {} TO TEACHERS - {} SUCCESSFULLY", subject.getId(), teachers.size());
     }
 
     private void requiredSubjectExistence(Integer subjectId) {
-        if (!subjectDao.existsById(subjectId))
-            throw new NotFoundException(format("Subject by id - %d not exists", subjectId));
+        if (!subjectRepository.existsById(subjectId))
+            throw new GlobalNotFoundException(format("Subject by id - %d not exists", subjectId));
     }
 
     private void requiredTeacherExistence(Teacher teacher) {
-        if (!teacherDao.existsById(teacher.getId()))
-            throw new NotFoundException(format("Teacher by id - %d not exists", teacher.getId()));
+        if (!teacherService.existsById(teacher.getId()))
+            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", teacher.getId()));
     }
 
     private void requiredTeacherExistence(Integer teacherId) {
-        if (!teacherDao.existsById(teacherId))
-            throw new NotFoundException(format("Teacher by id - %d not exists", teacherId));
+        if (!teacherService.existsById(teacherId))
+            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", teacherId));
     }
 
 }

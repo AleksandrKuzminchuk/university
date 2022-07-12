@@ -16,6 +16,7 @@
     <div class="form">
         <form class="login-form" th:method="POST" th:action="@{/subjects/saved}" th:object="${newSubject}">
             <input type="text" th:field="*{name}" id="name" placeholder="name subject"/>
+            <div style="color:red" th:if="${#fields.hasErrors('name')}" th:errors="*{name}">Name error</div>
             <button type="submit">save</button>
         </form>
     </div>

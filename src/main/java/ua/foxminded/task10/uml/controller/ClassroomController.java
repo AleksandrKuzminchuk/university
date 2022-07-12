@@ -1,29 +1,31 @@
 package ua.foxminded.task10.uml.controller;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.model.Classroom;
 import ua.foxminded.task10.uml.service.ClassroomService;
+import ua.foxminded.task10.uml.util.ClassroomValidator;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
+@Validated
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/classrooms")
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class ClassroomController {
 
-    ClassroomService classroomService;
+    private final ClassroomService classroomService;
+    private final ClassroomValidator classroomValidator;
 
     @GetMapping()
-    public String findAllClassrooms(Model model){
+    public String findAll(Model model) {
         log.info("requested-> [GET]-'/classrooms'");
         List<Classroom> classrooms = classroomService.findAll();
         model.addAttribute("classrooms", classrooms);
@@ -33,41 +35,51 @@ public class ClassroomController {
     }
 
     @GetMapping("/new")
-    public String createFormForSaveClassroom(@ModelAttribute("newClassroom") Classroom classroom){
+    public String saveForm(@ModelAttribute("newClassroom") Classroom classroom) {
         log.info("requested-> [GET]-'/new'");
         return "classrooms/formSaveClassroom";
     }
 
     @PostMapping("/saved")
-    public String saveClassroom(Model model, @ModelAttribute Classroom classroom){
+    public String save(Model model, @ModelAttribute("newClassroom") @Valid Classroom classroom,
+                                BindingResult bindingResult) {
         log.info("requested-> [POST]-'/saved'");
+        classroomValidator.validate(classroom, bindingResult);
+        if (bindingResult.hasFieldErrors()) {
+            return "classrooms/formSaveClassroom";
+        }
         Classroom newClassroom = classroomService.save(classroom);
         model.addAttribute("newClassroom", newClassroom);
         log.info("SAVED {} SUCCESSFULLY", newClassroom);
         return "classrooms/formSavedClassroom";
     }
 
-    @GetMapping("/{classroomId}/update")
-    public String createFormForUpdateClassroom(Model model, @PathVariable("classroomId") Integer classroomId){
-        log.info("requested-> [GET]-'/{classroomId}/update'");
+    @GetMapping("/{id}/update")
+    public String updateForm(Model model, @PathVariable("id") Integer classroomId) {
+        log.info("requested-> [GET]-'/{id}/update'");
         Classroom classroom = classroomService.findById(classroomId);
         model.addAttribute("classroom", classroom);
         return "classrooms/formUpdateClassroom";
     }
 
-    @PatchMapping("/{classroomId}/updated")
-    public String updateClassroom(Model model, @ModelAttribute Classroom classroom,
-                                  @PathVariable("classroomId") Integer classroomId){
-        log.info("requested-> [PATCH]-'/{classroomId}/updated'");
-        classroomService.updateClassroom(classroomId, classroom);
-        model.addAttribute("updatedClassroom", classroom);
-        log.info("UPDATED {} CLASSROOM SUCCESSFULLY", classroom);
+    @PatchMapping("/{id}/updated")
+    public String update(Model model, @PathVariable("id") Integer classroomId,
+                         @ModelAttribute("classroom") @Valid Classroom classroom, BindingResult bindingResult) {
+        log.info("requested-> [PATCH]-'/{id}/updated'");
+        classroomValidator.validate(classroom, bindingResult);
+        if (bindingResult.hasFieldErrors("number")) {
+            return "classrooms/formUpdateClassroom";
+        }
+        classroom.setId(classroomId);
+        Classroom updatedClassroom = classroomService.update(classroom);
+        model.addAttribute("updatedClassroom", updatedClassroom);
+        log.info("UPDATED {} CLASSROOM SUCCESSFULLY", updatedClassroom);
         return "classrooms/formUpdatedClassroom";
     }
 
-    @DeleteMapping("/{classroomId}/deleted")
-    public String deleteClassroomById(Model model, @PathVariable("classroomId") Integer classroomId){
-        log.info("requested-> [DELETE]-'/{classroomId}/deleted'");
+    @DeleteMapping("/{id}/deleted")
+    public String deleteById(Model model, @PathVariable("id") Integer classroomId) {
+        log.info("requested-> [DELETE]-'/{id}/deleted'");
         Classroom classroom = classroomService.findById(classroomId);
         classroomService.deleteById(classroomId);
         model.addAttribute("deleteClassroom", classroom);
@@ -76,23 +88,25 @@ public class ClassroomController {
     }
 
     @GetMapping("/find/by_number")
-    public String createFormFindClassroomByNumber(@ModelAttribute("classroom") Classroom classroom){
+    public String findByNumberForm(@ModelAttribute("classroom") Classroom classroom) {
         log.info("requested-> [GET]-'/find/by_number'");
         return "classrooms/formFindClassroomByNumber";
     }
 
     @GetMapping("/found/by_number")
-    public String findClassroomByNumber(Model model, @ModelAttribute Classroom classroom){
+    public String findByNumber(Model model, @ModelAttribute @Valid Classroom classroom, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/found/by_number'");
-        List<Classroom> result = classroomService.findClassroomsByNumber(classroom.getNumber());
+        if (bindingResult.hasErrors()) {
+            return "classrooms/formFindClassroomByNumber";
+        }
+        Classroom result = classroomService.findByNumber(classroom);
         model.addAttribute("classrooms", result);
-        model.addAttribute("count", result.size());
-        log.info("FOUND {} CLASSROOMS BY NUMBER - {} SUCCESSFULLY", result.size(), classroom.getNumber());
+        log.info("FOUND {} CLASSROOMS BY NUMBER - {} SUCCESSFULLY", result, classroom.getNumber());
         return "classrooms/classrooms";
     }
 
     @DeleteMapping("/deleted/all")
-    public String deletedAllClassrooms(Model model){
+    public String deletedAll(Model model) {
         log.info("requested- [DELETE]-'/deleted/all'");
         Long countClassrooms = classroomService.count();
         classroomService.deleteAll();

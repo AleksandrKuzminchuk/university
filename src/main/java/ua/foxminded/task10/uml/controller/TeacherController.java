@@ -1,32 +1,33 @@
 package ua.foxminded.task10.uml.controller;
 
-import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.service.TeacherService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
+@Validated
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/teachers")
-@FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class TeacherController {
 
-    TeacherService teacherService;
-    SubjectService subjectService;
+    private final TeacherService teacherService;
+    private final SubjectService subjectService;
 
-    @GetMapping()
-    public String findAllTeachers(Model model) {
+    @GetMapping
+    public String findAll(Model model) {
         log.info("requested-> [GET]-'/teachers'");
         List<Teacher> teachers = teacherService.findAll();
         model.addAttribute("teachers", teachers);
@@ -36,23 +37,29 @@ public class TeacherController {
     }
 
     @GetMapping("/new")
-    public String createFormForSaveTeacher(@ModelAttribute("newTeacher") Teacher teacher) {
+    public String saveForm(@ModelAttribute("newTeacher") Teacher teacher) {
         log.info("requested-> [GET]-'/new");
         return "teachers/formSaveTeacher";
     }
 
     @PostMapping("/saved")
-    public String saveTeacher(Model model, @ModelAttribute Teacher teacher) {
+    public String save(Model model,
+                       @ModelAttribute("newTeacher") @Valid Teacher teacher,
+                       BindingResult bindingResult) {
         log.info("requested-> [POST]-'/saved'");
+        if (bindingResult.hasErrors()) {
+            return "teachers/formSaveTeacher";
+        }
         Teacher newTeacher = teacherService.save(teacher);
         model.addAttribute("teacher", newTeacher);
         log.info("SAVED {} SUCCESSFULLY", teacher);
         return "teachers/formSavedTeacher";
     }
 
-    @DeleteMapping("{teacherId}/deleted")
-    public String deleteTeacherById(Model model, @PathVariable("teacherId") Integer teacherId) {
-        log.info("requested-> [DELETE]-'{teacherId}/deleted'");
+    @DeleteMapping("{id}/deleted")
+    public String deleteById(Model model,
+                             @PathVariable("id") Integer teacherId) {
+        log.info("requested-> [DELETE]-'{id}/deleted'");
         Teacher teacher = teacherService.findById(teacherId);
         teacherService.deleteById(teacherId);
         model.addAttribute("deleteTeacherById", teacher);
@@ -60,30 +67,37 @@ public class TeacherController {
         return "teachers/formDeletedTeacher";
     }
 
-    @GetMapping("{teacherId}/update")
-    public String createFormForUpdateTeacher(Model model, @PathVariable("teacherId") Integer teacherId) {
-        log.info("requested-> [GET]-'{teacherId}/update'");
+    @GetMapping("{id}/update")
+    public String updateForm(Model model,
+                             @PathVariable("id") Integer teacherId) {
+        log.info("requested-> [GET]-'{id}/update'");
         Teacher teacher = teacherService.findById(teacherId);
         model.addAttribute("teacher", teacher);
         log.info("UPDATING... {}", teacher);
         return "teachers/formUpdateTeacher";
     }
 
-    @PatchMapping("{teacherId}/updated")
-    @ResponseStatus(HttpStatus.OK)
-    public String updateTeacher(Model model, @ModelAttribute Teacher teacher, @PathVariable("teacherId") Integer teacherId) {
-        log.info("requested-> [PATCH]-'{teacherId}/updated'");
-        teacherService.updateTeacher(teacherId, teacher);
-        model.addAttribute("updatedTeacher", teacher);
-        log.info("UPDATED {} SUCCESSFULLY", teacher);
+    @PatchMapping("{id}/updated")
+    public String update(Model model,
+                         @ModelAttribute @Valid Teacher teacher,
+                         BindingResult bindingResult,
+                         @PathVariable("id") Integer teacherId) {
+        log.info("requested-> [PATCH]-'{id}/updated'");
+        if (bindingResult.hasErrors()) {
+            return "teachers/formUpdateTeacher";
+        }
+        teacher.setId(teacherId);
+        Teacher updatedTeacher = teacherService.update(teacher);
+        model.addAttribute("updatedTeacher", updatedTeacher);
+        log.info("UPDATED {} SUCCESSFULLY", updatedTeacher);
         return "teachers/formUpdatedTeacher";
     }
 
     @GetMapping("{teacherId}/update/{subjectId}/subject")
-    public String createFormForChangeTheTeacherSubject(Model model,
-                                                       @ModelAttribute("newSubject") Subject newSubject,
-                                                       @PathVariable("teacherId") Integer teacherId,
-                                                       @PathVariable("subjectId") Integer subjectId) {
+    public String updateSubjectForm(Model model,
+                                             @ModelAttribute("newSubject") Subject newSubject,
+                                             @PathVariable("teacherId") Integer teacherId,
+                                             @PathVariable("subjectId") Integer subjectId) {
         log.info("requested-> [GET]-'{teacherId}/update/{subjectId}/subject'");
         Subject subject = subjectService.findById(subjectId);
         Teacher teacher = teacherService.findById(teacherId);
@@ -95,14 +109,15 @@ public class TeacherController {
     }
 
     @PatchMapping("{teacherId}/updated/{oldSubjectId}/subject")
-    public String updateTheTeacherSubject(Model model, @ModelAttribute Subject subject,
-                                          @PathVariable("oldSubjectId") Integer oldSubjectId,
-                                          @PathVariable("teacherId") Integer teacherId) {
+    public String updateSubject(Model model,
+                                         @ModelAttribute Subject subject,
+                                         @PathVariable("oldSubjectId") Integer oldSubjectId,
+                                         @PathVariable("teacherId") Integer teacherId) {
         log.info("requested-> [PATCH]-'{teacherId}/updated/{oldSubjectId}/subject'");
         Subject oldSubject = subjectService.findById(oldSubjectId);
         Subject newSubject = subjectService.findById(subject.getId());
         Teacher teacher = teacherService.findById(teacherId);
-        teacherService.updateTheTeacherSubject(teacherId, oldSubjectId, newSubject.getId());
+        teacherService.updateSubject(teacherId, oldSubjectId, newSubject.getId());
         model.addAttribute("newSubject", newSubject);
         model.addAttribute("teacher", teacher);
         model.addAttribute("oldSubject", oldSubject);
@@ -111,7 +126,7 @@ public class TeacherController {
     }
 
     @DeleteMapping("/deleted/all")
-    public String deleteAllTeachers(Model model) {
+    public String deleteAll(Model model) {
         log.info("requested-> [DELETE]-'/delete/all'");
         Long countTeachers = teacherService.count();
         teacherService.deleteAll();
@@ -121,26 +136,32 @@ public class TeacherController {
     }
 
     @GetMapping("/find/by_name_surname")
-    public String createFormForFindTeacherByNameSurname(@ModelAttribute("newTeacher") Teacher teacher) {
+    public String findByNameOrSurnameForm(@ModelAttribute("newTeacher") Teacher teacher) {
         log.info("requested-> [GET]-'/find/by_name_surname'");
         return "teachers/formFindTeacherByNameSurname";
     }
 
     @GetMapping("/found/by_name_surname")
-    public String findTeachersByNameOrSurname(Model model, @ModelAttribute Teacher teacher) {
+    public String findByNameOrSurname(Model model,
+                                              @ModelAttribute("newTeacher") Teacher teacher,
+                                              BindingResult bindingResult) {
         log.info("requested-> [GET]-'/found/by_name_surname'");
-        List<Teacher> result = teacherService.findTeachersByNameOrSurname(teacher);
+        if (bindingResult.hasErrors()) {
+            return "teachers/formFindTeacherByNameSurname";
+        }
+        List<Teacher> result = teacherService.findByNameOrSurname(teacher);
         model.addAttribute("teachers", result);
         model.addAttribute("count", result.size());
         log.info("FOUND {} TEACHERS BY {} SUCCESSFULLY", result.size(), teacher);
         return "teachers/teachers";
     }
 
-    @GetMapping("{teacherId}/add/subject")
+    @GetMapping("{id}/add/subject")
     @ResponseStatus(HttpStatus.OK)
-    public String createFormForAddTeacherToSubject(Model model, @ModelAttribute("subject") Subject subject,
-                                                   @PathVariable("teacherId") Integer teacherId) {
-        log.info("requested-> [GET]-'/{teacherId}/add/subject'");
+    public String addSubjectForm(Model model,
+                                          @ModelAttribute("subject") Subject subject,
+                                          @PathVariable("id") Integer teacherId) {
+        log.info("requested-> [GET]-'/{id}/add/subject'");
         Teacher resultTeacher = teacherService.findById(teacherId);
         model.addAttribute("teacher", resultTeacher);
         model.addAttribute("subjects", subjectService.findAll());
@@ -148,23 +169,26 @@ public class TeacherController {
         return "teachers/formForAddTeacherToSubject";
     }
 
-    @PostMapping("{teacherId}/added/subject")
-    public String assignTeacherToSubject(Model model, @ModelAttribute Subject subject, @PathVariable("teacherId") Integer teacherId) {
-        log.info("requested-> [POST]-'/{teacherId}/added/subject'");
+    @PostMapping("{id}/added/subject")
+    public String addSubject(Model model,
+                                      @ModelAttribute Subject subject,
+                                      @PathVariable("id") Integer teacherId) {
+        log.info("requested-> [POST]-'/{id}/added/subject'");
         Subject resultSubject = subjectService.findById(subject.getId());
         Teacher teacher = teacherService.findById(teacherId);
-        teacherService.addTeacherToSubject(teacher, resultSubject);
+        teacherService.addSubject(teacher, resultSubject);
         model.addAttribute("addedTeacher", teacher);
         model.addAttribute("subjectName", resultSubject);
-        log.info("ASSIGNED TEACHER {} TO SUBJECT {} SUCCESSFULLY", teacher, resultSubject);
+        log.info("ADDED TEACHER {} TO SUBJECT {} SUCCESSFULLY", teacher, resultSubject);
         return "teachers/formAddedTeacherToSubject";
     }
 
-    @GetMapping("/{teacherId}/show/subjects")
-    public String findSubjectsByTeacherId(Model model, @PathVariable("teacherId") Integer teacherId) {
-        log.info("requested-> [GET]-'/{teacherId}/show/subjects'");
+    @GetMapping("/{id}/show/subjects")
+    public String findSubjects(Model model,
+                                        @PathVariable("id") Integer teacherId) {
+        log.info("requested-> [GET]-'/{id}/show/subjects'");
         Teacher teacher = teacherService.findById(teacherId);
-        List<Subject> subjects = teacherService.findSubjectsByTeacherId(teacherId);
+        List<Subject> subjects = teacherService.findSubjects(teacherId);
         model.addAttribute("subjects", subjects);
         model.addAttribute("count", subjects.size());
         model.addAttribute("teacher", teacher);
@@ -173,12 +197,13 @@ public class TeacherController {
     }
 
     @DeleteMapping("{teacherId}/deleted/{subjectId}/subject")
-    public String deleteTheTeacherSubject(Model model, @PathVariable("teacherId") Integer teacherId,
-                                          @PathVariable("subjectId") Integer subjectId) {
+    public String deleteSubject(Model model,
+                                           @PathVariable("teacherId") Integer teacherId,
+                                           @PathVariable("subjectId") Integer subjectId) {
         log.info("requested-> [DELETE]-'{teacherId}/deleted/{subjectId}/subject'");
         Teacher teacher = teacherService.findById(teacherId);
         Subject subject = subjectService.findById(subjectId);
-        teacherService.deleteTheTeacherSubject(teacherId, subjectId);
+        teacherService.deleteSubject(teacherId, subjectId);
         model.addAttribute("teacher", teacher);
         model.addAttribute("subject", subject);
         log.info("DELETED THE TEACHERS' BY ID - {} SUBJECTS BY ID - {} SUCCESSFULLY", teacherId, subjectId);

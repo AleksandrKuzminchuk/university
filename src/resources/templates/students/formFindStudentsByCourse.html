@@ -14,8 +14,9 @@
 
 <div class="login-page">
   <div class="form">
-    <form class="login-form" th:action="@{/students/found/by_course}" th:object="${student}" th:method="GET">
+    <form class="login-form" th:action="@{/students/found/by_course}" th:object="${course}" th:method="GET">
       <input type="text" th:field="*{course}" id="course" placeholder="course"/>
+      <div style="color:red" th:if="${#fields.hasErrors('course')}" th:errors="*{course}"></div>
       <button type="submit">find</button>
     </form>
   </div>
