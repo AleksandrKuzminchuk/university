@@ -1,17 +1,16 @@
 package ua.foxminded.task10.uml.model;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.Data;
-import lombok.NonNull;
-import lombok.ToString;
 import org.springframework.stereotype.Component;
 
-import javax.persistence.Column;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 @Data
 @Component
+@JsonRootName(value = "course")
 public class Course {
 
     @Min(value = 1, message = "Must be range from 1 to 5")

@@ -1,11 +1,12 @@
 package ua.foxminded.task10.uml.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.*;
 import org.hibernate.Hibernate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
-import javax.validation.constraints.Pattern;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
@@ -14,11 +15,11 @@ import java.util.Objects;
 @Entity
 @NoArgsConstructor
 @Table(name = "events")
+@JsonRootName(value = "event")
 @ToString(onlyExplicitlyIncluded = true)
 public class Event {
 
     @Id
-    @NonNull
     @ToString.Include
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "event_id")
@@ -27,15 +28,8 @@ public class Event {
     @ToString.Include
     @Column(name = "date_time")
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime dateTime;
-
-    @Transient
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime startDateTime;
-
-    @Transient
-    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
-    private LocalDateTime endDateTime;
 
     @OneToOne
     @ToString.Include
@@ -63,6 +57,13 @@ public class Event {
         this.group = group;
         this.teacher = teacher;
         this.dateTime = dateTime;
+    }
+
+    public Event(Subject subject, Classroom classroom, Group group, Teacher teacher) {
+        this.subject = subject;
+        this.classroom = classroom;
+        this.group = group;
+        this.teacher = teacher;
     }
 
     @Override

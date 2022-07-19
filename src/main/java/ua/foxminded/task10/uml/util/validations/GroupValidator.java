@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.util;
+package ua.foxminded.task10.uml.util.validations;
 
 
 import lombok.RequiredArgsConstructor;
@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
-import ua.foxminded.task10.uml.model.Group;
+import ua.foxminded.task10.uml.dto.GroupDTO;
 import ua.foxminded.task10.uml.repository.GroupRepository;
 
 @Slf4j
@@ -18,15 +18,15 @@ public class GroupValidator implements Validator {
 
     @Override
     public boolean supports(Class<?> clazz) {
-        return Group.class.equals(clazz);
+        return GroupDTO.class.equals(clazz);
     }
 
     @Override
     public void validate(Object target, Errors errors) {
         log.info("VALIDATING GROUP BY NAME {}", target);
-        Group group = (Group) target;
+        GroupDTO group = (GroupDTO) target;
         if (groupRepository.findByName(group.getName()).isPresent()){
-            errors.rejectValue("name", "", "This name is already taken");
+            errors.rejectValue("name","", "Group [" + group.getName() + "] is already taken");
         }
     }
 }

@@ -6,15 +6,21 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ua.foxminded.task10.uml.dto.GroupDTO;
+import ua.foxminded.task10.uml.dto.StudentDTO;
+import ua.foxminded.task10.uml.dto.mapper.GroupMapper;
+import ua.foxminded.task10.uml.dto.mapper.StudentMapper;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.repository.GroupRepository;
 import ua.foxminded.task10.uml.service.GroupService;
-import ua.foxminded.task10.uml.util.GlobalNotFoundException;
+import ua.foxminded.task10.uml.service.StudentService;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotFoundException;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotNullException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -23,23 +29,28 @@ import static java.util.Objects.requireNonNull;
 public class GroupServiceImpl implements GroupService {
 
     private final GroupRepository groupRepository;
+    private final GroupMapper groupMapper;
+    private final StudentService studentService;
 
     @Override
-    public Group save(Group group) {
-        log.info("SAVING... {}", group);
+    public GroupDTO save(GroupDTO groupDTO) {
+        log.info("SAVING... {}", groupDTO);
+        Group group = groupMapper.convertToGroup(groupDTO);
         groupRepository.save(group);
-        log.info("SAVED {} SUCCESSFULLY", group);
-        return group;
+        GroupDTO savedGroupDTO = groupMapper.convertToGroupDTO(group);
+        log.info("SAVED {} SUCCESSFULLY", savedGroupDTO);
+        return savedGroupDTO;
     }
 
     @Override
-    public Group findById(Integer groupId) {
+    public GroupDTO findById(Integer groupId) {
         requireNonNull(groupId);
         requiredGroupExistence(groupId);
         log.info("FINDING... GROUP BY ID - {}", groupId);
         Group result = groupRepository.findById(groupId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by groupId- %d", groupId)));
-        log.info("FOUND {} BY ID - {} SUCCESSFULLY", result, groupId);
-        return result;
+        GroupDTO groupDTO = groupMapper.convertToGroupDTO(result);
+        log.info("FOUND {} BY ID - {} SUCCESSFULLY", groupDTO, groupId);
+        return groupDTO;
     }
 
     @Override
@@ -52,11 +63,12 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public List<Group> findAll() {
+    public List<GroupDTO> findAll() {
         log.info("FINDING... ALL GROUPS");
         List<Group> result = groupRepository.findAll(Sort.by(Sort.Order.asc("name")));
-        log.info("FOUND {} GROUPS", result.size());
-        return result;
+        List<GroupDTO> groupsDTO = result.stream().map(groupMapper::convertToGroupDTO).collect(Collectors.toList());
+        log.info("FOUND {} GROUPS", groupsDTO.size());
+        return groupsDTO;
     }
 
     @Override
@@ -77,7 +89,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void delete(Group group) {
+    public void delete(GroupDTO groupDTO) {
         throw new NotImplementedException("The method delete not implemented");
     }
 
@@ -89,33 +101,54 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void saveAll(List<Group> groups) {
-        requireNonNull(groups);
-        log.info("SAVING... {} GROUPS", groups.size());
+    public Integer saveAll(List<GroupDTO> groupsDTO) {
+        requireNonNull(groupsDTO);
+        log.info("SAVING... {} GROUPS", groupsDTO.size());
+        List<Group> groups = groupsDTO.stream().map(groupMapper::convertToGroup).collect(Collectors.toList());
         groupRepository.saveAll(groups);
         log.info("SAVED {} GROUPS SUCCESSFULLY", groups.size());
+        return groups.size();
     }
 
     @Override
-    public Group findByName(Group group) {
-        log.info("FINDING... GROUPS BY NAME - {}", group.getName());
-        Group result = groupRepository.findByName(group.getName()).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", group.getName())));
-        log.info("FOUND {} BY NAME - {} SUCCESSFULLY", result, group.getName());
-        return result;
+    public GroupDTO findByName(String groupName) {
+        log.info("FINDING... GROUPS BY NAME - {}", groupName);
+        Group result = groupRepository.findByName(groupName).orElseThrow(() -> new GlobalNotFoundException(format("Can't find groupName by name - %s", groupName)));
+        GroupDTO groupDTO = groupMapper.convertToGroupDTO(result);
+        log.info("FOUND {} BY NAME - {} SUCCESSFULLY", groupDTO, groupName);
+        return groupDTO;
     }
 
     @Override
-    public Group update(Group group) {
-        requiredGroupExistence(group.getId());
-        log.info("UPDATING... GROUP BY ID - {}", group.getId());
+    public GroupDTO update(GroupDTO groupDTO) {
+        requiredGroupExistence(groupDTO.getId());
+        log.info("UPDATING... GROUP BY ID - {}", groupDTO.getId());
+        Group group = groupMapper.convertToGroup(groupDTO);
         Group updatedGroup = groupRepository.save(group);
-        log.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", group.getId());
-        return updatedGroup;
+        GroupDTO updatedGroupDTO = groupMapper.convertToGroupDTO(updatedGroup);
+        log.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", groupDTO.getId());
+        return updatedGroupDTO;
+    }
+
+    @Override
+    public List<StudentDTO> findStudents(Integer groupId) {
+        requireNonNull(groupId);
+        requiredGroupExistence(groupId);
+        log.info("FINDING STUDENTS BY GROUP ID - {}", groupId);
+        List<StudentDTO> studentsDTO = studentService.findByGroupId(groupId);
+        log.info("FOUND {} STUDENTS BY GROUP ID - {}", studentsDTO, groupId);
+        return studentsDTO;
     }
 
     private void requiredGroupExistence(Integer groupId){
         if (!groupRepository.existsById(groupId)){
             throw new GlobalNotFoundException(format("Group by id - %d not exists", groupId));
+        }
+    }
+
+    private void requireNonNull(Object o){
+        if (o == null){
+            throw new GlobalNotNullException("Can't be null " + o.getClass().getName());
         }
     }
 }

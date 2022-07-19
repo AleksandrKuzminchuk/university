@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.util;
+package ua.foxminded.task10.uml.util.formatters;
 
 import java.time.format.DateTimeFormatter;
 

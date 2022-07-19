@@ -2,6 +2,8 @@ package ua.foxminded.task10.uml.repository;
 
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import ua.foxminded.task10.uml.model.Student;
 
@@ -11,6 +13,7 @@ import java.util.List;
 public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     Long countByGroupId(Integer groupId);
+
 
     void deleteByCourse(Integer courseNumber);
 
@@ -22,5 +25,9 @@ public interface StudentRepository extends JpaRepository<Student, Integer> {
 
     List<Student> findByFirstNameOrLastNameOrderByFirstName(String firstName, String lastName);
 
+    @Modifying
+    @Query("delete from Student s where s.group.id = ?1")
     void deleteByGroupId(Integer groupId);
+
+    Long countByCourse(Integer course);
 }

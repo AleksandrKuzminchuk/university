@@ -6,7 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import ua.foxminded.task10.uml.model.Event;
+import ua.foxminded.task10.uml.dto.EventDTO;
 import ua.foxminded.task10.uml.service.EventService;
 
 import java.time.LocalDate;
@@ -24,7 +24,7 @@ public class University {
     @GetMapping
     public String showUniversity(Model model) {
         log.info("University home page");
-        List<Event> eventList = eventService.find(LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
+        List<EventDTO> eventList = eventService.find(LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
                 LocalDateTime.of(LocalDate.now(), LocalTime.MAX));
         model.addAttribute("events", eventList);
         model.addAttribute("count", eventList.size());

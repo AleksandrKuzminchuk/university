@@ -6,17 +6,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ua.foxminded.task10.uml.dto.SubjectDTO;
+import ua.foxminded.task10.uml.dto.TeacherDTO;
+import ua.foxminded.task10.uml.dto.mapper.SubjectMapper;
+import ua.foxminded.task10.uml.dto.mapper.TeacherMapper;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 import ua.foxminded.task10.uml.repository.SubjectRepository;
+import ua.foxminded.task10.uml.repository.TeacherRepository;
 import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.service.TeacherService;
-import ua.foxminded.task10.uml.util.GlobalNotFoundException;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotFoundException;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotNullException;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotValidException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -26,40 +33,49 @@ public class SubjectServiceImpl implements SubjectService {
 
     private final TeacherService teacherService;
     private final SubjectRepository subjectRepository;
+    private final TeacherRepository teacherRepository;
+    private final SubjectMapper subjectMapper;
+    private final TeacherMapper teacherMapper;
 
     @Autowired
-    public SubjectServiceImpl(@Lazy TeacherService teacherService, SubjectRepository subjectRepository) {
+    public SubjectServiceImpl(@Lazy TeacherService teacherService, SubjectRepository subjectRepository, TeacherRepository teacherRepository,
+                              SubjectMapper subjectMapper, TeacherMapper teacherMapper) {
         this.teacherService = teacherService;
         this.subjectRepository = subjectRepository;
+        this.teacherRepository = teacherRepository;
+        this.subjectMapper = subjectMapper;
+        this.teacherMapper = teacherMapper;
     }
 
     @Override
-    public Subject save(Subject subject) {
-        requireNonNull(subject);
-        log.info("SAVING... {}", subject);
-        subjectRepository.save(new Subject(subject.getName().toUpperCase()));
-        log.info("SAVED {} SUCCESSFULLY", subject);
-        return subject;
+    public SubjectDTO save(SubjectDTO subjectDTO) {
+        log.info("SAVING... {}", subjectDTO);
+        Subject subject = subjectMapper.convertToSubject(subjectDTO);
+        Subject savedSubject = subjectRepository.save(subject);
+        SubjectDTO savedSubjectDTO = subjectMapper.convertToSubjectDTO(savedSubject);
+        log.info("SAVED {} SUCCESSFULLY", savedSubjectDTO);
+        return savedSubjectDTO;
     }
 
     @Override
-    public Subject findById(Integer subjectId) {
+    public SubjectDTO findById(Integer subjectId) {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... SUBJECT BY ID - {}", subjectId);
-        Subject result = subjectRepository.findById(subjectId)
-                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
-        log.info("FOUND {} BY ID - {} SUCCESSFULLY", result, subjectId);
-        return result;
+        Subject result = extractSubjectByIdWithRepo(subjectId);
+        SubjectDTO subjectDTO = subjectMapper.convertToSubjectDTO(result);
+        log.info("FOUND {} BY ID - {} SUCCESSFULLY", subjectDTO, subjectId);
+        return subjectDTO;
     }
 
     @Override
-    public Subject findByName(Subject subject) {
-        log.info("FINDING... SUBJECT BY NAME {}", subject.getName());
-        Subject result = subjectRepository.findByName(subject.getName())
-                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subject by name - %s", subject.getName())));
-        log.info("FOUND {} SUBJECT BY NAME {}", result, subject.getName());
-        return result;
+    public SubjectDTO findByName(String subjectName) {
+        log.info("FINDING... SUBJECT BY NAME {}", subjectName);
+        Subject result = subjectRepository.findByName(subjectName)
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subjectName by name - %s", subjectName)));
+        SubjectDTO subjectDTO = subjectMapper.convertToSubjectDTO(result);
+        log.info("FOUND {} SUBJECT BY NAME {}", subjectDTO, subjectName);
+        return subjectDTO;
     }
 
     @Override
@@ -72,11 +88,12 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public List<Subject> findAll() {
+    public List<SubjectDTO> findAll() {
         log.info("FINDING... ALL SUBJECTS");
         List<Subject> result = subjectRepository.findAll();
-        log.info("FOUND {} SUBJECTS SUCCESSFULLY", result.size());
-        return result;
+        List<SubjectDTO> subjectsDTO = result.stream().map(subjectMapper::convertToSubjectDTO).collect(Collectors.toList());
+        log.info("FOUND {} SUBJECTS SUCCESSFULLY", subjectsDTO.size());
+        return subjectsDTO;
     }
 
     @Override
@@ -97,11 +114,10 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public void delete(Subject subject) {
+    public void delete(SubjectDTO subjectDTO) {
         throw new NotImplementedException("The method delete not implemented");
     }
 
-    @Transactional
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL SUBJECTS");
@@ -115,29 +131,36 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(teacherId);
         requiredSubjectExistence(subjectId);
         requiredTeacherExistence(teacherId);
+        if (!teacherRepository.existsSubjectAndTeacher(teacherId, subjectId)) {
+            throw new GlobalNotFoundException(format("Can't delete because the subject hasn't the teacher of id [%d]", teacherId));
+        }
         log.info("DELETING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {}", subjectId, teacherId);
-        Subject subject = findById(subjectId);
-        Teacher teacherToRemove = teacherService.findById(teacherId);
+        Subject subject = extractSubjectByIdWithRepo(subjectId);
+        Teacher teacherToRemove = extractTeacherByIdWithRepo(teacherId);
         subject.getTeachers().remove(teacherToRemove);
         teacherToRemove.getSubjects().remove(subject);
         log.info("DELETED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} SUCCESSFULLY", subjectId, teacherId);
     }
 
     @Override
-    public void saveAll(List<Subject> subjects) {
-        requireNonNull(subjects);
-        log.info("SAVING {} SUBJECTS", subjects.size());
+    public Integer saveAll(List<SubjectDTO> subjectsDTO) {
+        requireNonNull(subjectsDTO);
+        log.info("SAVING {} SUBJECTS", subjectsDTO.size());
+        List<Subject> subjects = subjectsDTO.stream().map(subjectMapper::convertToSubject).collect(Collectors.toList());
         subjectRepository.saveAll(subjects);
         log.info("SAVED {} SUBJECTS SUCCESSFULLY", subjects.size());
+        return subjects.size();
     }
 
     @Override
-    public Subject update(Subject subject) {
-        requiredSubjectExistence(subject.getId());
-        log.info("UPDATING... SUBJECT BY ID - {}", subject.getId());
+    public SubjectDTO update(SubjectDTO subjectDTO) {
+        requiredSubjectExistence(subjectDTO.getId());
+        log.info("UPDATING... SUBJECT BY ID - {}", subjectDTO.getId());
+        Subject subject = subjectMapper.convertToSubject(subjectDTO);
         Subject updatedSubject = subjectRepository.save(subject);
-        log.info("UPDATED {} SUCCESSFULLY", updatedSubject);
-        return updatedSubject;
+        SubjectDTO updatedSubjectDTO = subjectMapper.convertToSubjectDTO(updatedSubject);
+        log.info("UPDATED {} SUCCESSFULLY", updatedSubjectDTO);
+        return updatedSubjectDTO;
     }
 
     @Override
@@ -147,46 +170,67 @@ public class SubjectServiceImpl implements SubjectService {
         requireNonNull(newTeacherId);
         requiredTeacherExistence(oldTeacherId);
         requiredTeacherExistence(newTeacherId);
+        checkToUniqueTeacherInList(subjectId, newTeacherId);
         log.info("UPDATING... THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
-        Subject subject = findById(subjectId);
-        Teacher oldTeacher = teacherService.findById(oldTeacherId);
-        Teacher newTeacher = teacherService.findById(newTeacherId);
+        Subject subject = extractSubjectByIdWithRepo(subjectId);
+        Teacher oldTeacher = extractTeacherByIdWithRepo(oldTeacherId);
+        Teacher newTeacher = extractTeacherByIdWithRepo(newTeacherId);
         subject.getTeachers().remove(oldTeacher);
         subject.getTeachers().add(newTeacher);
         log.info("UPDATED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {}", subjectId, oldTeacherId, newTeacherId);
     }
 
     @Override
-    public List<Teacher> findTeachers(Integer subjectId) {
+    public List<TeacherDTO> findTeachers(Integer subjectId) {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
         log.info("FINDING... TEACHERS BY SUBJECT ID - {}", subjectId);
-        Subject subject = findById(subjectId);
+        Subject subject = extractSubjectByIdWithRepo(subjectId);
+        List<Teacher> teachers = subject.getTeachers();
+        List<TeacherDTO> teachersDTO = teachers.stream().map(teacherMapper::convertToTeacherDTO).collect(Collectors.toList());
         log.info("FOUND {} TEACHERS BY TEACHER ID - {}", subject.getTeachers().size(), subjectId);
-        return subject.getTeachers();
+        return teachersDTO;
     }
 
     @Override
-    public void addTeacher(Subject subject, Teacher teacher) {
-        requireNonNull(subject);
-        requireNonNull(teacher);
-        requiredTeacherExistence(teacher);
-        log.info("ADDING... SUBJECT BY ID - {} TO TEACHER BY ID - {}", subject.getId(), teacher.getId());
-        Teacher teacherToBeSave = teacherService.findById(teacher.getId());
-        Subject subjectToBeSave = findById(subject.getId());
-        subjectToBeSave.getTeachers().add(teacherToBeSave);
-        log.info("ADDED SUBJECT BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subject.getId(), teacher.getId());
+    public void addTeacher(Integer subjectId, Integer teacherId) {
+        requireNonNull(subjectId);
+        requireNonNull(teacherId);
+        requiredTeacherExistence(teacherId);
+        checkToUniqueTeacherInList(subjectId, teacherId);
+        log.info("ADDING... SUBJECT BY ID - {} TO TEACHER BY ID - {}", subjectId, teacherId);
+        Teacher teacherToBeAdd = extractTeacherByIdWithRepo(teacherId);
+        Subject subjectToBeSave = extractSubjectByIdWithRepo(subjectId);
+        subjectToBeSave.getTeachers().add(teacherToBeAdd);
+        log.info("ADDED SUBJECT BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subjectId, teacherId);
     }
 
     @Override
-    public void addTeachers(Subject subject, List<Teacher> teachers) {
-        requireNonNull(subject);
-        requireNonNull(teachers);
-        requiredSubjectExistence(subject.getId());
-        teachers.forEach(this::requiredTeacherExistence);
-        log.info("ADDING... SUBJECT BY ID - {} TO TEACHERS - {}", subject, teachers.size());
-        teachers.forEach(teacher -> addTeacher(subject, teacher));
-        log.info("ADDED SUBJECT BY ID - {} TO TEACHERS - {} SUCCESSFULLY", subject.getId(), teachers.size());
+    public void addTeachers(SubjectDTO subjectDTO, List<TeacherDTO> teachersDTO) {
+        requireNonNull(subjectDTO);
+        requireNonNull(teachersDTO);
+        requiredSubjectExistence(subjectDTO.getId());
+        teachersDTO.forEach(this::requiredTeacherExistence);
+        log.info("ADDING... SUBJECT BY ID - {} TO TEACHERS - {}", subjectDTO, teachersDTO.size());
+        teachersDTO.forEach(teacher -> addTeacher(subjectDTO.getId(), teacher.getId()));
+        log.info("ADDED SUBJECT BY ID - {} TO TEACHERS - {} SUCCESSFULLY", subjectDTO.getId(), teachersDTO.size());
+    }
+
+    private Subject extractSubjectByIdWithRepo(Integer subjectId) {
+        return subjectRepository.findById(subjectId)
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subject by subjectId - %d", subjectId)));
+    }
+
+    private Teacher extractTeacherByIdWithRepo(Integer teacherId) {
+        return teacherRepository.findById(teacherId)
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find teacher by teacherId - %d", teacherId)));
+    }
+
+    private void checkToUniqueTeacherInList(Integer subjectId, Integer teacherId) {
+        this.findTeachers(subjectId).forEach(teacherFromList -> {
+            if (teacherFromList.getId().equals(teacherId)) {
+                throw new GlobalNotValidException(format("The subject already has the teacher by id - [%d]", teacherId));
+            }});
     }
 
     private void requiredSubjectExistence(Integer subjectId) {
@@ -194,9 +238,9 @@ public class SubjectServiceImpl implements SubjectService {
             throw new GlobalNotFoundException(format("Subject by id - %d not exists", subjectId));
     }
 
-    private void requiredTeacherExistence(Teacher teacher) {
-        if (!teacherService.existsById(teacher.getId()))
-            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", teacher.getId()));
+    private void requiredTeacherExistence(TeacherDTO teacherDTO) {
+        if (!teacherService.existsById(teacherDTO.getId()))
+            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", teacherDTO.getId()));
     }
 
     private void requiredTeacherExistence(Integer teacherId) {
@@ -204,4 +248,9 @@ public class SubjectServiceImpl implements SubjectService {
             throw new GlobalNotFoundException(format("Teacher by id - %d not exists", teacherId));
     }
 
+    private void requireNonNull(Object o) {
+        if (o == null) {
+            throw new GlobalNotNullException("Can't be null " + o.getClass().getName());
+        }
+    }
 }

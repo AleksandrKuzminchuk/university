@@ -5,17 +5,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ua.foxminded.task10.uml.dto.EventDTO;
+import ua.foxminded.task10.uml.dto.mapper.*;
 import ua.foxminded.task10.uml.model.*;
 import ua.foxminded.task10.uml.repository.*;
 import ua.foxminded.task10.uml.service.*;
-import ua.foxminded.task10.uml.util.GlobalNotFoundException;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotFoundException;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotNullException;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
-import static ua.foxminded.task10.uml.util.DateTimeFormat.formatter;
+import static ua.foxminded.task10.uml.util.formatters.DateTimeFormat.formatter;
 
 @Slf4j
 @Service
@@ -28,25 +31,29 @@ public class EventServiceImpl implements EventService {
     private final GroupService groupService;
     private final SubjectService subjectService;
     private final ClassroomService classroomService;
-
+    private final EventMapper eventMapper;
     @Override
-    public Event save(Event event) {
-        requireNonNull(event);
-        requiredEventExistence(event);
-        log.info("SAVING... {}", event);
-        eventRepository.save(event);
-        log.info("SAVED {} SUCCESSFULLY", event);
-        return event;
+    public EventDTO save(EventDTO eventDTO) {
+        requireNonNull(eventDTO);
+        requiredEventExistence(eventDTO);
+        log.info("SAVING... {}", eventDTO);
+        Event event = eventMapper.convertToEvent(eventDTO);
+        Event savedEvent = eventRepository.save(event);
+        EventDTO savedEventDTO = eventMapper.convertToEventDTO(savedEvent);
+        log.info("SAVED {} SUCCESSFULLY", savedEventDTO);
+        return savedEventDTO;
     }
 
     @Override
-    public Event findById(Integer eventId) {
+    public EventDTO findById(Integer eventId) {
         requireNonNull(eventId);
         requiredEventByIdExistence(eventId);
         log.info("FINDING... EVENT BY ID - {}", eventId);
-        Event result = eventRepository.findById(eventId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find event by eventId - %d", eventId)));
-        log.info("FOUND {} BY ID - {}", result, eventId);
-        return result;
+        Event result = eventRepository.findById(eventId).
+                orElseThrow(() -> new GlobalNotFoundException(format("Can't find event by eventId - %d", eventId)));
+        EventDTO eventDTO = eventMapper.convertToEventDTO(result);
+        log.info("FOUND {} BY ID - {}", eventDTO, eventId);
+        return eventDTO;
     }
 
     @Override
@@ -59,11 +66,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<Event> findAll() {
+    public List<EventDTO> findAll() {
         log.info("FINDING... ALL EVENTS");
         List<Event> result = eventRepository.findAll(Sort.by(Sort.Order.asc("dateTime")));
+        List<EventDTO> eventsDTO= result.stream().map(eventMapper::convertToEventDTO).collect(Collectors.toList());
         log.info("FOUND {} EVENTS", result.size());
-        return result;
+        return eventsDTO;
     }
 
     @Override
@@ -84,12 +92,12 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void delete(Event event) {
-        requireNonNull(event);
-        requiredEventExistence(event);
-        log.info("DELETING... {}", event);
-        eventRepository.deleteById(event.getId());
-        log.info("DELETED {} SUCCESSFULLY", event);
+    public void delete(EventDTO eventDTO) {
+        requireNonNull(eventDTO);
+        requiredEventExistence(eventDTO);
+        log.info("DELETING... {}", eventDTO);
+        eventRepository.deleteById(eventDTO.getId());
+        log.info("DELETED {} SUCCESSFULLY", eventDTO);
     }
 
     @Override
@@ -100,49 +108,60 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public void saveAll(List<Event> events) {
-        requireNonNull(events);
-        events.forEach(this::requiredEventExistence);
-        log.info("SAVING... {} EVENTS", events.size());
+    public Integer saveAll(List<EventDTO> eventsDTO) {
+        requireNonNull(eventsDTO);
+        eventsDTO.forEach(this::requiredEventExistence);
+        log.info("SAVING... {} EVENTS", eventsDTO.size());
+        List<Event> events = eventsDTO.stream().map(eventMapper::convertToEvent).collect(Collectors.toList());
         eventRepository.saveAll(events);
         log.info("SAVED {} EVENTS SUCCESSFULLY", events.size());
+        return events.size();
     }
 
     @Override
-    public Event update(Event event) {
-        requireNonNull(event.getId());
-        requiredEventByIdExistence(event.getId());
-        log.info("UPDATING... EVENT BY ID - {}", event.getId());
+    public EventDTO update(EventDTO eventDTO) {
+        requireNonNull(eventDTO.getId());
+        requiredEventByIdExistence(eventDTO.getId());
+        log.info("UPDATING... EVENT BY ID - {}", eventDTO.getId());
+        Event event = eventMapper.convertToEvent(eventDTO);
         Event updatedEvent = eventRepository.save(event);
-        log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", event.getId());
-        return updatedEvent;
+        EventDTO updatedEventDTO = eventMapper.convertToEventDTO(updatedEvent);
+        log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventDTO.getId());
+        return updatedEventDTO;
     }
 
     @Override
-    public List<Event> find(LocalDateTime startDateTime, LocalDateTime endDateTime) {
+    public List<EventDTO> find(LocalDateTime startDateTime, LocalDateTime endDateTime) {
         requireNonNull(startDateTime);
         requireNonNull(endDateTime);
         log.info("FINDING... EVENT FROM {} TO {}", startDateTime.format(formatter), endDateTime.format(formatter));
         List<Event> result = eventRepository.findByDateTimeOrderByDateTime(startDateTime, endDateTime);
+        List<EventDTO> eventsDTO = result.stream().map(eventMapper::convertToEventDTO).collect(Collectors.toList());
         log.info("FOUND {} EVENT FROM {} TO {}", result.size(), startDateTime.format(formatter), endDateTime.format(formatter));
-        return result;
+        return eventsDTO;
     }
 
-    private void requiredEventExistence(Event event) {
-        if (!teacherService.existsById(event.getTeacher().getId())) {
-            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", event.getTeacher().getId()));
-        } else if (!groupService.existsById(event.getGroup().getId())) {
-            throw new GlobalNotFoundException(format("Group by id - %d not exists", event.getGroup().getId()));
-        } else if (!subjectService.existsById(event.getSubject().getId())) {
-            throw new GlobalNotFoundException(format("Subject by id - %d not exists", event.getSubject().getId()));
-        } else if (!classroomService.existsById(event.getClassroom().getId())) {
-            throw new GlobalNotFoundException(format("Classroom by id - %d not exists", event.getClassroom().getId()));
+    private void requiredEventExistence(EventDTO eventDTO) {
+        if (!teacherService.existsById(eventDTO.getTeacher().getId())) {
+            throw new GlobalNotFoundException(format("Teacher by id - %d not exists", eventDTO.getTeacher().getId()));
+        } else if (!groupService.existsById(eventDTO.getGroup().getId())) {
+            throw new GlobalNotFoundException(format("Group by id - %d not exists", eventDTO.getGroup().getId()));
+        } else if (!subjectService.existsById(eventDTO.getSubject().getId())) {
+            throw new GlobalNotFoundException(format("Subject by id - %d not exists", eventDTO.getSubject().getId()));
+        } else if (!classroomService.existsById(eventDTO.getClassroom().getId())) {
+            throw new GlobalNotFoundException(format("Classroom by id - %d not exists", eventDTO.getClassroom().getId()));
         }
     }
 
     private void requiredEventByIdExistence(Integer eventId){
         if (!eventRepository.existsById(eventId)){
             throw new GlobalNotFoundException(format("Event by id- %d not exists", eventId));
+        }
+    }
+
+    private void requireNonNull(Object o){
+        if (o == null){
+            throw new GlobalNotNullException("Can't be null " + o.getClass().getName());
         }
     }
 }

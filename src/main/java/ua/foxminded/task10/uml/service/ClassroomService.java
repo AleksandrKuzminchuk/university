@@ -1,14 +1,14 @@
 package ua.foxminded.task10.uml.service;
 
-import ua.foxminded.task10.uml.model.Classroom;
+import ua.foxminded.task10.uml.dto.ClassroomDTO;
 
 import java.util.List;
 
-public interface ClassroomService extends CrudRepositoryService<Classroom, Integer> {
+public interface ClassroomService extends CrudRepositoryService<ClassroomDTO, Integer> {
 
-    void saveAll(List<Classroom> classrooms);
+    Integer saveAll(List<ClassroomDTO> classrooms);
 
-    Classroom update(Classroom classroom);
+    ClassroomDTO update(ClassroomDTO classroom);
 
-    Classroom findByNumber(Classroom classroom);
+    ClassroomDTO findByNumber(Integer classroomNumber);
 }

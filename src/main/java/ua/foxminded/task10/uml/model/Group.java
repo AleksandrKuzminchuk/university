@@ -1,9 +1,11 @@
 package ua.foxminded.task10.uml.model;
 
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 import java.util.List;
 import java.util.Objects;
@@ -13,17 +15,21 @@ import java.util.Objects;
 @Entity
 @NoArgsConstructor
 @Table(name = "groups")
+@JsonRootName(value = "group")
 @ToString(onlyExplicitlyIncluded = true)
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id", scope = Integer.class)
 public class Group {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "group_id")
     @ToString.Include
-    @NonNull
+    @Column(name = "group_id")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @NonNull
+    @NotBlank
     @ToString.Include
     @Column(name = "group_name", unique = true)
     @Pattern(regexp = "[A-Z]-\\d{1,3}", message = "Must be 'B-1 or 'G-152'")
@@ -31,7 +37,7 @@ public class Group {
 
     @Singular
     @ToString.Exclude
-    @OneToMany(cascade = {CascadeType.PERSIST}, mappedBy = "group", fetch = FetchType.EAGER)
+    @OneToMany(cascade = {CascadeType.PERSIST}, mappedBy = "group", fetch = FetchType.LAZY)
     private List<Student> students;
 
     public Group(@NonNull Integer id) {

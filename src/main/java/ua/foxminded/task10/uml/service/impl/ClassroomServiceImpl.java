@@ -6,15 +6,18 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ua.foxminded.task10.uml.dto.ClassroomDTO;
+import ua.foxminded.task10.uml.dto.mapper.ClassroomMapper;
 import ua.foxminded.task10.uml.model.Classroom;
 import ua.foxminded.task10.uml.repository.ClassroomRepository;
 import ua.foxminded.task10.uml.service.ClassroomService;
-import ua.foxminded.task10.uml.util.GlobalNotFoundException;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotFoundException;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotNullException;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 @Slf4j
 @Service
@@ -23,40 +26,48 @@ import static java.util.Objects.requireNonNull;
 public class ClassroomServiceImpl implements ClassroomService {
 
     private final ClassroomRepository classroomRepository;
+    private final ClassroomMapper classroomMapper;
 
     @Override
-    public void saveAll(List<Classroom> classrooms) {
-        requireNonNull(classrooms);
-        log.info("SAVING... {} CLASSROOMS", classrooms.size());
+    public Integer saveAll(List<ClassroomDTO> classroomsDTO) {
+        requireNonNull(classroomsDTO);
+        log.info("SAVING... {} CLASSROOMS", classroomsDTO.size());
+        List<Classroom> classrooms = classroomsDTO.stream().map(classroomMapper::convertToClassroom).collect(Collectors.toList());
         classroomRepository.saveAll(classrooms);
         log.info("SAVED {} CLASSROOMS SUCCESSFULLY", classrooms.size());
+        return classrooms.size();
     }
 
     @Override
-    public Classroom update(Classroom classroom) {
-        requiredClassroomExistence(classroom.getId());
-        log.info("UPDATING... CLASSROOM BY ID - {}", classroom.getId());
+    public ClassroomDTO update(ClassroomDTO classroomDTO) {
+        requiredClassroomExistence(classroomDTO.getId());
+        log.info("UPDATING... CLASSROOM BY ID - {}", classroomDTO.getId());
+        Classroom classroom = classroomMapper.convertToClassroom(classroomDTO);
         Classroom updatedClassroom = classroomRepository.save(classroom);
+        ClassroomDTO updatedClassroomDTO = classroomMapper.convertToClassroomDTO(updatedClassroom);
         log.info("UPDATED {} SUCCESSFULLY", updatedClassroom);
-        return updatedClassroom;
+        return updatedClassroomDTO;
     }
 
     @Override
-    public Classroom save(Classroom classroom) {
-        log.info("SAVING... {}", classroom);
+    public ClassroomDTO save(ClassroomDTO classroomDTO) {
+        log.info("SAVING... {}", classroomDTO);
+        Classroom classroom = classroomMapper.convertToClassroom(classroomDTO);
         classroomRepository.save(classroom);
-        log.info("SAVED {} SUCCESSFULLY", classroom);
-        return classroom;
+        ClassroomDTO savedClassroomDTO = classroomMapper.convertToClassroomDTO(classroom);
+        log.info("SAVED {} SUCCESSFULLY", savedClassroomDTO);
+        return savedClassroomDTO;
     }
 
     @Override
-    public Classroom findById(Integer classroomId) {
+    public ClassroomDTO findById(Integer classroomId) {
         requireNonNull(classroomId);
         requiredClassroomExistence(classroomId);
         log.info("FINDING... CLASSROOM BY ID- {}", classroomId);
-        Classroom result = classroomRepository.findById(classroomId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find classroom by classroomId - %d", classroomId)));
+        Classroom classroom = classroomRepository.findById(classroomId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find classroom by classroomId - %d", classroomId)));
+        ClassroomDTO classroomDTO = classroomMapper.convertToClassroomDTO(classroom);
         log.info("FOUND CLASSROOM BY ID - {} SUCCESSFULLY", classroomId);
-        return result;
+        return classroomDTO;
     }
 
     @Override
@@ -69,11 +80,11 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public List<Classroom> findAll() {
+    public List<ClassroomDTO> findAll() {
         log.info("FINDING... ALL CLASSROOMS");
         List<Classroom> result = classroomRepository.findAll(Sort.by(Sort.Order.asc("number")));
         log.info("FOUND {} CLASSROOMS", result.size());
-        return result;
+        return result.stream().map(classroomMapper::convertToClassroomDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -94,7 +105,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public void delete(Classroom classroom) {
+    public void delete(ClassroomDTO classroomDTO) {
         throw new NotImplementedException("The method delete not implemented");
     }
 
@@ -106,15 +117,22 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
-    public Classroom findByNumber(Classroom classroom) {
-        log.info("FINDING... CLASSROOMS BY NUMBER - {}", classroom.getNumber());
-        Classroom result = classroomRepository.findByNumber(classroom.getNumber()).orElseThrow(() -> new GlobalNotFoundException(format("Classroom by number [%d] not found", classroom.getNumber())));
-        log.info("FOUND {} CLASSROOM BY NUMBER - {} SUCCESSFULLY", result, classroom.getNumber());
-        return result;
+    public ClassroomDTO findByNumber(Integer classroomNumber) {
+        log.info("FINDING... CLASSROOMS BY NUMBER - {}", classroomNumber);
+        Classroom classroom = classroomRepository.findByNumber(classroomNumber).orElseThrow(() -> new GlobalNotFoundException(format("Classroom by number [%d] not found", classroomNumber)));
+        ClassroomDTO classroomDTO = classroomMapper.convertToClassroomDTO(classroom);
+        log.info("FOUND {} CLASSROOM BY NUMBER - {} SUCCESSFULLY", classroom, classroomNumber);
+        return classroomDTO;
     }
 
     private void requiredClassroomExistence(Integer classroomId) {
         if (!classroomRepository.existsById(classroomId))
             throw new GlobalNotFoundException(format("Classroom by id - %d not exists", classroomId));
+    }
+
+    private void requireNonNull(Object o){
+        if (o == null){
+            throw new GlobalNotNullException("Can't be null " + o.getClass().getName());
+        }
     }
 }

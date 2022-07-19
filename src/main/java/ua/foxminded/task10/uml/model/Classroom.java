@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.model;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -14,11 +15,11 @@ import java.util.Objects;
 @Entity
 @NoArgsConstructor
 @Table(name = "classrooms")
+@JsonRootName(value = "classroom")
 @ToString(onlyExplicitlyIncluded = true)
 public class Classroom {
 
     @Id
-    @NonNull
     @ToString.Include
     @Column(name = "classroom_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)

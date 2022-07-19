@@ -7,11 +7,11 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ua.foxminded.task10.uml.model.Group;
-import ua.foxminded.task10.uml.model.Student;
+import ua.foxminded.task10.uml.dto.GroupDTO;
+import ua.foxminded.task10.uml.dto.StudentDTO;
 import ua.foxminded.task10.uml.service.GroupService;
 import ua.foxminded.task10.uml.service.StudentService;
-import ua.foxminded.task10.uml.util.GroupValidator;
+import ua.foxminded.task10.uml.util.validations.GroupValidator;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -31,7 +31,7 @@ public class GroupController {
     @GetMapping
     public String findAll(Model model){
         log.info("requested-> [GET]-'/groups'");
-        List<Group> groups = groupService.findAll();
+        List<GroupDTO> groups = groupService.findAll();
         model.addAttribute("groups", groups);
         model.addAttribute("count", groups.size());
         log.info("FOUND {} groups", groups.size());
@@ -39,61 +39,61 @@ public class GroupController {
     }
 
     @GetMapping("/new")
-    public String saveForm(@ModelAttribute("newGroup") Group group){
-        log.info("requested-> [GET]-'/new'");
+    public String saveForm(@ModelAttribute("newGroup") GroupDTO groupDTO){
+        log.info("requested-> [GET]-'/groups/new'");
         return "groups/formSaveGroup";
     }
 
     @PostMapping("/saved")
-    public String save(Model model, @ModelAttribute("newGroup") @Valid Group group, BindingResult bindingResult){
-        log.info("requested-> [POST]-'/saved'");
-        groupValidator.validate(group, bindingResult);
+    public String save(Model model, @ModelAttribute("newGroup") @Valid GroupDTO groupDTO, BindingResult bindingResult){
+        log.info("requested-> [POST]-'/groups/saved'");
+        groupValidator.validate(groupDTO, bindingResult);
         if (bindingResult.hasErrors()){
             return "groups/formSaveGroup";
         }
-        Group newGroup = groupService.save(group);
+        GroupDTO newGroup = groupService.save(groupDTO);
         model.addAttribute("newGroup", newGroup);
         log.info("SAVED {} SUCCESSFULLY", newGroup);
         return "groups/formSavedGroup";
     }
 
-    @GetMapping("{id}/update")
-    public String updateFrom(Model model, @PathVariable("id") Integer groupId){
-        log.info("requested-> [GET]-'{id}/update'");
-        Group group = groupService.findById(groupId);
+    @GetMapping("/{id}/update")
+    public String updateFrom(Model model, @PathVariable("id") Integer id){
+        log.info("requested-> [GET]-/groups'/groups/{id}/update'");
+        GroupDTO group = groupService.findById(id);
         model.addAttribute("group", group);
         log.info("UPDATING... {}", group);
         return "groups/formUpdateGroup";
     }
 
-    @PatchMapping("{id}/updated")
-    public String update(Model model, @ModelAttribute @Valid Group group, BindingResult bindingResult,
-                              @PathVariable("id") Integer groupId){
-        log.info("requested-> [PATCH]-'/{id}/updated'");
-        groupValidator.validate(group, bindingResult);
+    @PatchMapping("/{id}/updated")
+    public String update(Model model, @ModelAttribute @Valid GroupDTO groupDTO, BindingResult bindingResult,
+                              @PathVariable("id") Integer id){
+        log.info("requested-> [PATCH]-'/groups/{id}/updated'");
+        groupValidator.validate(groupDTO, bindingResult);
         if (bindingResult.hasErrors()){
             return "groups/formUpdateGroup";
         }
-        group.setId(groupId);
-        Group updatedGroup = groupService.update(group);
+        groupDTO.setId(id);
+        GroupDTO updatedGroup = groupService.update(groupDTO);
         model.addAttribute("updatedGroup", updatedGroup);
         log.info("UPDATED {} SUCCESSFULLY", updatedGroup);
         return "groups/formUpdatedGroup";
     }
 
-    @DeleteMapping("{id}/deleted")
-    public String deleteById(Model model, @PathVariable("id") Integer groupId){
-        log.info("requested-> [DELETE]-'/{id}/deleted'");
-        Group group = groupService.findById(groupId);
-        groupService.deleteById(groupId);
-        model.addAttribute("deleteGroup", group);
-        log.info("DELETED GROUP BY ID - {} SUCCESSFULLY", groupId);
+    @DeleteMapping("/{id}/deleted")
+    public String deleteById(Model model, @PathVariable("id") Integer id){
+        log.info("requested-> [DELETE]-'/groups/{id}/deleted'");
+        GroupDTO groupDTO = groupService.findById(id);
+        groupService.deleteById(id);
+        model.addAttribute("deleteGroup", groupDTO);
+        log.info("DELETED GROUP BY ID - {} SUCCESSFULLY", id);
         return "groups/formDeletedGroup";
     }
 
     @DeleteMapping("/delete/all")
     public String deleteAll(Model model){
-        log.info("requested-> [DELETE]-'/delete/all'");
+        log.info("requested-> [DELETE]-'/groups/delete/all'");
         Long countGroups = groupService.count();
         groupService.deleteAll();
         model.addAttribute("groups", countGroups);
@@ -101,32 +101,32 @@ public class GroupController {
         return "groups/formDeletedAllGroups";
     }
 
-    @GetMapping("find/by_name")
-    public String findByNameForm(@ModelAttribute("group") Group group){
+    @GetMapping("/find/by_name")
+    public String findByNameForm(@ModelAttribute("group") GroupDTO groupDTO){
         log.info("requested-> [GET]-'find/by_name'");
         return "groups/formForFindGroupByName";
     }
 
-    @GetMapping("found/by_name")
-    public String findByName(Model model, @ModelAttribute @Valid Group group, BindingResult bindingResult){
-        log.info("requested-> [GET]-'found/by_name'");
+    @GetMapping("/found/by_name")
+    public String findByName(Model model, @ModelAttribute @Valid GroupDTO groupDTO, BindingResult bindingResult){
+        log.info("requested-> [GET]-'/groups/found/by_name'");
         if (bindingResult.hasErrors()){
             return "groups/formForFindGroupByName";
         }
-        Group result = groupService.findByName(group);
+        GroupDTO result = groupService.findByName(groupDTO.getName());
         model.addAttribute("groups", result);
-        log.info("FOUND {} GROUPS BY NAME {} SUCCESSFULLY", result, group.getName());
+        log.info("FOUND {} GROUP BY NAME {} SUCCESSFULLY", result, groupDTO.getName());
         return "groups/groups";
     }
 
-    @GetMapping("{id}/found/students")
-    public String findStudents(Model model, @PathVariable("id") Integer groupId){
-        log.info("requested-> [GET]-'{id}/found/students'");
-        Group group = groupService.findById(groupId);
-        List<Student> students = studentService.findByGroupId(groupId);
-        model.addAttribute("students", students);
+    @GetMapping("/{id}/found/students")
+    public String findStudents(Model model, @PathVariable("id") Integer id){
+        log.info("requested-> [GET]-'/groups/{id}/found/students'");
+        GroupDTO group = groupService.findById(id);
+        List<StudentDTO> studentsDTO = studentService.findByGroupId(id);
+        model.addAttribute("students", studentsDTO);
         model.addAttribute("group", group);
-        log.info("FOUND {} STUDENTS BY GROUP ID - {} SUCCESSFULLY", students.size(), groupId);
+        log.info("FOUND {} STUDENTS BY GROUP ID - {} SUCCESSFULLY", studentsDTO.size(), id);
         return "groups/formForFoundStudentsByGroupId";
     }
 }
