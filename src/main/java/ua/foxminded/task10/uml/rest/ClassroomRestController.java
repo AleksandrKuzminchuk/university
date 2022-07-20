@@ -45,7 +45,7 @@ public class ClassroomRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<ClassroomDTO> update(@RequestBody @Valid ClassroomDTO classroomDTO, BindingResult bindingResult,
                                                @PathVariable("id") Integer id) {
-        log.info("requested-> [PATCH]-'/api/classrooms/update'");
+        log.info("requested-> [PATCH]-'/api/classrooms/update/{id}'");
         classroomValidator.validate(classroomDTO, bindingResult);
         extractedErrors(bindingResult);
         classroomDTO.setId(id);

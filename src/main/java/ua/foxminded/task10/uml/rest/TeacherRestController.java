@@ -59,7 +59,7 @@ public class TeacherRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<TeacherDTO> update(@RequestBody @Valid TeacherDTO teacherDTO, BindingResult bindingResult,
                                              @PathVariable("id") Integer id) {
-        log.info("requested-> [PATCH]-'/api/teachers/{id}/update'");
+        log.info("requested-> [PATCH]-'/api/teachers/update/{id}'");
         teacherDTO.setId(id);
         TeacherDTO updatedTeacherDTO = teacherService.update(teacherDTO);
         log.info("UPDATED {} SUCCESSFULLY", updatedTeacherDTO);

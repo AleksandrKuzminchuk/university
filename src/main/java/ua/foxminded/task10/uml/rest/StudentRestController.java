@@ -49,7 +49,7 @@ public class StudentRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<StudentDTO> update(@RequestBody @Valid StudentDTO studentDTO, BindingResult bindingResult,
                                              @PathVariable("id") Integer id){
-        log.info("requested-> [PATCH]-'/api/students/update'");
+        log.info("requested-> [PATCH]-'/api/students/update/{id}'");
         studentDTO.setId(id);
         StudentDTO updatedStudentDTO = studentService.update(studentDTO);
         log.info("UPDATED {} SUCCESSFULLY", updatedStudentDTO);

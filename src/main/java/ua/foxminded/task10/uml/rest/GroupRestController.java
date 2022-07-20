@@ -44,7 +44,7 @@ public class GroupRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<GroupDTO> update(@RequestBody @Valid GroupDTO groupDTO, BindingResult bindingResult,
                                            @PathVariable("id") Integer id) {
-        log.info("requested-> [PATCH]-'/api/groups/update'");
+        log.info("requested-> [PATCH]-'/api/groups/update/{id}'");
         groupValidator.validate(groupDTO, bindingResult);
         extractedErrors(bindingResult);
         groupDTO.setId(id);

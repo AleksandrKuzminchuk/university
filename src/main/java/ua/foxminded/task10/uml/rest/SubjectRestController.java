@@ -50,7 +50,7 @@ public class SubjectRestController {
     @PatchMapping("/update/{id}")
     public ResponseEntity<SubjectDTO> update(@RequestBody @Valid SubjectDTO subjectDTO, BindingResult bindingResult,
                                              @PathVariable("id") Integer id) {
-        log.info("requested-> [PATCH]-'/api//subjects/{id}/updated'");
+        log.info("requested-> [PATCH]-'/api//subjects/update/{id}'");
         subjectValidator.validate(subjectDTO, bindingResult);
         extractedErrors(bindingResult);
         subjectDTO.setId(id);
