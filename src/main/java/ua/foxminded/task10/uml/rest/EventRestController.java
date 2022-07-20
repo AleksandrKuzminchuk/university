@@ -34,9 +34,10 @@ public class EventRestController {
         return new ResponseEntity<>(savedEvent, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/update")
-    public ResponseEntity<EventDTO> update(@RequestBody EventDTO eventDTO) {
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<EventDTO> update(@RequestBody EventDTO eventDTO, @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/events/{id}/updated'");
+        eventDTO.setId(id);
         EventDTO updatedEvent = eventService.update(eventDTO);
         log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", updatedEvent);
         return new ResponseEntity<>(updatedEvent, HttpStatus.OK);

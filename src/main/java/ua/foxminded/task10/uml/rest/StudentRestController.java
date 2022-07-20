@@ -46,9 +46,11 @@ public class StudentRestController {
         return new ResponseEntity<>(savedStudentDTO, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/update")
-    public ResponseEntity<StudentDTO> update(@RequestBody @Valid StudentDTO studentDTO, BindingResult bindingResult){
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<StudentDTO> update(@RequestBody @Valid StudentDTO studentDTO, BindingResult bindingResult,
+                                             @PathVariable("id") Integer id){
         log.info("requested-> [PATCH]-'/api/students/update'");
+        studentDTO.setId(id);
         StudentDTO updatedStudentDTO = studentService.update(studentDTO);
         log.info("UPDATED {} SUCCESSFULLY", updatedStudentDTO);
         return ResponseEntity.ok(updatedStudentDTO);

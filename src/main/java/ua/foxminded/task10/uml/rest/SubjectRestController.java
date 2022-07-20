@@ -47,11 +47,13 @@ public class SubjectRestController {
         return new ResponseEntity<>(savedSubjectDTO, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/update")
-    public ResponseEntity<SubjectDTO> update(@RequestBody @Valid SubjectDTO subjectDTO, BindingResult bindingResult) {
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<SubjectDTO> update(@RequestBody @Valid SubjectDTO subjectDTO, BindingResult bindingResult,
+                                             @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api//subjects/{id}/updated'");
         subjectValidator.validate(subjectDTO, bindingResult);
         extractedErrors(bindingResult);
+        subjectDTO.setId(id);
         SubjectDTO updatedSubjectDTO = subjectService.update(subjectDTO);
         log.info("UPDATED {} SUCCESSFULLY", updatedSubjectDTO);
         return new ResponseEntity<>(updatedSubjectDTO, HttpStatus.OK);

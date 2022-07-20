@@ -42,11 +42,13 @@ public class ClassroomRestController {
         return new ResponseEntity<>(savedClassroomDTO, HttpStatus.CREATED);
     }
 
-    @PatchMapping("/update")
-    public ResponseEntity<ClassroomDTO> update(@RequestBody @Valid ClassroomDTO classroomDTO, BindingResult bindingResult) {
+    @PatchMapping("/update/{id}")
+    public ResponseEntity<ClassroomDTO> update(@RequestBody @Valid ClassroomDTO classroomDTO, BindingResult bindingResult,
+                                               @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/classrooms/update'");
         classroomValidator.validate(classroomDTO, bindingResult);
         extractedErrors(bindingResult);
+        classroomDTO.setId(id);
         classroomService.update(classroomDTO);
         log.info("UPDATED {} CLASSROOM SUCCESSFULLY", classroomDTO);
         return new ResponseEntity<>(classroomDTO, HttpStatus.OK);
