@@ -10,6 +10,7 @@ import ua.foxminded.task10.uml.dto.GroupDTO;
 import ua.foxminded.task10.uml.dto.StudentDTO;
 import ua.foxminded.task10.uml.dto.mapper.GroupMapper;
 import ua.foxminded.task10.uml.dto.mapper.StudentMapper;
+import ua.foxminded.task10.uml.dto.response.StudentUpdateResponse;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.repository.StudentRepository;
@@ -180,6 +181,17 @@ public class StudentServiceImpl implements StudentService {
         List<StudentDTO> studentsDTO = getStudentsDTO(result);
         log.info("FOUND {} STUDENTS BY COURSE NUMBER - {} SUCCESSFULLY", studentsDTO.size(), courseNumber);
         return studentsDTO;
+    }
+
+    public StudentUpdateResponse updateForm(Integer id) {
+        log.info("UPDATING STUDENT - {}", id);
+        requiredStudentExistence(id);
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find student by studentId - %d", id)));
+        List<GroupDTO> groups = groupService.findAll();
+        StudentUpdateResponse studentUpdate = new StudentUpdateResponse(student, groups);
+        log.info("UPDATED SUCCESSFULLY");
+        return studentUpdate;
     }
 
     public StudentDTO update(StudentDTO studentDTO) {

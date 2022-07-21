@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.rest;
+package ua.foxminded.task10.uml.controller.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

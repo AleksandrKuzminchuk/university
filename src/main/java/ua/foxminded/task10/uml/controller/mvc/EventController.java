@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.controller;
+package ua.foxminded.task10.uml.controller.mvc;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;

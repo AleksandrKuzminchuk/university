@@ -1,24 +1,19 @@
-package ua.foxminded.task10.uml.rest;
+package ua.foxminded.task10.uml.controller.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.dto.GroupDTO;
 import ua.foxminded.task10.uml.dto.StudentDTO;
-import ua.foxminded.task10.uml.dto.mapper.GroupMapper;
 import ua.foxminded.task10.uml.dto.response.StudentsResponse;
-import ua.foxminded.task10.uml.dto.mapper.StudentMapper;
-import ua.foxminded.task10.uml.model.Group;
-import ua.foxminded.task10.uml.model.Student;
 import ua.foxminded.task10.uml.service.GroupService;
 import ua.foxminded.task10.uml.service.StudentService;
 
 import javax.validation.Valid;
-import java.util.stream.Collectors;
+import java.util.List;
 
 @Slf4j
 @Validated
@@ -39,7 +34,7 @@ public class StudentRestController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<StudentDTO> save(@RequestBody @Valid StudentDTO studentDTO, BindingResult bindingResult){
+    public ResponseEntity<StudentDTO> save(@RequestBody @Valid StudentDTO studentDTO){
         log.info("requested-> [POST]-'/api/students/save'");
         StudentDTO savedStudentDTO = studentService.save(studentDTO);
         log.info("SAVED {} SUCCESSFULLY", savedStudentDTO);
@@ -47,7 +42,7 @@ public class StudentRestController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<StudentDTO> update(@RequestBody @Valid StudentDTO studentDTO, BindingResult bindingResult,
+    public ResponseEntity<StudentDTO> update(@RequestBody @Valid StudentDTO studentDTO,
                                              @PathVariable("id") Integer id){
         log.info("requested-> [PATCH]-'/api/students/update/{id}'");
         studentDTO.setId(id);
@@ -74,13 +69,11 @@ public class StudentRestController {
     }
 
     @DeleteMapping("/delete/all/by_group/")
-    public ResponseEntity<Long> deleteAllByGroupId(@RequestBody StudentDTO studentDTO){
+    public ResponseEntity<?> deleteAllByGroupId(@RequestBody StudentDTO studentDTO){
         log.info("requested-> [DELETE]-'/api/students/delete/all/by_group/{groupId}'");
-        GroupDTO groupDTO = groupService.findByName(studentDTO.getGroup().getName());
-        Long countStudentsByGroupId = studentService.countByGroupId(groupDTO.getId());
-        studentService.deleteByGroupId(groupDTO.getId());
-        log.info("DELETED {} STUDENTS BY GROUP ID - {} SUCCESSFULLY", countStudentsByGroupId, groupDTO.getId());
-        return new ResponseEntity<>(countStudentsByGroupId, HttpStatus.OK);
+        studentService.deleteByGroupId(studentDTO.getGroup().getId());
+        log.info("DELETED STUDENTS BY GROUP ID - {} SUCCESSFULLY");
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/find/by_course/{course}")
@@ -107,7 +100,8 @@ public class StudentRestController {
     @GetMapping("/find/by_name_surname")
     public StudentsResponse findByNameOrSurname(@RequestBody StudentDTO studentDTO){
         log.info("requested-> [GET]-'/api/students/find/by_name_surname'");
-        return new StudentsResponse(studentService.findByNameOrSurname(studentDTO.getFirstName(), studentDTO.getLastName()));
+        List<StudentDTO> students = studentService.findByNameOrSurname(studentDTO.getFirstName(), studentDTO.getLastName());
+        return new StudentsResponse(students);
     }
 
     @DeleteMapping("/delete/all")

@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.rest;
+package ua.foxminded.task10.uml.controller.rest;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,17 +9,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.dto.SubjectDTO;
 import ua.foxminded.task10.uml.dto.TeacherDTO;
-import ua.foxminded.task10.uml.dto.mapper.SubjectMapper;
-import ua.foxminded.task10.uml.dto.mapper.TeacherMapper;
 import ua.foxminded.task10.uml.dto.response.SubjectResponse;
 import ua.foxminded.task10.uml.dto.response.TeacherResponse;
-import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.util.errors.ErrorsUtil;
 import ua.foxminded.task10.uml.util.validations.SubjectValidator;
 
 import javax.validation.Valid;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Validated

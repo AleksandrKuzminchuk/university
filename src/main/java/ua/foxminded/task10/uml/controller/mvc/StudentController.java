@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.controller;
+package ua.foxminded.task10.uml.controller.mvc;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,11 +9,13 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.dto.GroupDTO;
 import ua.foxminded.task10.uml.dto.StudentDTO;
+import ua.foxminded.task10.uml.dto.response.StudentUpdateResponse;
 import ua.foxminded.task10.uml.model.Course;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Person;
 import ua.foxminded.task10.uml.service.GroupService;
 import ua.foxminded.task10.uml.service.StudentService;
+import ua.foxminded.task10.uml.service.impl.StudentServiceImpl;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,7 +27,7 @@ import java.util.List;
 @RequestMapping("/students")
 public class StudentController {
 
-    private final StudentService studentService;
+    private final StudentServiceImpl studentService;
     private final GroupService groupService;
 
     @GetMapping
@@ -62,11 +64,9 @@ public class StudentController {
     public String updateForm(Model model,
                              @PathVariable("id") Integer id) {
         log.info("requested-> [GET]-'/students/{studentId}/update'");
-        StudentDTO studentDTO = studentService.findById(id);
-        List<GroupDTO> groups = groupService.findAll();
-        model.addAttribute("student", studentDTO);
-        model.addAttribute("groups", groups);
-        log.info("UPDATING... {}", studentDTO);
+        StudentUpdateResponse updateResult = studentService.updateForm(id);
+        model.addAttribute("studentUpdate", updateResult);
+        log.info("UPDATED");
         return "students/formUpdateStudent";
     }
 
@@ -152,8 +152,8 @@ public class StudentController {
     }
 
     @GetMapping("/find/by_group")
-    public String formForFindByGroupName(Model model,
-                                         @ModelAttribute("student") StudentDTO studentDTO) {
+    public String findByGroupNameForm(Model model,
+                                      @ModelAttribute("student") StudentDTO studentDTO) {
         log.info("requested-> [GET]-'/students/find/by_group'");
         model.addAttribute("groups", groupService.findAll());
         return "students/formForFindStudentsByGroupName";
