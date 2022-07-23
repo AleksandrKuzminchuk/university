@@ -9,6 +9,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.dto.GroupDTO;
+import ua.foxminded.task10.uml.dto.StudentDTO;
 import ua.foxminded.task10.uml.dto.response.GroupResponse;
 import ua.foxminded.task10.uml.dto.response.StudentsResponse;
 import ua.foxminded.task10.uml.service.GroupService;
@@ -16,6 +17,7 @@ import ua.foxminded.task10.uml.util.errors.ErrorsUtil;
 import ua.foxminded.task10.uml.util.validations.GroupValidator;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @Validated
@@ -29,7 +31,8 @@ public class GroupRestController {
     @GetMapping
     public GroupResponse findAll() {
         log.info("requested- [GET]-'/api/groups");
-        return new GroupResponse(groupService.findAll());
+        List<GroupDTO> groupsDTO = groupService.findAll();
+        return new GroupResponse(groupsDTO);
     }
 
     @PostMapping("/save")
@@ -42,37 +45,35 @@ public class GroupRestController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<GroupDTO> update(@RequestBody @Valid GroupDTO groupDTO, BindingResult bindingResult,
+    public ResponseEntity<HttpStatus> update(@RequestBody @Valid GroupDTO groupDTO, BindingResult bindingResult,
                                            @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/groups/update/{id}'");
         groupValidator.validate(groupDTO, bindingResult);
         extractedErrors(bindingResult);
         groupDTO.setId(id);
-        GroupDTO updatedGroupDTO = groupService.update(groupDTO);
-        log.info("UPDATING... {}", updatedGroupDTO);
-        return ResponseEntity.ok(updatedGroupDTO);
+        groupService.update(groupDTO);
+        log.info("UPDATING... {}", groupDTO);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<GroupDTO> deleteById(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/groups/{id}/delete'");
-        GroupDTO groupDTO = groupService.findById(id);
         groupService.deleteById(id);
-        log.info("DELETED {} SUCCESSFULLY", groupDTO);
-        return ResponseEntity.ok(groupDTO);
+        log.info("DELETED GROUP BY ID - {} SUCCESSFULLY", id);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete/all")
-    public ResponseEntity<Long> deleteAll() {
+    public ResponseEntity<?> deleteAll() {
         log.info("requested-> [DELETE]-'/api/groups/delete/all'");
-        Long countGroups = groupService.count();
         groupService.deleteAll();
         log.info("DELETED ALL GROUPS SUCCESSFULLY");
-        return new ResponseEntity<>(countGroups, HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/find/by_name")
-    public ResponseEntity<GroupDTO> findByName(@RequestBody @Valid GroupDTO groupDTO, BindingResult bindingResult) {
+    public ResponseEntity<GroupDTO> findByName(@RequestBody @Valid GroupDTO groupDTO) {
         log.info("requested-> [GET]-'/api/groups/find/by_name'");
         GroupDTO result = groupService.findByName(groupDTO.getName());
         log.info("FOUND {} GROUP BY NAME {} SUCCESSFULLY", result, groupDTO.getName());
@@ -82,7 +83,8 @@ public class GroupRestController {
     @GetMapping("/{id}/find/students")
     public StudentsResponse findStudents(@PathVariable("id") Integer id) {
         log.info("requested-> [GET]-'/api/groups/{id}/find/students'");
-        return new StudentsResponse(groupService.findStudents(id));
+        List<StudentDTO> studentsDTO = groupService.findStudents(id);
+        return new StudentsResponse(studentsDTO);
     }
 
     private void extractedErrors(BindingResult bindingResult) {

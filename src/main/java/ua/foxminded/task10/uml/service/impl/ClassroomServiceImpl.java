@@ -29,24 +29,22 @@ public class ClassroomServiceImpl implements ClassroomService {
     private final ClassroomMapper classroomMapper;
 
     @Override
-    public Integer saveAll(List<ClassroomDTO> classroomsDTO) {
+    public void saveAll(List<ClassroomDTO> classroomsDTO) {
         requireNonNull(classroomsDTO);
         log.info("SAVING... {} CLASSROOMS", classroomsDTO.size());
         List<Classroom> classrooms = classroomsDTO.stream().map(classroomMapper::convertToClassroom).collect(Collectors.toList());
         classroomRepository.saveAll(classrooms);
         log.info("SAVED {} CLASSROOMS SUCCESSFULLY", classrooms.size());
-        return classrooms.size();
     }
 
     @Override
-    public ClassroomDTO update(ClassroomDTO classroomDTO) {
+    public void update(ClassroomDTO classroomDTO) {
         requiredClassroomExistence(classroomDTO.getId());
         log.info("UPDATING... CLASSROOM BY ID - {}", classroomDTO.getId());
         Classroom classroom = classroomMapper.convertToClassroom(classroomDTO);
         Classroom updatedClassroom = classroomRepository.save(classroom);
-        ClassroomDTO updatedClassroomDTO = classroomMapper.convertToClassroomDTO(updatedClassroom);
+        classroomMapper.convertToClassroomDTO(updatedClassroom);
         log.info("UPDATED {} SUCCESSFULLY", updatedClassroom);
-        return updatedClassroomDTO;
     }
 
     @Override

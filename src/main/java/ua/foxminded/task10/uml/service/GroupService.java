@@ -7,11 +7,11 @@ import java.util.List;
 
 public interface GroupService extends CrudRepositoryService<GroupDTO, Integer>{
 
-    Integer saveAll(List<GroupDTO> groups);
+    void saveAll(List<GroupDTO> groups);
 
     GroupDTO findByName(String groupName);
 
-    GroupDTO update(GroupDTO group);
+    void update(GroupDTO group);
 
     List<StudentDTO> findStudents(Integer groupId);
 }

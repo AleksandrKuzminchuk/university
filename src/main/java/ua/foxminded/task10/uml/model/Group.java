@@ -28,7 +28,6 @@ public class Group {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NonNull
     @NotBlank
     @ToString.Include
     @Column(name = "group_name", unique = true)

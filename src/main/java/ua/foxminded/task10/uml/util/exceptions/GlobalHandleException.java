@@ -3,6 +3,7 @@ package ua.foxminded.task10.uml.util.exceptions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import ua.foxminded.task10.uml.util.errors.GlobalErrorResponse;
 import ua.foxminded.task10.uml.util.errors.GlobalValidationErrorResponse;
 
 import javax.validation.ConstraintViolationException;

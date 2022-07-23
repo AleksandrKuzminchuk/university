@@ -10,6 +10,9 @@ import ua.foxminded.task10.uml.dto.SubjectDTO;
 import ua.foxminded.task10.uml.dto.TeacherDTO;
 import ua.foxminded.task10.uml.dto.mapper.SubjectMapper;
 import ua.foxminded.task10.uml.dto.mapper.TeacherMapper;
+import ua.foxminded.task10.uml.dto.response.SubjectAddTeacherResponse;
+import ua.foxminded.task10.uml.dto.response.SubjectFindTeachersResponse;
+import ua.foxminded.task10.uml.dto.response.SubjectUpdateTeacherResponse;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 import ua.foxminded.task10.uml.repository.SubjectRepository;
@@ -143,24 +146,37 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
-    public Integer saveAll(List<SubjectDTO> subjectsDTO) {
+    public void saveAll(List<SubjectDTO> subjectsDTO) {
         requireNonNull(subjectsDTO);
         log.info("SAVING {} SUBJECTS", subjectsDTO.size());
         List<Subject> subjects = subjectsDTO.stream().map(subjectMapper::convertToSubject).collect(Collectors.toList());
         subjectRepository.saveAll(subjects);
         log.info("SAVED {} SUBJECTS SUCCESSFULLY", subjects.size());
-        return subjects.size();
     }
 
     @Override
-    public SubjectDTO update(SubjectDTO subjectDTO) {
+    public void update(SubjectDTO subjectDTO) {
         requiredSubjectExistence(subjectDTO.getId());
         log.info("UPDATING... SUBJECT BY ID - {}", subjectDTO.getId());
         Subject subject = subjectMapper.convertToSubject(subjectDTO);
         Subject updatedSubject = subjectRepository.save(subject);
-        SubjectDTO updatedSubjectDTO = subjectMapper.convertToSubjectDTO(updatedSubject);
-        log.info("UPDATED {} SUCCESSFULLY", updatedSubjectDTO);
-        return updatedSubjectDTO;
+        subjectMapper.convertToSubjectDTO(updatedSubject);
+        log.info("UPDATED {} SUCCESSFULLY", updatedSubject);
+    }
+
+    @Override
+    public SubjectUpdateTeacherResponse updateTeacherForm(Integer subjectId, Integer teacherId) {
+        requireNonNull(subjectId);
+        requireNonNull(teacherId);
+        requiredTeacherExistence(teacherId);
+        requiredSubjectExistence(subjectId);
+        log.info("PREPARING FORM UPDATE TEACHER ID - {} BY SUBJECT ID - {}", teacherId, subjectId);
+        SubjectDTO subjectDTO = this.findById(subjectId);
+        TeacherDTO teacherDTO = teacherService.findById(teacherId);
+        List<TeacherDTO> teachersDTO = teacherService.findAll();
+        SubjectUpdateTeacherResponse response = new SubjectUpdateTeacherResponse(subjectDTO, teacherDTO, teachersDTO);
+        log.info("PREPARED FORM UPDATE TEACHER ID - {} BY SUBJECT ID - {} SUCCESSFULLY", teacherId, subjectId);
+        return response;
     }
 
     @Override
@@ -181,6 +197,18 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     @Override
+    public SubjectFindTeachersResponse findTeachersForm(Integer subjectId) {
+        requireNonNull(subjectId);
+        requiredSubjectExistence(subjectId);
+        log.info("PREPARING FORM FIND TEACHERS BY SUBJECT ID - {}", subjectId);
+        SubjectDTO subjectDTO = this.findById(subjectId);
+        List<TeacherDTO> teachersDTO = this.findTeachers(subjectId);
+        SubjectFindTeachersResponse response = new SubjectFindTeachersResponse(subjectDTO, teachersDTO);
+        log.info("PREPARED FORM FIND TEACHERS BY SUBJECT ID - {}", subjectId);
+        return response;
+    }
+
+    @Override
     public List<TeacherDTO> findTeachers(Integer subjectId) {
         requireNonNull(subjectId);
         requiredSubjectExistence(subjectId);
@@ -190,6 +218,18 @@ public class SubjectServiceImpl implements SubjectService {
         List<TeacherDTO> teachersDTO = teachers.stream().map(teacherMapper::convertToTeacherDTO).collect(Collectors.toList());
         log.info("FOUND {} TEACHERS BY TEACHER ID - {}", subject.getTeachers().size(), subjectId);
         return teachersDTO;
+    }
+
+    @Override
+    public SubjectAddTeacherResponse addTeacherForm(Integer id) {
+        requireNonNull(id);
+        requiredSubjectExistence(id);
+        log.info("PREPARING FORM ADD TEACHER TO SUBJECT BY ID- {}", id);
+        SubjectDTO subjectDTO = this.findById(id);
+        List<TeacherDTO> teachersDTO = teacherService.findAll();
+        SubjectAddTeacherResponse response = new SubjectAddTeacherResponse(subjectDTO, teachersDTO);
+        log.info("PREPARED FORM ADD TEACHER TO SUBJECT BY ID - {}", id);
+        return response;
     }
 
     @Override

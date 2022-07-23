@@ -12,7 +12,7 @@
 <div class="login-page">
     <div class="form">
         <form class="login-form" th:action="@{/students}">
-            <b th:text="'Student ' + ${#strings.capitalize(student.firstName)} + ' ' + ${#strings.capitalize(student.lastName)} + ' DELETED from Group ' + ${#strings.toUpperCase(group.name)} + ' SUCCESSFULLY'" style="text-align: center;" ></b>
+            <b th:text="'Student DELETED from Group SUCCESSFULLY'" style="text-align: center;" ></b>
             <button type="submit">return to students page</button>
             <p class="message">main page <a th:href="@{/university}">UNIVERSITY</a></p>
         </form>

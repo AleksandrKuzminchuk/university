@@ -71,18 +71,16 @@ public class ClassroomController {
             return "classrooms/formUpdateClassroom";
         }
         classroomDTO.setId(id);
-        ClassroomDTO updatedClassroom = classroomService.update(classroomDTO);
-        model.addAttribute("updatedClassroom", updatedClassroom);
-        log.info("UPDATED {} CLASSROOM SUCCESSFULLY", updatedClassroom);
+        classroomService.update(classroomDTO);
+        model.addAttribute("updatedClassroom", classroomDTO);
+        log.info("UPDATED {} CLASSROOM SUCCESSFULLY", classroomDTO);
         return "classrooms/formUpdatedClassroom";
     }
 
     @DeleteMapping("/{id}/deleted")
-    public String deleteById(Model model, @PathVariable("id") Integer id) {
+    public String deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/classrooms/{id}/deleted'");
-        ClassroomDTO classroomDTO = classroomService.findById(id);
         classroomService.deleteById(id);
-        model.addAttribute("deleteClassroom", classroomDTO);
         log.info("DELETED CLASSROOM BY ID - {} SUCCESSFULLY", id);
         return "classrooms/formDeletedClassroom";
     }
@@ -106,12 +104,10 @@ public class ClassroomController {
     }
 
     @DeleteMapping("/deleted/all")
-    public String deletedAll(Model model) {
+    public String deletedAll() {
         log.info("requested- [DELETE]-'/classrooms/deleted/all'");
-        Long countClassrooms = classroomService.count();
         classroomService.deleteAll();
-        model.addAttribute("classrooms", countClassrooms);
-        log.info("DELETED ALL {} CLASSROOMS SUCCESSFULLY", countClassrooms);
+        log.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
         return "classrooms/formDeletedAllClassrooms";
     }
 

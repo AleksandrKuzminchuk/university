@@ -63,7 +63,7 @@ public class StudentController {
     @GetMapping("/{id}/update")
     public String updateForm(Model model,
                              @PathVariable("id") Integer id) {
-        log.info("requested-> [GET]-'/students/{studentId}/update'");
+        log.info("requested-> [GET]-'/students/{id}/update'");
         StudentUpdateResponse updateResult = studentService.updateForm(id);
         model.addAttribute("studentUpdate", updateResult);
         log.info("UPDATED");
@@ -75,7 +75,7 @@ public class StudentController {
                          @ModelAttribute @Valid StudentDTO studentDTO,
                          BindingResult bindingResult,
                          @PathVariable("id") Integer id) {
-        log.info("requested-> [PATCH]-'/students/{id}/updated'");
+        log.info("requested-> [PATCH]-'/students/{id}/updated'{}", studentDTO);
         if (bindingResult.hasErrors()) {
             return "students/formUpdateStudent";
         }
@@ -87,36 +87,27 @@ public class StudentController {
     }
 
     @DeleteMapping("/{id}/deleted")
-    public String deleteById(Model model,
-                             @PathVariable("id") Integer id) {
+    public String deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/students/{id}/delete_student'");
-        StudentDTO studentDTO = studentService.findById(id);
         studentService.deleteById(id);
-        model.addAttribute("deleteStudentById", studentDTO);
         log.info("DELETED STUDENT BY ID - {}", id);
         return "students/formDeletedStudent";
     }
 
     @PatchMapping("/{id}/delete/from_group")
-    public String deleteFromGroup(Model model,
-                                  @PathVariable("id") Integer id) {
+    public String deleteFromGroup(@PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/students/{id}/delete/from_group'");
-        StudentDTO studentDTO = studentService.deleteGroup(id);
-        model.addAttribute("student", studentDTO);
-        model.addAttribute("group", new Group());
+        studentService.deleteGroup(id);
         log.info("DELETED THE STUDENTS' BY ID - {} GROUP SUCCESSFULLY", id);
         return "students/formDeletedTheStudents'Group";
     }
 
 
     @DeleteMapping("/delete/all/by_group/{groupId}")
-    public String deleteAllByGroupId(Model model,
-                                     @PathVariable("groupId") Integer groupId) {
+    public String deleteAllByGroupId(@PathVariable("groupId") Integer groupId) {
         log.info("requested-> [DELETE]-'/students/delete/all/by_group/{groupId}'");
-        Long countStudentsByGroupId = studentService.countByGroupId(groupId);
         studentService.deleteByGroupId(groupId);
-        model.addAttribute("count", countStudentsByGroupId);
-        log.info("DELETED {} BY GROUP ID - {} STUDENTS SUCCESSFULLY", countStudentsByGroupId, groupId);
+        log.info("DELETED STUDENTS BY GROUP ID - {} STUDENTS SUCCESSFULLY", groupId);
         return "students/deletedAllStudentsByGroupId";
     }
 
@@ -200,11 +191,9 @@ public class StudentController {
     }
 
     @DeleteMapping("/deleted/all")
-    public String deleteAll(Model model) {
+    public String deleteAll() {
         log.info("requested- [DELETE]-'/students/delete/all'");
-        Long countStudents = studentService.count();
         studentService.deleteAll();
-        model.addAttribute("count", countStudents);
         log.info("DELETED ALL STUDENT SUCCESSFULLY");
         return "students/formDeleteAllStudents";
     }

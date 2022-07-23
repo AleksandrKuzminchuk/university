@@ -165,13 +165,12 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
-    public Integer saveAll(List<StudentDTO> studentsDTO) {
+    public void saveAll(List<StudentDTO> studentsDTO) {
         requireNonNull(studentsDTO);
         log.info("SAVING... {} STUDENTS", studentsDTO.size());
         List<Student> students = studentsDTO.stream().map(studentMapper::convertToStudent).collect(Collectors.toList());
         studentRepository.saveAll(students);
         log.info("SAVED {} STUDENTS SUCCESSFULLY", students.size());
-        return students.size();
     }
 
     @Override
@@ -186,15 +185,14 @@ public class StudentServiceImpl implements StudentService {
     public StudentUpdateResponse updateForm(Integer id) {
         log.info("UPDATING STUDENT - {}", id);
         requiredStudentExistence(id);
-        Student student = studentRepository.findById(id)
-                .orElseThrow(() -> new GlobalNotFoundException(format("Can't find student by studentId - %d", id)));
+        StudentDTO student = this.findById(id);
         List<GroupDTO> groups = groupService.findAll();
         StudentUpdateResponse studentUpdate = new StudentUpdateResponse(student, groups);
         log.info("UPDATED SUCCESSFULLY");
         return studentUpdate;
     }
 
-    public StudentDTO update(StudentDTO studentDTO) {
+    public void update(StudentDTO studentDTO) {
         log.info("UPDATING STUDENT - {}", studentDTO);
         requiredStudentExistence(studentDTO.getId());
         requiredGroupExistence(studentDTO.getGroup().getId());
@@ -203,22 +201,20 @@ public class StudentServiceImpl implements StudentService {
         Group group = groupMapper.convertToGroup(groupDTO);
         student.setGroup(group);
         Student updatedStudent = studentRepository.save(student);
-        StudentDTO updatedStudentDTO = studentMapper.convertToStudentDTO(updatedStudent);
+        studentMapper.convertToStudentDTO(updatedStudent);
         log.info("UPDATED SUCCESSFULLY");
-        return updatedStudentDTO;
     }
 
     @Override
-    public StudentDTO deleteGroup(Integer studentId) {
+    public void deleteGroup(Integer studentId) {
         requiredStudentExistence(studentId);
         log.info("UPDATING... STUDENTS' BY ID - {} GROUP", studentId);
         StudentDTO studentDTO = findById(studentId);
         Student student = studentMapper.convertToStudent(studentDTO);
         student.setGroup(null);
         Student savedStudent = studentRepository.save(student);
-        StudentDTO savedStudentDTO = studentMapper.convertToStudentDTO(savedStudent);
+        studentMapper.convertToStudentDTO(savedStudent);
         log.info("UPDATED THE STUDENTS' BY ID - {} GROUP SUCCESSFULLY", studentId);
-        return savedStudentDTO;
     }
 
     @Override

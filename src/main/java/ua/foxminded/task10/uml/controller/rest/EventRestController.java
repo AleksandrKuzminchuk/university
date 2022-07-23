@@ -23,7 +23,8 @@ public class EventRestController {
     @GetMapping()
     public EventResponse findAll() {
         log.info("requested-> [GET]-'/api/events'");
-        return new EventResponse(eventService.findAll());
+        List<EventDTO> eventsDTO = eventService.findAll();
+        return new EventResponse(eventsDTO);
     }
 
     @PostMapping("/save")
@@ -35,30 +36,28 @@ public class EventRestController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<EventDTO> update(@RequestBody EventDTO eventDTO, @PathVariable("id") Integer id) {
+    public ResponseEntity<HttpStatus> update(@RequestBody EventDTO eventDTO, @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/events/update/{id}'");
         eventDTO.setId(id);
-        EventDTO updatedEvent = eventService.update(eventDTO);
-        log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", updatedEvent);
-        return new ResponseEntity<>(updatedEvent, HttpStatus.OK);
+        eventService.update(eventDTO);
+        log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<EventDTO> deleteById(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/events/{id}/deleted'");
-        EventDTO eventDTO = eventService.findById(id);
         eventService.deleteById(id);
-        log.info("DELETED EVENT BY ID - {} SUCCESSFULLY", eventDTO);
-        return ResponseEntity.ok(eventDTO);
+        log.info("DELETED EVENT BY ID - {} SUCCESSFULLY", id);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/delete/all")
-    public ResponseEntity<Long> deleteAll() {
+    public ResponseEntity<?> deleteAll() {
         log.info("requested-> [DELETE]-'/api/events/delete/all'");
-        Long countEvents = eventService.count();
         eventService.deleteAll();
         log.info("DELETED ALL EVENTS SUCCESSFULLY");
-        return new ResponseEntity<>(countEvents, HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/find")

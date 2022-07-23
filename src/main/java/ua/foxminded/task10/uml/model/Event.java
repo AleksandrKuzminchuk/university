@@ -33,7 +33,7 @@ public class Event {
 
     @OneToOne
     @ToString.Include
-    @JoinColumn(name = "subject_id", referencedColumnName = "subject_id")
+    @JoinColumn(name = "subject_id", referencedColumnName = "subject_id", unique = true)
     private Subject subject;
 
     @OneToOne

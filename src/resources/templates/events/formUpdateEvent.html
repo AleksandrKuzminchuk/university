@@ -12,33 +12,34 @@
 <div th:insert="~{university :: copy}"></div>
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="PATCH" th:action="@{/events/{eventId}/updated(eventId=${oldEvent.id})}">
-            <input type="datetime-local" th:field="${oldEvent.dateTime}" id="date time" placeholder="date time"/>
-            <input type="text" th:field="${oldEvent.subject.name}" id="subject" placeholder="subject name" readonly/>
+        <form class="login-form" th:method="PATCH" th:action="@{/events/{eventId}/updated(eventId=${updateEvent.event.id})}" th:object="${updateEvent}">
+            <input type="datetime-local" th:field="*{event.dateTime}" id="old date time" placeholder="date time" readonly/>
+            <input type="datetime-local" th:field="${event.dateTime}" id="new date time" placeholder="date time"/>
+            <input type="text" th:field="*{event.subject.name}" id="subject" placeholder="subject name" readonly/>
             <span class="custom-dropdown big">
-            <select th:object="${newEvent}" th:field="*{subject.id}">
-                <option th:each="subject : ${subjects}" th:value="${subject.id}" th:text="${subject.name}"></option>
+            <select th:object="${event}" th:field="*{subject.id}">
+                <option th:each="subject : ${updateEvent.subjects}" th:value="${subject.id}" th:text="${subject.name}"></option>
             </select>
                 </span>
-            <input type="text" th:field="${oldEvent.classroom.number}" id="classroom" placeholder="classroom number" readonly/>
+            <input type="text" th:field="*{event.classroom.number}" id="classroom" placeholder="classroom number" readonly/>
             <span class="custom-dropdown big">
-            <select th:object="${newEvent}" th:field="*{classroom.id}">
-                <option th:each="classroom : ${classrooms}" th:value="${classroom.id}"
+            <select th:object="${event}" th:field="*{classroom.id}">
+                <option th:each="classroom : ${updateEvent.classrooms}" th:value="${classroom.id}"
                         th:text="${classroom.number}"></option>
             </select>
             </span>
-            <input type="text" th:field="${oldEvent.teacher.firstName}" id="teacher name" placeholder="teacher name" readonly/>
-            <input type="text" th:field="${oldEvent.teacher.lastName}" id="teacher surname" placeholder="teacher surname" readonly/>
+            <input type="text" th:field="${updateEvent.event.teacher.firstName}" id="teacher name" placeholder="teacher name" readonly/>
+            <input type="text" th:field="${updateEvent.event.teacher.lastName}" id="teacher surname" placeholder="teacher surname" readonly/>
             <span class="custom-dropdown big">
-            <select th:object="${newEvent}" th:field="*{teacher.id}" id="teacher">
-                <option th:each="teacher : ${teachers}" th:value="${teacher.id}"
+            <select th:object="${event}" th:field="*{teacher.id}" id="teacher">
+                <option th:each="teacher : ${updateEvent.teachers}" th:value="${teacher.id}"
                         th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></option>
             </select>
             </span>
-            <input type="text" th:field="${oldEvent.group.name}" id="group name" placeholder="group name" readonly/>
+            <input type="text" th:field="*{event.group.name}" id="group name" placeholder="group name" readonly/>
             <span class="custom-dropdown big">
-            <select th:object="${newEvent}" th:field="*{group.id}" id="group">
-                <option th:each="group : ${groups}" th:value="${group.id}" th:text="${group.name}"></option>
+            <select th:object="${event}" th:field="*{group.id}" id="group">
+                <option th:each="group : ${updateEvent.groups}" th:value="${group.id}" th:text="${group.name}"></option>
             </select>
             </span>
             <button type="submit">update</button>

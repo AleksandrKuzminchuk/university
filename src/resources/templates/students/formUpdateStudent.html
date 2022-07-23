@@ -12,17 +12,17 @@
 <div th:insert="~{university :: copy}"></div>
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="PATCH" th:action="@{/students/{studentId}/updated(studentId=${student.id})}" th:object="${student}">
-            <input type="text" th:field="*{firstName}" id="name" placeholder="name"/>
-            <div style="color:red" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
-            <input type="text" th:field="*{lastName}" id="surname" placeholder="surname"/>
-            <div style="color:red" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
-            <input type="text" th:field="*{course}" id="course" placeholder="course"/>
-            <div style="color:red" th:if="${#fields.hasErrors('course')}" th:errors="*{course}"></div>
-            <input type="text" th:field="*{group.name}" placeholder="group name" readonly>
+        <form class="login-form" th:method="PATCH" th:action="@{/students/{id}/updated(id=${studentUpdate.student.id})}" th:object="${studentUpdate}">
+            <input type="text" th:field="*{student.firstName}" id="name" placeholder="name"/>
+            <div style="color:red" th:if="${#fields.hasErrors('student.firstName')}" th:errors="*{student.firstName}"></div>
+            <input type="text" th:field="*{student.lastName}" id="surname" placeholder="surname"/>
+            <div style="color:red" th:if="${#fields.hasErrors('student.lastName')}" th:errors="*{student.lastName}"></div>
+            <input type="text" th:field="*{student.course}" id="course" placeholder="course"/>
+            <div style="color:red" th:if="${#fields.hasErrors('student.course')}" th:errors="*{student.course}"></div>
+            <input type="text" th:field="*{student.group.name}" placeholder="group name" readonly>
             <span class="custom-dropdown big">
-            <select th:object="${student}" th:field="*{group.id}" id="student">
-                <option th:each="group : ${groups}" th:value="${group.id}"
+            <select th:object="${studentUpdate}" th:field="*{student.group.id}" id="student">
+                <option th:each="group : ${studentUpdate.groups}" th:value="${group.id}"
                         th:text="${group.name}"></option>
             </select>
             </span>

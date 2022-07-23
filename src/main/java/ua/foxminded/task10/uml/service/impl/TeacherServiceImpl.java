@@ -10,6 +10,9 @@ import ua.foxminded.task10.uml.dto.SubjectDTO;
 import ua.foxminded.task10.uml.dto.TeacherDTO;
 import ua.foxminded.task10.uml.dto.mapper.SubjectMapper;
 import ua.foxminded.task10.uml.dto.mapper.TeacherMapper;
+import ua.foxminded.task10.uml.dto.response.TeacherAddSubjectResponse;
+import ua.foxminded.task10.uml.dto.response.TeacherFindSubjectResponse;
+import ua.foxminded.task10.uml.dto.response.TeacherUpdateSubjectResponse;
 import ua.foxminded.task10.uml.model.Subject;
 import ua.foxminded.task10.uml.model.Teacher;
 import ua.foxminded.task10.uml.repository.SubjectRepository;
@@ -18,6 +21,7 @@ import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.service.TeacherService;
 import ua.foxminded.task10.uml.util.exceptions.GlobalNotFoundException;
 import ua.foxminded.task10.uml.util.exceptions.GlobalNotNullException;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotValidException;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -141,24 +145,37 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public Integer saveAll(List<TeacherDTO> teachersDTO) {
+    public void saveAll(List<TeacherDTO> teachersDTO) {
         requireNonNull(teachersDTO);
         log.info("SAVING... {} TEACHERS", teachersDTO.size());
         List<Teacher> teachers = teachersDTO.stream().map(teacherMapper::convertToTeacher).collect(Collectors.toList());
         teacherRepository.saveAll(teachers);
         log.info("SAVED {} TEACHERS SUCCESSFULLY", teachers.size());
-        return teachers.size();
     }
 
     @Override
-    public TeacherDTO update(TeacherDTO teacherDTO) {
+    public void update(TeacherDTO teacherDTO) {
         requiredTeacherExistence(teacherDTO.getId());
         log.info("UPDATING... TEACHER BY ID - {}", teacherDTO.getId());
         Teacher updatedTeacher = teacherMapper.convertToTeacher(teacherDTO);
         Teacher savedTeacher = teacherRepository.save(updatedTeacher);
-        TeacherDTO savedTeacherDTO = teacherMapper.convertToTeacherDTO(savedTeacher);
+        teacherMapper.convertToTeacherDTO(savedTeacher);
         log.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", savedTeacher.getId());
-        return savedTeacherDTO;
+    }
+
+    @Override
+    public TeacherUpdateSubjectResponse updateSubjectForm(Integer teacherId, Integer subjectId) {
+        requireNonNull(teacherId);
+        requireNonNull(subjectId);
+        requiredTeacherExistence(teacherId);
+        requiredSubjectExistence(subjectId);
+        log.info("PREPARING FORM UPDATE SUBJECT ID - {} BY TEACHER ID - {}", subjectId, teacherId);
+        TeacherDTO teacherDTO = this.findById(teacherId);
+        SubjectDTO subjectDTO = subjectService.findById(subjectId);
+        List<SubjectDTO> subjectsDTO = subjectService.findAll();
+        TeacherUpdateSubjectResponse response = new TeacherUpdateSubjectResponse(teacherDTO, subjectDTO, subjectsDTO);
+        log.info("PREPARED FORM UPDATE SUBJECT ID - {} BY TEACHER ID - {}", subjectId, teacherId);
+        return response;
     }
 
     @Override
@@ -169,6 +186,7 @@ public class TeacherServiceImpl implements TeacherService {
         requiredTeacherExistence(teacherId);
         requiredSubjectExistence(oldSubjectId);
         requiredSubjectExistence(newSubjectId);
+        checkToUniqueSubjectInList(teacherId, newSubjectId);
         log.info("UPDATING... THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {}", teacherId, oldSubjectId, newSubjectId);
         Teacher teacher = extractTeacherByIdWithRepo(teacherId);
         Subject oldSubject = extractSubjectByIdWithRepo(oldSubjectId);
@@ -179,11 +197,24 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public TeacherAddSubjectResponse addSubjectFrom(Integer id) {
+        requireNonNull(id);
+        requiredTeacherExistence(id);
+        log.info("PREPARING FORM ADD SUBJECT TO TEACHER BY ID- {}", id);
+        TeacherDTO teacherDTO = this.findById(id);
+        List<SubjectDTO> subjectsDTO = subjectService.findAll();
+        TeacherAddSubjectResponse response = new TeacherAddSubjectResponse(teacherDTO, subjectsDTO);
+        log.info("PREPARED FORM ADD SUBJECT TO TEACHER BY ID- {}", id);
+        return response;
+    }
+
+    @Override
     public void addSubject(Integer teacherId, Integer subjectId) {
         requireNonNull(teacherId);
         requireNonNull(subjectId);
         requiredTeacherExistence(teacherId);
         requiredSubjectExistence(subjectId);
+        checkToUniqueSubjectInList(teacherId, subjectId);
         log.info("ADDING... TEACHER BY ID - {} TO SUBJECT BY ID - {}", teacherId, subjectId);
         Teacher teacherToBeSave = extractTeacherByIdWithRepo(teacherId);
         Subject subjectToBeSave = extractSubjectByIdWithRepo(subjectId);
@@ -203,6 +234,18 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    public TeacherFindSubjectResponse findSubjectsForm(Integer id) {
+        requireNonNull(id);
+        requiredTeacherExistence(id);
+        log.info("PREPARING FORM FIND SUBJECTS BY TEACHER ID - {}", id);
+        TeacherDTO teacherDTO = this.findById(id);
+        List<SubjectDTO> subjectsDTO = this.findSubjects(id);
+        TeacherFindSubjectResponse response = new TeacherFindSubjectResponse(teacherDTO, subjectsDTO);
+        log.info("PREPARED FORM FIND SUBJECTS BY TEACHER ID - {} SUCCESSFULLY", id);
+        return response;
+    }
+
+    @Override
     public List<SubjectDTO> findSubjects(Integer teacherId) {
         requireNonNull(teacherId);
         requiredTeacherExistence(teacherId);
@@ -212,6 +255,13 @@ public class TeacherServiceImpl implements TeacherService {
         List<SubjectDTO> subjectsDTO = subjects.stream().map(subjectMapper::convertToSubjectDTO).collect(Collectors.toList());
         log.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", teacher.getSubjects().size(), teacherId);
         return subjectsDTO;
+    }
+
+    private void checkToUniqueSubjectInList(Integer teacherId, Integer subjectId) {
+        this.findSubjects(teacherId).forEach(subjectFromList -> {
+            if (subjectFromList.getId().equals(subjectId)) {
+                throw new GlobalNotValidException(format("The teacher already has the subject by id - [%d]", subjectId));
+            }});
     }
 
     private Subject extractSubjectByIdWithRepo(Integer subjectId) {

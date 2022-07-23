@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface ClassroomService extends CrudRepositoryService<ClassroomDTO, Integer> {
 
-    Integer saveAll(List<ClassroomDTO> classrooms);
+    void saveAll(List<ClassroomDTO> classrooms);
 
-    ClassroomDTO update(ClassroomDTO classroom);
+    void update(ClassroomDTO classroom);
 
     ClassroomDTO findByNumber(Integer classroomNumber);
 }

@@ -2,14 +2,17 @@ package ua.foxminded.task10.uml.service;
 
 import ua.foxminded.task10.uml.dto.SubjectDTO;
 import ua.foxminded.task10.uml.dto.TeacherDTO;
+import ua.foxminded.task10.uml.dto.response.TeacherAddSubjectResponse;
+import ua.foxminded.task10.uml.dto.response.TeacherFindSubjectResponse;
+import ua.foxminded.task10.uml.dto.response.TeacherUpdateSubjectResponse;
 
 import java.util.List;
 
 public interface TeacherService extends CrudRepositoryService<TeacherDTO, Integer>{
 
-    Integer saveAll(List<TeacherDTO> teachers);
+    void saveAll(List<TeacherDTO> teachers);
 
-    TeacherDTO update(TeacherDTO teacher);
+    void update(TeacherDTO teacher);
 
     void addSubject(Integer teacherId, Integer subjectId);
 
@@ -22,4 +25,10 @@ public interface TeacherService extends CrudRepositoryService<TeacherDTO, Intege
     void updateSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId);
 
     void deleteSubject(Integer teacherId, Integer subjectId);
+
+    TeacherFindSubjectResponse findSubjectsForm(Integer id);
+
+    TeacherAddSubjectResponse addSubjectFrom(Integer id);
+
+    TeacherUpdateSubjectResponse updateSubjectForm(Integer teacherId, Integer subjectId);
 }

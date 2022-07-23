@@ -101,13 +101,12 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Integer saveAll(List<GroupDTO> groupsDTO) {
+    public void saveAll(List<GroupDTO> groupsDTO) {
         requireNonNull(groupsDTO);
         log.info("SAVING... {} GROUPS", groupsDTO.size());
         List<Group> groups = groupsDTO.stream().map(groupMapper::convertToGroup).collect(Collectors.toList());
         groupRepository.saveAll(groups);
         log.info("SAVED {} GROUPS SUCCESSFULLY", groups.size());
-        return groups.size();
     }
 
     @Override
@@ -120,14 +119,13 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public GroupDTO update(GroupDTO groupDTO) {
+    public void update(GroupDTO groupDTO) {
         requiredGroupExistence(groupDTO.getId());
         log.info("UPDATING... GROUP BY ID - {}", groupDTO.getId());
         Group group = groupMapper.convertToGroup(groupDTO);
         Group updatedGroup = groupRepository.save(group);
-        GroupDTO updatedGroupDTO = groupMapper.convertToGroupDTO(updatedGroup);
+        groupMapper.convertToGroupDTO(updatedGroup);
         log.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", groupDTO.getId());
-        return updatedGroupDTO;
     }
 
     @Override

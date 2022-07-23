@@ -5,8 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ua.foxminded.task10.uml.dto.EventDTO;
+import ua.foxminded.task10.uml.dto.*;
 import ua.foxminded.task10.uml.dto.mapper.*;
+import ua.foxminded.task10.uml.dto.response.EventUpdateSaveResponse;
 import ua.foxminded.task10.uml.model.*;
 import ua.foxminded.task10.uml.repository.*;
 import ua.foxminded.task10.uml.service.*;
@@ -32,9 +33,21 @@ public class EventServiceImpl implements EventService {
     private final SubjectService subjectService;
     private final ClassroomService classroomService;
     private final EventMapper eventMapper;
+
+    @Override
+    public EventUpdateSaveResponse saveForm() {
+        log.info("PREPARING SAVE FORM EVENT");
+        List<SubjectDTO> subjectsDTO = subjectService.findAll();
+        List<ClassroomDTO> classroomsDTO = classroomService.findAll();
+        List<TeacherDTO> teachersDTO = teacherService.findAll();
+        List<GroupDTO> groupsDTO = groupService.findAll();
+        EventUpdateSaveResponse response = new EventUpdateSaveResponse(new EventDTO(), subjectsDTO, classroomsDTO, teachersDTO, groupsDTO);
+        log.info("PREPARED SAVE FROM SUCCESSFULLY");
+        return response;
+    }
+
     @Override
     public EventDTO save(EventDTO eventDTO) {
-        requireNonNull(eventDTO);
         requiredEventExistence(eventDTO);
         log.info("SAVING... {}", eventDTO);
         Event event = eventMapper.convertToEvent(eventDTO);
@@ -108,26 +121,38 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Integer saveAll(List<EventDTO> eventsDTO) {
+    public void saveAll(List<EventDTO> eventsDTO) {
         requireNonNull(eventsDTO);
         eventsDTO.forEach(this::requiredEventExistence);
         log.info("SAVING... {} EVENTS", eventsDTO.size());
         List<Event> events = eventsDTO.stream().map(eventMapper::convertToEvent).collect(Collectors.toList());
         eventRepository.saveAll(events);
         log.info("SAVED {} EVENTS SUCCESSFULLY", events.size());
-        return events.size();
     }
 
     @Override
-    public EventDTO update(EventDTO eventDTO) {
+    public EventUpdateSaveResponse updateForm(Integer id) {
+        log.info("PREPARING UPDATE FORM EVENT BY ID - {}", id);
+        requiredEventByIdExistence(id);
+        EventDTO eventDTO = this.findById(id);
+        List<SubjectDTO> subjectsDTO = subjectService.findAll();
+        List<ClassroomDTO> classroomsDTO = classroomService.findAll();
+        List<TeacherDTO> teachersDTO = teacherService.findAll();
+        List<GroupDTO> groupsDTO = groupService.findAll();
+        EventUpdateSaveResponse response = new EventUpdateSaveResponse(eventDTO, subjectsDTO, classroomsDTO, teachersDTO, groupsDTO);
+        log.info("PREPARED UPDATE FROM SUCCESSFULLY");
+        return response;
+    }
+
+    @Override
+    public void update(EventDTO eventDTO) {
         requireNonNull(eventDTO.getId());
         requiredEventByIdExistence(eventDTO.getId());
         log.info("UPDATING... EVENT BY ID - {}", eventDTO.getId());
         Event event = eventMapper.convertToEvent(eventDTO);
         Event updatedEvent = eventRepository.save(event);
-        EventDTO updatedEventDTO = eventMapper.convertToEventDTO(updatedEvent);
+        eventMapper.convertToEventDTO(updatedEvent);
         log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventDTO.getId());
-        return updatedEventDTO;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package ua.foxminded.task10.uml.util.exceptions;
+package ua.foxminded.task10.uml.util.errors;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

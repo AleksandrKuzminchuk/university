@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.dto.SubjectDTO;
@@ -13,10 +12,9 @@ import ua.foxminded.task10.uml.dto.response.SubjectResponse;
 import ua.foxminded.task10.uml.dto.response.TeacherResponse;
 import ua.foxminded.task10.uml.service.SubjectService;
 import ua.foxminded.task10.uml.service.TeacherService;
-import ua.foxminded.task10.uml.util.errors.ErrorsUtil;
-import ua.foxminded.task10.uml.util.validations.TeacherValidator;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @Validated
@@ -27,16 +25,16 @@ public class TeacherRestController {
 
     private final TeacherService teacherService;
     private final SubjectService subjectService;
-    private final TeacherValidator teacherValidator;
 
     @GetMapping
     public TeacherResponse findAll() {
         log.info("requested-> [GET]-'/api/teachers'");
-        return new TeacherResponse(teacherService.findAll());
+        List<TeacherDTO> teachersDTO = teacherService.findAll();
+        return new TeacherResponse(teachersDTO);
     }
 
     @PostMapping("/save")
-    public ResponseEntity<TeacherDTO> save(@RequestBody @Valid TeacherDTO teacherDTO, BindingResult bindingResult) {
+    public ResponseEntity<TeacherDTO> save(@RequestBody @Valid TeacherDTO teacherDTO) {
         log.info("requested-> [POST]-'/api/teachers/save'");
         TeacherDTO savedTeacherDTO = teacherService.save(teacherDTO);
         log.info("SAVED {} SUCCESSFULLY", savedTeacherDTO);
@@ -44,80 +42,70 @@ public class TeacherRestController {
     }
 
     @DeleteMapping("{id}/delete")
-    public ResponseEntity<TeacherDTO> deleteById(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/teachers/{id}/delete'");
-        TeacherDTO teacherDTO = teacherService.findById(id);
         teacherService.deleteById(id);
         log.info("DELETED TEACHER BY ID - {} SUCCESSFULLY", id);
-        return ResponseEntity.ok(teacherDTO);
+        return ResponseEntity.ok().build();
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<TeacherDTO> update(@RequestBody @Valid TeacherDTO teacherDTO, BindingResult bindingResult,
+    public ResponseEntity<HttpStatus> update(@RequestBody @Valid TeacherDTO teacherDTO,
                                              @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/teachers/update/{id}'");
         teacherDTO.setId(id);
-        TeacherDTO updatedTeacherDTO = teacherService.update(teacherDTO);
-        log.info("UPDATED {} SUCCESSFULLY", updatedTeacherDTO);
-        return ResponseEntity.ok(updatedTeacherDTO);
+        teacherService.update(teacherDTO);
+        log.info("UPDATED {} SUCCESSFULLY", teacherDTO);
+        return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @DeleteMapping("/delete/all")
-    public ResponseEntity<Long> deleteAll() {
+    public ResponseEntity<?> deleteAll() {
         log.info("requested-> [DELETE]-'/api/teachers/delete/all'");
-        Long countTeachers = teacherService.count();
         teacherService.deleteAll();
         log.info("DELETED ALL TEACHERS SUCCESSFULLY");
-        return new ResponseEntity<>(countTeachers, HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/find/by_name_surname")
     public TeacherResponse findByNameOrSurname(@RequestBody TeacherDTO teacherDTO) {
         log.info("requested-> [GET]-'/api/teachers/find/by_name_surname'");
-        return new TeacherResponse(teacherService.findByNameOrSurname(teacherDTO.getFirstName(), teacherDTO.getLastName()));
+        List<TeacherDTO> teachersDTO = teacherService.findByNameOrSurname(teacherDTO.getFirstName(), teacherDTO.getLastName());
+        return new TeacherResponse(teachersDTO);
     }
 
     @GetMapping("/{id}/find/subjects")
     public SubjectResponse findSubjects(@PathVariable("id") Integer id) {
         log.info("requested-> [GET]-'/api/teachers/{id}/find/subjects'");
-        return new SubjectResponse(teacherService.findSubjects(id));
+        List<SubjectDTO> subjectsDTO = teacherService.findSubjects(id);
+        return new SubjectResponse(subjectsDTO);
     }
 
     @PostMapping("/{id}/add/subject")
-    public ResponseEntity<HttpStatus> addSubject(@RequestBody @Valid SubjectDTO subjectDTO,
-                                                 BindingResult bindingResult,
+    public ResponseEntity<HttpStatus> addSubject(@RequestBody SubjectDTO subjectDTO,
                                                  @PathVariable("id") Integer id) {
         log.info("requested-> [POST]-'/api/teachers/{id}/add/subject'");
-        teacherValidator.validateUniqueSubject(id, subjectDTO.getName(), bindingResult);
-        if (bindingResult.hasErrors()){
-            bindingResult.getFieldErrors().forEach(ErrorsUtil::returnErrorsToClient);
-        }
         teacherService.addSubject(id, subjectService.findByName(subjectDTO.getName()).getId());
         log.info("ADDED TEACHER BY ID - {} TO SUBJECT {} SUCCESSFULLY", id, subjectDTO);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @PatchMapping("/{teacherId}/update/{oldSubjectId}/subject")
-    public ResponseEntity<HttpStatus> updateSubject(@RequestBody @Valid SubjectDTO newSubjectDTO,
-                                BindingResult bindingResult,
+    public ResponseEntity<HttpStatus> updateSubject(@RequestBody SubjectDTO newSubjectDTO,
                                 @PathVariable("oldSubjectId") Integer oldSubjectId,
                                 @PathVariable("teacherId") Integer teacherId) {
         log.info("requested-> [PATCH]-'/api/teachers/{teacherId}/update/{oldSubjectId}/subject'");
-        teacherValidator.validateUniqueSubject(teacherId, newSubjectDTO.getName(), bindingResult);
-        if (bindingResult.hasErrors()){
-            bindingResult.getFieldErrors().forEach(ErrorsUtil::returnErrorsToClient);
-        }
         teacherService.updateSubject(teacherId, oldSubjectId, newSubjectDTO.getId());
         log.info("UPDATED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY NAME - {}", teacherId, oldSubjectId, newSubjectDTO);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
     @DeleteMapping("/{teacherId}/delete/{subjectId}/subject")
-    public ResponseEntity<HttpStatus> deleteSubject(@PathVariable("teacherId") Integer teacherId,
+    public ResponseEntity<?> deleteSubject(@PathVariable("teacherId") Integer teacherId,
                                 @PathVariable("subjectId") Integer subjectId) {
         log.info("requested-> [DELETE]-'/api/teachers/{teacherId}/delete/{subjectId}/subject'");
         teacherService.deleteSubject(teacherId, subjectId);
         log.info("DELETED THE TEACHERS' BY ID - {} SUBJECTS BY ID - {} SUCCESSFULLY", teacherId, subjectId);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 }

@@ -14,6 +14,7 @@ import ua.foxminded.task10.uml.util.errors.ErrorsUtil;
 import ua.foxminded.task10.uml.util.validations.ClassroomValidator;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @Validated
@@ -28,7 +29,8 @@ public class ClassroomRestController {
     @GetMapping()
     public ClassroomResponse findAll() {
         log.info("requested-> [GET]-'/api/classrooms'");
-        return new ClassroomResponse(classroomService.findAll());
+        List<ClassroomDTO> classroomsDTO = classroomService.findAll();
+        return new ClassroomResponse(classroomsDTO);
     }
 
     @PostMapping("/save")
@@ -43,7 +45,7 @@ public class ClassroomRestController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<ClassroomDTO> update(@RequestBody @Valid ClassroomDTO classroomDTO, BindingResult bindingResult,
+    public ResponseEntity<HttpStatus> update(@RequestBody @Valid ClassroomDTO classroomDTO, BindingResult bindingResult,
                                                @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/classrooms/update/{id}'");
         classroomValidator.validate(classroomDTO, bindingResult);
@@ -51,16 +53,15 @@ public class ClassroomRestController {
         classroomDTO.setId(id);
         classroomService.update(classroomDTO);
         log.info("UPDATED {} CLASSROOM SUCCESSFULLY", classroomDTO);
-        return new ResponseEntity<>(classroomDTO, HttpStatus.OK);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}/delete")
-    public ResponseEntity<ClassroomDTO> deleteById(@PathVariable("id") Integer id) {
+    public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/classrooms/{id}/delete'");
-        ClassroomDTO classroomDTO = classroomService.findById(id);
         classroomService.deleteById(id);
         log.info("DELETED CLASSROOM BY ID - {} SUCCESSFULLY", id);
-        return new ResponseEntity<>(classroomDTO, HttpStatus.OK);
+        return ResponseEntity.ok().build();
     }
 
     @GetMapping("/find/by_number")
@@ -72,12 +73,11 @@ public class ClassroomRestController {
     }
 
     @DeleteMapping("/delete/all")
-    public ResponseEntity<Long> deletedAll() {
+    public ResponseEntity<?> deletedAll() {
         log.info("requested- [DELETE]-'/api/classrooms/deleted/all'");
-        Long countClassrooms = classroomService.count();
         classroomService.deleteAll();
-        log.info("DELETED ALL {} CLASSROOMS SUCCESSFULLY", countClassrooms);
-        return new ResponseEntity<>(countClassrooms, HttpStatus.OK);
+        log.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
+        return ResponseEntity.ok().build();
     }
 
     private void extractedErrors(BindingResult bindingResult) {

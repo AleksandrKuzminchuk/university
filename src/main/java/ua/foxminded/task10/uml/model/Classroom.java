@@ -25,8 +25,6 @@ public class Classroom {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
-    @NonNull
     @ToString.Include
     @Column(name = "room_number")
     @NotNull(message = "Can't be empty and consist on placeholders")

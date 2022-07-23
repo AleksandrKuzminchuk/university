@@ -25,7 +25,6 @@ public class Subject {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NonNull
     @ToString.Include
     @Column(name = "subject_name")
     @NotBlank(message = "Can't be empty and consist on placeholders. Hint-'GEOMETRY'")

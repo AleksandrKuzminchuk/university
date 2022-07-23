@@ -11,8 +11,8 @@
 <div th:insert="~{university :: copy}"></div>
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:action="@{/subjects/{subjectId}/show/teachers(subjectId=${subject.id})}">
-            <b th:text="'The subject ' + ${#strings.toUpperCase(subject.name)} + ' deleted teacher ' + ${#strings.capitalize(teacher.firstName)} + ' ' + ${#strings.capitalize(teacher.lastName)} + ' SUCCESSFULLY'" style="text-align: center;" ></b>
+        <form class="login-form" th:action="@{/subjects/{subjectId}/show/teachers(subjectId=${subject})}">
+            <b th:text="'Delete teacher from subject SUCCESSFULLY'" style="text-align: center;" ></b>
             <button type="submit">return to previous page</button>
             <p class="message">main page <a th:href="@{/university}">UNIVERSITY</a></p>
         </form>

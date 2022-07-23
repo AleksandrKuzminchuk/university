@@ -75,28 +75,24 @@ public class GroupController {
             return "groups/formUpdateGroup";
         }
         groupDTO.setId(id);
-        GroupDTO updatedGroup = groupService.update(groupDTO);
-        model.addAttribute("updatedGroup", updatedGroup);
-        log.info("UPDATED {} SUCCESSFULLY", updatedGroup);
+        groupService.update(groupDTO);
+        model.addAttribute("updatedGroup", groupDTO);
+        log.info("UPDATED {} SUCCESSFULLY", groupDTO);
         return "groups/formUpdatedGroup";
     }
 
     @DeleteMapping("/{id}/deleted")
-    public String deleteById(Model model, @PathVariable("id") Integer id){
+    public String deleteById(@PathVariable("id") Integer id){
         log.info("requested-> [DELETE]-'/groups/{id}/deleted'");
-        GroupDTO groupDTO = groupService.findById(id);
         groupService.deleteById(id);
-        model.addAttribute("deleteGroup", groupDTO);
         log.info("DELETED GROUP BY ID - {} SUCCESSFULLY", id);
         return "groups/formDeletedGroup";
     }
 
     @DeleteMapping("/delete/all")
-    public String deleteAll(Model model){
+    public String deleteAll(){
         log.info("requested-> [DELETE]-'/groups/delete/all'");
-        Long countGroups = groupService.count();
         groupService.deleteAll();
-        model.addAttribute("groups", countGroups);
         log.info("DELETED ALL GROUPS SUCCESSFULLY");
         return "groups/formDeletedAllGroups";
     }
@@ -122,11 +118,9 @@ public class GroupController {
     @GetMapping("/{id}/found/students")
     public String findStudents(Model model, @PathVariable("id") Integer id){
         log.info("requested-> [GET]-'/groups/{id}/found/students'");
-        GroupDTO group = groupService.findById(id);
         List<StudentDTO> studentsDTO = studentService.findByGroupId(id);
         model.addAttribute("students", studentsDTO);
-        model.addAttribute("group", group);
-        log.info("FOUND {} STUDENTS BY GROUP ID - {} SUCCESSFULLY", studentsDTO.size(), id);
+        log.info("FOUND STUDENTS BY GROUP ID - {} SUCCESSFULLY", id);
         return "groups/formForFoundStudentsByGroupId";
     }
 }

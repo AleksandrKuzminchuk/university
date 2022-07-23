@@ -3,7 +3,6 @@ package ua.foxminded.task10.uml.util.errors;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Component;
-import ua.foxminded.task10.uml.util.exceptions.GlobalErrorResponse;
 
 import java.util.List;
 
