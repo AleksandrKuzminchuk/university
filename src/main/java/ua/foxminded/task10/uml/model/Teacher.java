@@ -28,13 +28,6 @@ public class Teacher extends Person {
             inverseJoinColumns = @JoinColumn(name = "subject_id"))
     private List<Subject> subjects;
 
-    public Teacher(Integer id) {
-        super(id);
-    }
-
-    public Teacher(String firstName, String lastName) {
-        super(firstName, lastName);
-    }
 
     @Override
     public boolean equals(Object o) {

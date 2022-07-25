@@ -187,7 +187,7 @@ public class StudentServiceImpl implements StudentService {
         requiredStudentExistence(id);
         StudentDTO student = this.findById(id);
         List<GroupDTO> groups = groupService.findAll();
-        StudentUpdateResponse studentUpdate = new StudentUpdateResponse(student, groups);
+        StudentUpdateResponse studentUpdate = StudentUpdateResponse.builder().student(student).groups(groups).build();
         log.info("UPDATED SUCCESSFULLY");
         return studentUpdate;
     }

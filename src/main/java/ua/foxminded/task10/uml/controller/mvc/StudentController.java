@@ -7,17 +7,15 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ua.foxminded.task10.uml.dto.GroupDTO;
 import ua.foxminded.task10.uml.dto.StudentDTO;
 import ua.foxminded.task10.uml.dto.response.StudentUpdateResponse;
 import ua.foxminded.task10.uml.model.Course;
-import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.model.Person;
 import ua.foxminded.task10.uml.service.GroupService;
-import ua.foxminded.task10.uml.service.StudentService;
 import ua.foxminded.task10.uml.service.impl.StudentServiceImpl;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -72,18 +70,22 @@ public class StudentController {
 
     @PatchMapping("/{id}/updated")
     public String update(Model model,
-                         @ModelAttribute @Valid StudentDTO studentDTO,
+                         @ModelAttribute @Valid @NotNull StudentUpdateResponse updateResponse,
                          BindingResult bindingResult,
                          @PathVariable("id") Integer id) {
-        log.info("requested-> [PATCH]-'/students/{id}/updated'{}", studentDTO);
+        log.info("requested-> [PATCH]-'/students/{id}/updated'{}", updateResponse);
         if (bindingResult.hasErrors()) {
             return "students/formUpdateStudent";
         }
+        StudentDTO studentDTO = new StudentDTO();
         studentDTO.setId(id);
+        studentDTO.setFirstName(updateResponse.getStudent().getFirstName());
+        studentDTO.setLastName(updateResponse.getStudent().getLastName());
+        studentDTO.setGroup(updateResponse.getStudent().getGroup());
+        studentDTO.setCourse(updateResponse.getStudent().getCourse());
         studentService.update(studentDTO);
-        model.addAttribute("studentUpdated", studentDTO);
         log.info("UPDATED {} SUCCESSFULLY", studentDTO);
-        return "students/formUpdatedStudent";
+        return findAll(model);
     }
 
     @DeleteMapping("/{id}/deleted")

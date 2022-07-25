@@ -22,7 +22,7 @@ import java.util.List;
 @Slf4j
 @Validated
 @RestController
-@RequiredArgsConstructor(onConstructor_ = {@Autowired})
+@RequiredArgsConstructor
 @RequestMapping("/api/groups")
 public class GroupRestController {
     private final GroupService groupService;
