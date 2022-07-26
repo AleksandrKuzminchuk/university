@@ -29,6 +29,7 @@ public class GroupRestController {
     private final GroupValidator groupValidator;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.FOUND)
     public GroupResponse findAll() {
         log.info("requested- [GET]-'/api/groups");
         List<GroupDTO> groupsDTO = groupService.findAll();
@@ -36,16 +37,18 @@ public class GroupRestController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<GroupDTO> save(@RequestBody @Valid GroupDTO groupDTO, BindingResult bindingResult) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public GroupDTO save(@RequestBody @Valid GroupDTO groupDTO, BindingResult bindingResult) {
         log.info("requested- [POST]-'/api/groups/save'");
         groupValidator.validate(groupDTO, bindingResult);
         extractedErrors(bindingResult);
         GroupDTO savedGroupDTO = groupService.save(groupDTO);
-        return new ResponseEntity<>(savedGroupDTO, HttpStatus.CREATED);
+        return savedGroupDTO;
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<HttpStatus> update(@RequestBody @Valid GroupDTO groupDTO, BindingResult bindingResult,
+    @ResponseStatus(HttpStatus.OK)
+    public GroupDTO update(@RequestBody @Valid GroupDTO groupDTO, BindingResult bindingResult,
                                            @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/groups/update/{id}'");
         groupValidator.validate(groupDTO, bindingResult);
@@ -53,10 +56,11 @@ public class GroupRestController {
         groupDTO.setId(id);
         groupService.update(groupDTO);
         log.info("UPDATING... {}", groupDTO);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return groupDTO;
     }
 
     @DeleteMapping("/{id}/delete")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/groups/{id}/delete'");
         groupService.deleteById(id);
@@ -65,6 +69,7 @@ public class GroupRestController {
     }
 
     @DeleteMapping("/delete/all")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteAll() {
         log.info("requested-> [DELETE]-'/api/groups/delete/all'");
         groupService.deleteAll();
@@ -73,14 +78,16 @@ public class GroupRestController {
     }
 
     @GetMapping("/find/by_name")
-    public ResponseEntity<GroupDTO> findByName(@RequestBody @Valid GroupDTO groupDTO) {
+    @ResponseStatus(HttpStatus.FOUND)
+    public GroupDTO findByName(@RequestBody @Valid GroupDTO groupDTO) {
         log.info("requested-> [GET]-'/api/groups/find/by_name'");
         GroupDTO result = groupService.findByName(groupDTO.getName());
         log.info("FOUND {} GROUP BY NAME {} SUCCESSFULLY", result, groupDTO.getName());
-        return new ResponseEntity<>(result, HttpStatus.FOUND);
+        return result;
     }
 
     @GetMapping("/{id}/find/students")
+    @ResponseStatus(HttpStatus.FOUND)
     public StudentsResponse findStudents(@PathVariable("id") Integer id) {
         log.info("requested-> [GET]-'/api/groups/{id}/find/students'");
         List<StudentDTO> studentsDTO = groupService.findStudents(id);

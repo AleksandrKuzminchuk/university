@@ -27,6 +27,7 @@ public class ClassroomRestController {
     private final ClassroomValidator classroomValidator;
 
     @GetMapping()
+    @ResponseStatus(HttpStatus.FOUND)
     public ClassroomResponse findAll() {
         log.info("requested-> [GET]-'/api/classrooms'");
         List<ClassroomDTO> classroomsDTO = classroomService.findAll();
@@ -34,18 +35,20 @@ public class ClassroomRestController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<ClassroomDTO> save(@RequestBody @Valid ClassroomDTO classroomDTO,
+    @ResponseStatus(HttpStatus.CREATED)
+    public ClassroomDTO save(@RequestBody @Valid ClassroomDTO classroomDTO,
                                              BindingResult bindingResult) {
         log.info("requested-> [POST]-'/api/classrooms/save'");
         classroomValidator.validate(classroomDTO, bindingResult);
         extractedErrors(bindingResult);
         ClassroomDTO savedClassroomDTO = classroomService.save(classroomDTO);
         log.info("SAVED {} SUCCESSFULLY", savedClassroomDTO);
-        return new ResponseEntity<>(savedClassroomDTO, HttpStatus.CREATED);
+        return savedClassroomDTO;
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<HttpStatus> update(@RequestBody @Valid ClassroomDTO classroomDTO, BindingResult bindingResult,
+    @ResponseStatus(HttpStatus.OK)
+    public ClassroomDTO update(@RequestBody @Valid ClassroomDTO classroomDTO, BindingResult bindingResult,
                                                @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/classrooms/update/{id}'");
         classroomValidator.validate(classroomDTO, bindingResult);
@@ -53,10 +56,11 @@ public class ClassroomRestController {
         classroomDTO.setId(id);
         classroomService.update(classroomDTO);
         log.info("UPDATED {} CLASSROOM SUCCESSFULLY", classroomDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return classroomDTO;
     }
 
     @DeleteMapping("/{id}/delete")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/classrooms/{id}/delete'");
         classroomService.deleteById(id);
@@ -65,14 +69,16 @@ public class ClassroomRestController {
     }
 
     @GetMapping("/find/by_number")
-    public ResponseEntity<ClassroomDTO> findByNumber(@RequestBody ClassroomDTO classroomDTO) {
+    @ResponseStatus(HttpStatus.FOUND)
+    public ClassroomDTO findByNumber(@RequestBody ClassroomDTO classroomDTO) {
         log.info("requested-> [GET]-'/api/classrooms/find/by_number'");
         ClassroomDTO result = classroomService.findByNumber(classroomDTO.getNumber());
         log.info("FOUND {} CLASSROOMS BY NUMBER - {} SUCCESSFULLY", result, classroomDTO.getNumber());
-        return ResponseEntity.ok(result);
+        return result;
     }
 
     @DeleteMapping("/delete/all")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deletedAll() {
         log.info("requested- [DELETE]-'/api/classrooms/deleted/all'");
         classroomService.deleteAll();

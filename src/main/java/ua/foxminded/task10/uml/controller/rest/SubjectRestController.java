@@ -29,6 +29,7 @@ public class SubjectRestController {
     private final SubjectValidator subjectValidator;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.FOUND)
     public SubjectResponse findAll() {
         log.info("requested-> [GET]-'/api/subjects'");
         List<SubjectDTO> subjectsDTO = subjectService.findAll();
@@ -36,17 +37,19 @@ public class SubjectRestController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<SubjectDTO> save(@RequestBody @Valid SubjectDTO subjectDTO, BindingResult bindingResult) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public SubjectDTO save(@RequestBody @Valid SubjectDTO subjectDTO, BindingResult bindingResult) {
         log.info("requested-> [POST]-'/api//subjects/save'");
         subjectValidator.validate(subjectDTO, bindingResult);
         extractedErrors(bindingResult);
         SubjectDTO savedSubjectDTO = subjectService.save(subjectDTO);
         log.info("SAVED {} SUCCESSFULLY", savedSubjectDTO);
-        return new ResponseEntity<>(savedSubjectDTO, HttpStatus.CREATED);
+        return savedSubjectDTO;
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<HttpStatus> update(@RequestBody @Valid SubjectDTO subjectDTO, BindingResult bindingResult,
+    @ResponseStatus(HttpStatus.OK)
+    public SubjectDTO update(@RequestBody @Valid SubjectDTO subjectDTO, BindingResult bindingResult,
                                              @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api//subjects/update/{id}'");
         subjectValidator.validate(subjectDTO, bindingResult);
@@ -54,10 +57,11 @@ public class SubjectRestController {
         subjectDTO.setId(id);
         subjectService.update(subjectDTO);
         log.info("UPDATED {} SUCCESSFULLY", subjectDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return subjectDTO;
     }
 
     @DeleteMapping("/{id}/delete")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api//subjects/{id}/deleted'");
         subjectService.deleteById(id);
@@ -66,6 +70,7 @@ public class SubjectRestController {
     }
 
     @DeleteMapping("/delete/all")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteAll() {
         log.info("requested-> [DELETE]-'/api/subjects/delete/all'");
         subjectService.deleteAll();
@@ -74,6 +79,7 @@ public class SubjectRestController {
     }
 
     @GetMapping("/find/by_name")
+    @ResponseStatus(HttpStatus.FOUND)
     public ResponseEntity<SubjectDTO> findByName(@RequestBody @Valid SubjectDTO subjectDTO) {
         log.info("requested-> [GET]-'/api/subjects/find/by_name'");
         SubjectDTO result = subjectService.findByName(subjectDTO.getName());
@@ -82,15 +88,17 @@ public class SubjectRestController {
     }
 
     @PostMapping("/{subjectId}/add/{teacherId}/teacher")
-    public ResponseEntity<HttpStatus> addTeacher(@PathVariable("subjectId") Integer subjectId,
+    @ResponseStatus(HttpStatus.OK)
+    public TeacherDTO addTeacher(@PathVariable("subjectId") Integer subjectId,
                                                  @PathVariable("teacherId") Integer teacherId) {
         log.info("requested-> [POST]-'/api/subjects/{id}/add/teacher'");
-        subjectService.addTeacher(subjectId, teacherId);
+        TeacherDTO teacherDTOToBeAdded = subjectService.addTeacher(subjectId, teacherId);
         log.info("ADDED SUBJECT BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subjectId, teacherId);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return teacherDTOToBeAdded;
     }
 
     @GetMapping("/{id}/find/teachers")
+    @ResponseStatus(HttpStatus.FOUND)
     public TeacherResponse findTeachers(@PathVariable("id") Integer id) {
         log.info("requested-> [GET]-'/api/subjects/{id}/find/teachers'");
         List<TeacherDTO> teachersDTO = subjectService.findTeachers(id);
@@ -98,18 +106,20 @@ public class SubjectRestController {
     }
 
     @PatchMapping("/{subjectId}/update/{oldTeacherId}/teacher")
-    public ResponseEntity<HttpStatus> updateTeacher(@RequestBody @Valid TeacherDTO newTeacherDTO, BindingResult bindingResult,
+    @ResponseStatus(HttpStatus.OK)
+    public TeacherDTO updateTeacher(@RequestBody @Valid TeacherDTO newTeacherDTO, BindingResult bindingResult,
                                                     @PathVariable("oldTeacherId") Integer oldTeacherId,
                                                     @PathVariable("subjectId") Integer subjectId) {
         log.info("requested-> [PATCH]-'/api/subjects/{subjectId}/update/{oldTeacherId}/teacher'");
         subjectValidator.validateUniqueTeacher(subjectId, newTeacherDTO.getId(), bindingResult);
         extractedErrors(bindingResult);
-        subjectService.updateTeacher(subjectId, oldTeacherId, newTeacherDTO.getId());
+        TeacherDTO teacherDTOToBeUpdated = subjectService.updateTeacher(subjectId, oldTeacherId, newTeacherDTO.getId());
         log.info("UPDATED THE SUBJECTS' BY ID - {} TEACHER BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subjectId, oldTeacherId, newTeacherDTO.getId());
-        return ResponseEntity.ok(HttpStatus.OK);
+        return teacherDTOToBeUpdated;
     }
 
     @DeleteMapping("/{subjectId}/delete/{teacherId}/teacher")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteTeacher(@PathVariable("subjectId") Integer subjectId,
                                                     @PathVariable("teacherId") Integer teacherId) {
         log.info("requested-> [DELETE]-'/api/subjects/{subjectId}/delete/{teacherId}/teacher'");

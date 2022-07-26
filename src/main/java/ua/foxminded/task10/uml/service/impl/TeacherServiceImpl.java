@@ -179,7 +179,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void updateSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId) {
+    public SubjectDTO updateSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId) {
         requireNonNull(teacherId);
         requireNonNull(oldSubjectId);
         requireNonNull(newSubjectId);
@@ -193,7 +193,9 @@ public class TeacherServiceImpl implements TeacherService {
         Subject newSubject = extractSubjectByIdWithRepo(newSubjectId);
         teacher.getSubjects().remove(oldSubject);
         teacher.getSubjects().add(newSubject);
+        SubjectDTO subjectDTOToBeUpdated = getSubjectDTO(newSubject);
         log.info("UPDATED THE TEACHERS' BY ID - {} SUBJECT BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacherId, oldSubjectId, newSubjectId);
+        return subjectDTOToBeUpdated;
     }
 
     @Override
@@ -209,7 +211,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
-    public void addSubject(Integer teacherId, Integer subjectId) {
+    public SubjectDTO addSubject(Integer teacherId, Integer subjectId) {
         requireNonNull(teacherId);
         requireNonNull(subjectId);
         requiredTeacherExistence(teacherId);
@@ -219,11 +221,13 @@ public class TeacherServiceImpl implements TeacherService {
         Teacher teacherToBeSave = extractTeacherByIdWithRepo(teacherId);
         Subject subjectToBeSave = extractSubjectByIdWithRepo(subjectId);
         teacherToBeSave.getSubjects().add(subjectToBeSave);
+        SubjectDTO subjectDTOToBeAdded = getSubjectDTO(subjectToBeSave);
         log.info("ADDED TEACHER BT ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", teacherId, subjectId);
+        return subjectDTOToBeAdded;
     }
 
     @Override
-    public void addSubjects(TeacherDTO teacherDTO, List<SubjectDTO> subjectsDTO) {
+    public List<SubjectDTO> addSubjects(TeacherDTO teacherDTO, List<SubjectDTO> subjectsDTO) {
         requireNonNull(teacherDTO);
         requireNonNull(subjectsDTO);
         requiredTeacherExistence(teacherDTO.getId());
@@ -231,6 +235,7 @@ public class TeacherServiceImpl implements TeacherService {
         log.info("ADDING... TEACHER BY ID - {} TO SUBJECTS {}", teacherDTO.getId(), subjectsDTO.size());
         subjectsDTO.forEach(subject -> addSubject(teacherDTO.getId(), subject.getId()));
         log.info("ADDED TEACHER BY ID - {} TO SUBJECTS {} SUCCESSFULLY", teacherDTO.getId(), subjectsDTO.size());
+        return subjectsDTO;
     }
 
     @Override
@@ -255,6 +260,10 @@ public class TeacherServiceImpl implements TeacherService {
         List<SubjectDTO> subjectsDTO = subjects.stream().map(subjectMapper::convertToSubjectDTO).collect(Collectors.toList());
         log.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", teacher.getSubjects().size(), teacherId);
         return subjectsDTO;
+    }
+
+    private SubjectDTO getSubjectDTO(Subject newSubject) {
+        return subjectMapper.convertToSubjectDTO(newSubject);
     }
 
     private void checkToUniqueSubjectInList(Integer teacherId, Integer subjectId) {

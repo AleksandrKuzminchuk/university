@@ -17,6 +17,7 @@ import ua.foxminded.task10.uml.service.TeacherService;
 import ua.foxminded.task10.uml.util.validations.SubjectValidator;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -46,7 +47,7 @@ public class SubjectController {
     }
 
     @PostMapping("/saved")
-    public String save(Model model, @ModelAttribute("newSubject") @Valid SubjectDTO subjectDTO, BindingResult bindingResult) {
+    public String save(Model model, @ModelAttribute("newSubject") @Valid @NotNull SubjectDTO subjectDTO, BindingResult bindingResult) {
         log.info("requested-> [POST]-'/subjects/saved'");
         subjectValidator.validate(subjectDTO, bindingResult);
         if (bindingResult.hasErrors()){
@@ -68,7 +69,7 @@ public class SubjectController {
     }
 
     @PatchMapping("/{id}/updated")
-    public String update(Model model, @ModelAttribute @Valid SubjectDTO subjectDTO, BindingResult bindingResult,
+    public String update(Model model, @ModelAttribute @Valid @NotNull SubjectDTO subjectDTO, BindingResult bindingResult,
                          @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/subjects/{id}/updated'");
         subjectValidator.validate(subjectDTO, bindingResult);
@@ -105,7 +106,7 @@ public class SubjectController {
     }
 
     @GetMapping("/found/by_name")
-    public String findByName(Model model, @ModelAttribute @Valid SubjectDTO subjectDTO, BindingResult bindingResult) {
+    public String findByName(Model model, @ModelAttribute @Valid @NotNull SubjectDTO subjectDTO, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/subjects/found/by_name'");
         if (bindingResult.hasErrors()){
             return "subjects/formForFindSubjectByName";

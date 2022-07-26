@@ -14,15 +14,15 @@ public interface TeacherService extends CrudRepositoryService<TeacherDTO, Intege
 
     void update(TeacherDTO teacher);
 
-    void addSubject(Integer teacherId, Integer subjectId);
+    SubjectDTO addSubject(Integer teacherId, Integer subjectId);
 
-    void addSubjects(TeacherDTO teacher, List<SubjectDTO> subjects);
+    List<SubjectDTO> addSubjects(TeacherDTO teacher, List<SubjectDTO> subjects);
 
     List<TeacherDTO> findByNameOrSurname(String name, String surname);
 
     List<SubjectDTO> findSubjects(Integer teacherId);
 
-    void updateSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId);
+    SubjectDTO updateSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId);
 
     void deleteSubject(Integer teacherId, Integer subjectId);
 

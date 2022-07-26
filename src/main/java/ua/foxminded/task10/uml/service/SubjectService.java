@@ -18,11 +18,11 @@ public interface SubjectService extends CrudRepositoryService<SubjectDTO, Intege
 
     SubjectDTO findByName(String subjectName);
 
-    void addTeacher(Integer subjectId, Integer teacherId);
+    TeacherDTO addTeacher(Integer subjectId, Integer teacherId);
 
-    void addTeachers(SubjectDTO subjectDTO, List<TeacherDTO> teachersDTO);
+    List<TeacherDTO> addTeachers(SubjectDTO subjectDTO, List<TeacherDTO> teachersDTO);
 
-    void updateTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId);
+    TeacherDTO updateTeacher(Integer subjectId, Integer oldTeacherId, Integer newTeacherId);
 
     void deleteTeacher(Integer subjectId, Integer teacherId);
 

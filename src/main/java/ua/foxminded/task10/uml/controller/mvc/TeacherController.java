@@ -17,6 +17,7 @@ import ua.foxminded.task10.uml.dto.response.TeacherUpdateSubjectResponse;
 import ua.foxminded.task10.uml.service.TeacherService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -46,7 +47,7 @@ public class TeacherController {
 
     @PostMapping("/saved")
     public String save(Model model,
-                       @ModelAttribute("newTeacher") @Valid TeacherDTO teacherDTO,
+                       @ModelAttribute("newTeacher") @Valid @NotNull TeacherDTO teacherDTO,
                        BindingResult bindingResult) {
         log.info("requested-> [POST]-'/teachers/saved'");
         if (bindingResult.hasErrors()) {
@@ -78,7 +79,7 @@ public class TeacherController {
 
     @PatchMapping("/{id}/updated")
     public String update(Model model,
-                         @ModelAttribute @Valid TeacherDTO teacherDTO,
+                         @ModelAttribute @Valid @NotNull TeacherDTO teacherDTO,
                          BindingResult bindingResult,
                          @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/teachers/{id}/updated'");

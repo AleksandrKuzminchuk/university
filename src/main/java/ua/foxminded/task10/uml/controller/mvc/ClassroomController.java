@@ -12,6 +12,7 @@ import ua.foxminded.task10.uml.service.ClassroomService;
 import ua.foxminded.task10.uml.util.validations.ClassroomValidator;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -41,7 +42,7 @@ public class ClassroomController {
     }
 
     @PostMapping("/saved")
-    public String save(Model model, @ModelAttribute("newClassroom") @Valid ClassroomDTO classroomDTO,
+    public String save(Model model, @ModelAttribute("newClassroom") @Valid @NotNull ClassroomDTO classroomDTO,
                                 BindingResult bindingResult) {
         log.info("requested-> [POST]-'/classrooms/saved'");
         classroomValidator.validate(classroomDTO, bindingResult);
@@ -64,7 +65,7 @@ public class ClassroomController {
 
     @PatchMapping("/{id}/updated")
     public String update(Model model, @PathVariable("id") Integer id,
-                         @ModelAttribute("classroom") @Valid ClassroomDTO classroomDTO, BindingResult bindingResult) {
+                         @ModelAttribute("classroom") @Valid @NotNull ClassroomDTO classroomDTO, BindingResult bindingResult) {
         log.info("requested-> [PATCH]-'/classrooms/{id}/updated'");
         classroomValidator.validate(classroomDTO, bindingResult);
         if (bindingResult.hasFieldErrors("number")) {
@@ -92,7 +93,7 @@ public class ClassroomController {
     }
 
     @GetMapping("/found/by_number")
-    public String findByNumber(Model model, @ModelAttribute @Valid ClassroomDTO classroomDTO, BindingResult bindingResult) {
+    public String findByNumber(Model model, @ModelAttribute @Valid @NotNull ClassroomDTO classroomDTO, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/classrooms/found/by_number'");
         if (bindingResult.hasErrors()) {
             return "classrooms/formFindClassroomByNumber";

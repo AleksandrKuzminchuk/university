@@ -46,7 +46,7 @@ public class StudentController {
 
     @PostMapping("/saved")
     public String save(Model model,
-                       @ModelAttribute @Valid StudentDTO studentDTO,
+                       @ModelAttribute @Valid @NotNull StudentDTO studentDTO,
                        BindingResult bindingResult) {
         log.info("requested-> [POST]-'/savedStudent'");
         if (bindingResult.hasErrors()) {
@@ -85,7 +85,7 @@ public class StudentController {
         studentDTO.setCourse(updateResponse.getStudent().getCourse());
         studentService.update(studentDTO);
         log.info("UPDATED {} SUCCESSFULLY", studentDTO);
-        return findAll(model);
+        return "students/formUpdatedStudent";
     }
 
     @DeleteMapping("/{id}/deleted")
@@ -121,7 +121,7 @@ public class StudentController {
 
     @GetMapping("/found/by_course")
     public String findByCourseNumber(Model model,
-                                     @ModelAttribute @Valid Course course, BindingResult bindingResult) {
+                                     @ModelAttribute @Valid @NotNull Course course, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/students/found/by_course'");
         if (bindingResult.hasErrors()) {
             return "students/formFindStudentsByCourse";

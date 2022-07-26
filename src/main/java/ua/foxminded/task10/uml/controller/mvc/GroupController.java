@@ -14,6 +14,7 @@ import ua.foxminded.task10.uml.service.StudentService;
 import ua.foxminded.task10.uml.util.validations.GroupValidator;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Slf4j
@@ -45,7 +46,7 @@ public class GroupController {
     }
 
     @PostMapping("/saved")
-    public String save(Model model, @ModelAttribute("newGroup") @Valid GroupDTO groupDTO, BindingResult bindingResult){
+    public String save(Model model, @ModelAttribute("newGroup") @Valid @NotNull GroupDTO groupDTO, BindingResult bindingResult){
         log.info("requested-> [POST]-'/groups/saved'");
         groupValidator.validate(groupDTO, bindingResult);
         if (bindingResult.hasErrors()){
@@ -67,7 +68,7 @@ public class GroupController {
     }
 
     @PatchMapping("/{id}/updated")
-    public String update(Model model, @ModelAttribute @Valid GroupDTO groupDTO, BindingResult bindingResult,
+    public String update(Model model, @ModelAttribute @Valid @NotNull GroupDTO groupDTO, BindingResult bindingResult,
                               @PathVariable("id") Integer id){
         log.info("requested-> [PATCH]-'/groups/{id}/updated'");
         groupValidator.validate(groupDTO, bindingResult);
@@ -104,7 +105,7 @@ public class GroupController {
     }
 
     @GetMapping("/found/by_name")
-    public String findByName(Model model, @ModelAttribute @Valid GroupDTO groupDTO, BindingResult bindingResult){
+    public String findByName(Model model, @ModelAttribute @Valid @NotNull GroupDTO groupDTO, BindingResult bindingResult){
         log.info("requested-> [GET]-'/groups/found/by_name'");
         if (bindingResult.hasErrors()){
             return "groups/formForFindGroupByName";

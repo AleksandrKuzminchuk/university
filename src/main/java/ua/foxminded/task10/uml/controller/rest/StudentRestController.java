@@ -23,6 +23,7 @@ public class StudentRestController {
     private final StudentService studentService;
 
     @GetMapping
+    @ResponseStatus(HttpStatus.FOUND)
     public StudentsResponse findAll() {
         log.info("requested-> [GET]-'/api/students'");
         List<StudentDTO> studentsDTO = studentService.findAll();
@@ -39,16 +40,18 @@ public class StudentRestController {
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<HttpStatus> update(@RequestBody @Valid StudentDTO studentDTO,
+    @ResponseStatus(HttpStatus.OK)
+    public StudentDTO update(@RequestBody @Valid StudentDTO studentDTO,
                                              @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/students/update/{id}'");
         studentDTO.setId(id);
         studentService.update(studentDTO);
         log.info("UPDATED {} SUCCESSFULLY", studentDTO);
-        return ResponseEntity.ok(HttpStatus.OK);
+        return studentDTO;
     }
 
     @DeleteMapping("/{id}/delete")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/students/{id}/delete'");
         studentService.deleteById(id);
@@ -57,6 +60,7 @@ public class StudentRestController {
     }
 
     @PatchMapping("/{id}/delete/from_group")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteFromGroup(@PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/students/{id}/delete/from_group'");
         studentService.deleteGroup(id);
@@ -65,6 +69,7 @@ public class StudentRestController {
     }
 
     @DeleteMapping("/delete/all/by_group/")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteAllByGroupId(@RequestBody StudentDTO studentDTO) {
         log.info("requested-> [DELETE]-'/api/students/delete/all/by_group/{groupId}'");
         studentService.deleteByGroupId(studentDTO.getGroup().getId());
@@ -73,6 +78,7 @@ public class StudentRestController {
     }
 
     @GetMapping("/find/by_course/{course}")
+    @ResponseStatus(HttpStatus.FOUND)
     public StudentsResponse findByCourseNumber(@PathVariable("course") Integer course) {
         log.info("requested-> [GET]-'/api/students/found/by_course/{course}'");
         List<StudentDTO> studentsDTO = studentService.findByCourseNumber(course);
@@ -80,6 +86,7 @@ public class StudentRestController {
     }
 
     @DeleteMapping("/delete/by_course/{course}")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteAllByCourse(@PathVariable("course") Integer course) {
         log.info("requested-> [DELETE]-'/api/students/delete/by_course/{course}'");
         studentService.deleteByCourseNumber(course);
@@ -88,6 +95,7 @@ public class StudentRestController {
     }
 
     @GetMapping("/find/by_group/{groupId}")
+    @ResponseStatus(HttpStatus.FOUND)
     public StudentsResponse findByGroupId(@PathVariable("groupId") Integer groupId) {
         log.info("requested-> [GET]-'/api/students/found/by_group/{groupId}'");
         List<StudentDTO> studentsDTO = studentService.findByGroupId(groupId);
@@ -95,6 +103,7 @@ public class StudentRestController {
     }
 
     @GetMapping("/find/by_name_surname")
+    @ResponseStatus(HttpStatus.FOUND)
     public StudentsResponse findByNameOrSurname(@RequestBody StudentDTO studentDTO) {
         log.info("requested-> [GET]-'/api/students/find/by_name_surname'");
         List<StudentDTO> students = studentService.findByNameOrSurname(studentDTO.getFirstName(), studentDTO.getLastName());
@@ -102,6 +111,7 @@ public class StudentRestController {
     }
 
     @DeleteMapping("/delete/all")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteAll() {
         log.info("requested- [DELETE]-'/api/students/delete/all'");
         studentService.deleteAll();

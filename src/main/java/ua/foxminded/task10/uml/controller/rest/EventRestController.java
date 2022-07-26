@@ -21,6 +21,7 @@ public class EventRestController {
     private final EventService eventService;
 
     @GetMapping()
+    @ResponseStatus(HttpStatus.FOUND)
     public EventResponse findAll() {
         log.info("requested-> [GET]-'/api/events'");
         List<EventDTO> eventsDTO = eventService.findAll();
@@ -28,23 +29,26 @@ public class EventRestController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<EventDTO> save(@RequestBody EventDTO eventDTO) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public EventDTO save(@RequestBody EventDTO eventDTO) {
         log.info("requested-> [POST]-'/api/events/saved'");
         EventDTO savedEvent = eventService.save(eventDTO);
         log.info("SAVED {} EVENT SUCCESSFULLY", eventDTO);
-        return new ResponseEntity<>(savedEvent, HttpStatus.CREATED);
+        return savedEvent;
     }
 
     @PatchMapping("/update/{id}")
-    public ResponseEntity<HttpStatus> update(@RequestBody EventDTO eventDTO, @PathVariable("id") Integer id) {
+    @ResponseStatus(HttpStatus.OK)
+    public EventDTO update(@RequestBody EventDTO eventDTO, @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/api/events/update/{id}'");
         eventDTO.setId(id);
         eventService.update(eventDTO);
         log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventDTO);
-        return new ResponseEntity<>(HttpStatus.OK);
+        return eventDTO;
     }
 
     @DeleteMapping("/{id}/delete")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/events/{id}/deleted'");
         eventService.deleteById(id);
@@ -53,6 +57,7 @@ public class EventRestController {
     }
 
     @DeleteMapping("/delete/all")
+    @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<?> deleteAll() {
         log.info("requested-> [DELETE]-'/api/events/delete/all'");
         eventService.deleteAll();
@@ -61,6 +66,7 @@ public class EventRestController {
     }
 
     @GetMapping("/find")
+    @ResponseStatus(HttpStatus.FOUND)
     public EventResponse findEvents(@RequestBody EventExtraDTO eventExtraDTO) {
         log.info("requested-> [GET]->'/api/events/find'");
         List<EventDTO> eventsDTO = eventService.find(eventExtraDTO.getStartDateTime(), eventExtraDTO.getEndDateTime());
