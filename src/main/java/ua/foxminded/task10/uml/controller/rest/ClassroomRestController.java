@@ -25,7 +25,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/classrooms")
-@Api(value = "classroom-rest-controller", produces = MediaType.APPLICATION_JSON_VALUE)
+@Api(value = "classroom-rest-controller", produces = MediaType.APPLICATION_JSON_VALUE, tags = {"Classroom API"})
 public class ClassroomRestController {
 
     private final ClassroomService classroomService;
@@ -34,8 +34,14 @@ public class ClassroomRestController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    @ApiOperation(value = "findAll", produces = MediaType.APPLICATION_JSON_VALUE,
-            response = ClassroomResponse.class, httpMethod = "GET")
+    @ApiOperation(
+            value = "Get all classrooms",
+            notes = "Finding all classrooms from DB",
+            nickname = "findAll",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ClassroomResponse.class,
+            httpMethod = "GET",
+            responseContainer = "ClassroomResponse")
     @ApiResponses(value = {
             @ApiResponse(
                     code = 200,
@@ -50,12 +56,19 @@ public class ClassroomRestController {
 
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.CREATED)
-    @ApiOperation(value = "save", produces = MediaType.APPLICATION_JSON_VALUE,
-            response = ClassroomDTO.class, httpMethod = "POST")
+    @ApiOperation(
+            value = "Save a classroom",
+            notes = "Saving the unique classroom to DB",
+            nickname = "save",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ClassroomDTO.class,
+            httpMethod = "POST",
+            responseContainer = "ClassroomDTO")
     @ApiResponses(value = {@ApiResponse(
             code = 201,
             message = "The classroom created successfully",
-            response = ClassroomDTO.class)})
+            response = ClassroomDTO.class,
+            responseContainer = "ClassroomDTO")})
     public ClassroomDTO save(@ApiParam(value = "ClassroomDTO instance") @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO,
                              BindingResult bindingResult) {
         log.info("requested-> [POST]-'/api/classrooms/save'");
@@ -69,12 +82,19 @@ public class ClassroomRestController {
 
     @PatchMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
-    @ApiOperation(value = "update", produces = MediaType.APPLICATION_JSON_VALUE,
-            response = ClassroomDTO.class, httpMethod = "PATCH")
+    @ApiOperation(
+            value = "Update a classroom",
+            notes = "Updating a classroom from DB to new Classroom number must be unique and not repeat",
+            nickname = "update",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ClassroomDTO.class,
+            httpMethod = "PATCH",
+            responseContainer = "ClassroomDTO")
     @ApiResponses(value = {@ApiResponse(
             code = 200,
             message = "The classroom updated successfully",
-            response = ClassroomDTO.class)})
+            response = ClassroomDTO.class,
+            responseContainer = "ClassroomDTO")})
     public ClassroomDTO update(@ApiParam(value = "Classroom - Id") @PathVariable("id") Integer id,
                                @ApiParam(value = "ClassroomDTO instance")
                                @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO, BindingResult bindingResult) {
@@ -90,12 +110,19 @@ public class ClassroomRestController {
 
     @DeleteMapping("/{id}/delete")
     @ResponseStatus(HttpStatus.OK)
-    @ApiOperation(value = "deleteById", produces = MediaType.APPLICATION_JSON_VALUE,
-            response = ResponseEntity.class, httpMethod = "DELETE")
+    @ApiOperation(
+            value = "Delete classroom",
+            notes = "Deleting a classroom from DB by Id",
+            nickname = "deleteById",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ResponseEntity.class,
+            httpMethod = "DELETE",
+            responseContainer = "ResponseEntity<?>")
     @ApiResponses(value = {@ApiResponse(
             code = 200,
             message = "Classroom deleted successfully",
-            response = ResponseEntity.class)})
+            response = ResponseEntity.class,
+            responseContainer = "ResponseEntity<?>")})
     public ResponseEntity<?> deleteById(@ApiParam(value = "Classroom - Id") @PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/classrooms/{id}/delete'");
         classroomService.deleteById(id);
@@ -105,12 +132,18 @@ public class ClassroomRestController {
 
     @GetMapping("/find/by_number/{number}")
     @ResponseStatus(HttpStatus.OK)
-    @ApiOperation(value = "findByNumber", produces = MediaType.APPLICATION_JSON_VALUE,
-            response = ClassroomDTO.class)
+    @ApiOperation(
+            value = "Find classroom",
+            notes = "Finding a classroom by number from DB",
+            nickname = "findByNumber",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ClassroomDTO.class,
+            responseContainer = "ClassroomDTO")
     @ApiResponses(value = {@ApiResponse(
             code = 200,
             message = "Found classroom by number successfully",
-            response = ClassroomDTO.class)})
+            response = ClassroomDTO.class,
+            responseContainer = "ClassroomDTO")})
     public ClassroomDTO findByNumber(@ApiParam(value = "Classroom number") @PathVariable("number") Integer classroomNumber) {
         log.info("requested-> [GET]-'/api/classrooms/find/by_number'");
         ClassroomDTO result = classroomService.findByNumber(classroomNumber);
@@ -120,12 +153,19 @@ public class ClassroomRestController {
 
     @DeleteMapping("/delete/all")
     @ResponseStatus(HttpStatus.OK)
-    @ApiOperation(value = "deleteAll", produces = MediaType.APPLICATION_JSON_VALUE,
-            response = ResponseEntity.class, httpMethod = "DELETE")
+    @ApiOperation(
+            value = "Delete all classrooms",
+            notes = "Deleting all classroom from DB",
+            nickname = "deleteAll",
+            produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ResponseEntity.class,
+            httpMethod = "DELETE",
+            responseContainer = "ResponseEntity<?>")
     @ApiResponses(value = {@ApiResponse(
             code = 200,
             message = "Deleted all classrooms successfully",
-            response = ResponseEntity.class)})
+            response = ResponseEntity.class,
+            responseContainer = "ResponseEntity<?>")})
     public ResponseEntity<?> deletedAll() {
         log.info("requested- [DELETE]-'/api/classrooms/deleted/all'");
         classroomService.deleteAll();

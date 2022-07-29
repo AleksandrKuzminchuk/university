@@ -3,7 +3,6 @@ package ua.foxminded.task10.uml.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMethod;
 import springfox.bean.validators.configuration.BeanValidatorPluginsConfiguration;
 import springfox.documentation.builders.ApiInfoBuilder;
@@ -48,7 +47,12 @@ public class SwaggerConfig {
                 .description("Project Spring Boot PI Swagger")
                 .termsOfServiceUrl("http://localhost:8080/")
                 .contact(new Contact(
-                        "Oleksandr Kuzminchuk",
+                        "mentor - Mikhail Chervinko",
+                        "-",
+                        "chervinkoms@gmail.com"
+                ))
+                .contact(new Contact(
+                        "junior java - Oleksandr Kuzminchuk",
                         "-",
                         "lgoptimusg252@gmail.com"))
                 .version("1.0")
