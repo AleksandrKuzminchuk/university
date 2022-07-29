@@ -45,14 +45,14 @@ public class SwaggerConfig {
         return (new ApiInfoBuilder())
                 .title("University API")
                 .description("Project Spring Boot PI Swagger")
-                .termsOfServiceUrl("http://localhost:8080/")
+                .termsOfServiceUrl("http://localhost:8080/university")
                 .contact(new Contact(
                         "mentor - Mikhail Chervinko",
                         "-",
                         "chervinkoms@gmail.com"))
                 .contact(new Contact(
                         "junior java - Oleksandr Kuzminchuk",
-                        "-",
+                        "https://www.linkedin.com/in/aleksandr-kuzminchuk/",
                         "lgoptimusg252@gmail.com"))
                 .version("1.0")
                 .build();

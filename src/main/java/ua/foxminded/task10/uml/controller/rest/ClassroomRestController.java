@@ -58,7 +58,7 @@ public class ClassroomRestController {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(
             value = "Save classroom",
-            notes = "Saving the unique classroom to DB",
+            notes = "Saving unique classroom to DB",
             nickname = "save",
             produces = MediaType.APPLICATION_JSON_VALUE,
             response = ClassroomDTO.class,
@@ -84,7 +84,7 @@ public class ClassroomRestController {
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
             value = "Update classroom",
-            notes = "Updating a classroom from DB to new Classroom number must be unique and not repeat",
+            notes = "Updating classroom from DB to new Classroom number must be unique and not repeat",
             nickname = "update",
             produces = MediaType.APPLICATION_JSON_VALUE,
             response = ClassroomDTO.class,
@@ -112,7 +112,7 @@ public class ClassroomRestController {
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
             value = "Delete classroom",
-            notes = "Deleting a classroom from DB by Id",
+            notes = "Deleting classroom from DB by Id",
             nickname = "deleteById",
             produces = MediaType.APPLICATION_JSON_VALUE,
             response = ResponseEntity.class,
@@ -134,7 +134,7 @@ public class ClassroomRestController {
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
             value = "Find classroom",
-            notes = "Finding a classroom by number from DB",
+            notes = "Finding classroom by number from DB",
             nickname = "findByNumber",
             produces = MediaType.APPLICATION_JSON_VALUE,
             response = ClassroomDTO.class,
