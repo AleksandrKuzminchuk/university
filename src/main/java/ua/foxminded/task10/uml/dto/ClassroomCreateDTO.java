@@ -2,7 +2,8 @@ package ua.foxminded.task10.uml.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import lombok.*;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -10,11 +11,8 @@ import javax.validation.constraints.NotNull;
 
 @Data
 @NoArgsConstructor
-@ApiModel(value = "ClassroomDTO")
-public class ClassroomDTO {
-
-    @ApiModelProperty(notes = "Unique Id classroom", example = "12", allowEmptyValue = true, position = 1)
-    private Integer id;
+@ApiModel(value = "ClassroomCreateDTO")
+public class ClassroomCreateDTO {
 
     @NotNull(message = "Can't be empty and consist on placeholders")
     @Min(value = 1, message = "Must be greater than 1. Range courses from 1 to 1000")

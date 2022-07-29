@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.service;
 
+import ua.foxminded.task10.uml.dto.ClassroomCreateDTO;
 import ua.foxminded.task10.uml.dto.ClassroomDTO;
 
 import java.util.List;

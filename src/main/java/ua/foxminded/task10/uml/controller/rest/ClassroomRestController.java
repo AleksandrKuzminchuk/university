@@ -1,13 +1,17 @@
 package ua.foxminded.task10.uml.controller.rest;
 
+import io.swagger.annotations.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ua.foxminded.task10.uml.dto.ClassroomCreateDTO;
 import ua.foxminded.task10.uml.dto.ClassroomDTO;
+import ua.foxminded.task10.uml.dto.mapper.ClassroomMapper;
 import ua.foxminded.task10.uml.dto.response.ClassroomResponse;
 import ua.foxminded.task10.uml.service.ClassroomService;
 import ua.foxminded.task10.uml.util.errors.ErrorsUtil;
@@ -21,13 +25,23 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/classrooms")
+@Api(value = "classroom-rest-controller", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ClassroomRestController {
 
     private final ClassroomService classroomService;
     private final ClassroomValidator classroomValidator;
+    private final ClassroomMapper classroomMapper;
 
     @GetMapping()
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "findAll", produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ClassroomResponse.class, httpMethod = "GET")
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 200,
+                    message = "Found all classrooms successfully",
+                    responseContainer = "ClassroomResponse",
+                    response = ClassroomResponse.class)})
     public ClassroomResponse findAll() {
         log.info("requested-> [GET]-'/api/classrooms'");
         List<ClassroomDTO> classroomsDTO = classroomService.findAll();
@@ -36,49 +50,82 @@ public class ClassroomRestController {
 
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.CREATED)
-    public ClassroomDTO save(@RequestBody @Valid ClassroomDTO classroomDTO,
-                                             BindingResult bindingResult) {
+    @ApiOperation(value = "save", produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ClassroomDTO.class, httpMethod = "POST")
+    @ApiResponses(value = {@ApiResponse(
+            code = 201,
+            message = "The classroom created successfully",
+            response = ClassroomDTO.class)})
+    public ClassroomDTO save(@ApiParam(value = "ClassroomDTO instance") @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO,
+                             BindingResult bindingResult) {
         log.info("requested-> [POST]-'/api/classrooms/save'");
-        classroomValidator.validate(classroomDTO, bindingResult);
+        ClassroomDTO saveClassroomDTO = classroomMapper.convertToClassroomDTO(classroomCreateDTO);
+        classroomValidator.validate(saveClassroomDTO, bindingResult);
         extractedErrors(bindingResult);
-        ClassroomDTO savedClassroomDTO = classroomService.save(classroomDTO);
+        ClassroomDTO savedClassroomDTO = classroomService.save(saveClassroomDTO);
         log.info("SAVED {} SUCCESSFULLY", savedClassroomDTO);
         return savedClassroomDTO;
     }
 
     @PatchMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ClassroomDTO update(@RequestBody @Valid ClassroomDTO classroomDTO, BindingResult bindingResult,
-                                               @PathVariable("id") Integer id) {
+    @ApiOperation(value = "update", produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ClassroomDTO.class, httpMethod = "PATCH")
+    @ApiResponses(value = {@ApiResponse(
+            code = 200,
+            message = "The classroom updated successfully",
+            response = ClassroomDTO.class)})
+    public ClassroomDTO update(@ApiParam(value = "Classroom - Id") @PathVariable("id") Integer id,
+                               @ApiParam(value = "ClassroomDTO instance")
+                               @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO, BindingResult bindingResult) {
         log.info("requested-> [PATCH]-'/api/classrooms/update/{id}'");
-        classroomValidator.validate(classroomDTO, bindingResult);
+        ClassroomDTO updateClassroomDTO = classroomMapper.convertToClassroomDTO(classroomCreateDTO);
+        classroomValidator.validate(updateClassroomDTO, bindingResult);
         extractedErrors(bindingResult);
-        classroomDTO.setId(id);
-        classroomService.update(classroomDTO);
-        log.info("UPDATED {} CLASSROOM SUCCESSFULLY", classroomDTO);
-        return classroomDTO;
+        updateClassroomDTO.setId(id);
+        classroomService.update(updateClassroomDTO);
+        log.info("UPDATED {} CLASSROOM SUCCESSFULLY", updateClassroomDTO);
+        return updateClassroomDTO;
     }
 
     @DeleteMapping("/{id}/delete")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<?> deleteById(@PathVariable("id") Integer id) {
+    @ApiOperation(value = "deleteById", produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ResponseEntity.class, httpMethod = "DELETE")
+    @ApiResponses(value = {@ApiResponse(
+            code = 200,
+            message = "Classroom deleted successfully",
+            response = ResponseEntity.class)})
+    public ResponseEntity<?> deleteById(@ApiParam(value = "Classroom - Id") @PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/classrooms/{id}/delete'");
         classroomService.deleteById(id);
         log.info("DELETED CLASSROOM BY ID - {} SUCCESSFULLY", id);
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/find/by_number")
-    @ResponseStatus(HttpStatus.FOUND)
-    public ClassroomDTO findByNumber(@RequestBody ClassroomDTO classroomDTO) {
+    @GetMapping("/find/by_number/{number}")
+    @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "findByNumber", produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ClassroomDTO.class)
+    @ApiResponses(value = {@ApiResponse(
+            code = 200,
+            message = "Found classroom by number successfully",
+            response = ClassroomDTO.class)})
+    public ClassroomDTO findByNumber(@ApiParam(value = "Classroom number") @PathVariable("number") Integer classroomNumber) {
         log.info("requested-> [GET]-'/api/classrooms/find/by_number'");
-        ClassroomDTO result = classroomService.findByNumber(classroomDTO.getNumber());
-        log.info("FOUND {} CLASSROOMS BY NUMBER - {} SUCCESSFULLY", result, classroomDTO.getNumber());
+        ClassroomDTO result = classroomService.findByNumber(classroomNumber);
+        log.info("FOUND {} CLASSROOMS BY NUMBER - {} SUCCESSFULLY", result, classroomNumber);
         return result;
     }
 
     @DeleteMapping("/delete/all")
     @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "deleteAll", produces = MediaType.APPLICATION_JSON_VALUE,
+            response = ResponseEntity.class, httpMethod = "DELETE")
+    @ApiResponses(value = {@ApiResponse(
+            code = 200,
+            message = "Deleted all classrooms successfully",
+            response = ResponseEntity.class)})
     public ResponseEntity<?> deletedAll() {
         log.info("requested- [DELETE]-'/api/classrooms/deleted/all'");
         classroomService.deleteAll();
