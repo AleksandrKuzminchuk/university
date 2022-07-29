@@ -49,8 +49,7 @@ public class SwaggerConfig {
                 .contact(new Contact(
                         "mentor - Mikhail Chervinko",
                         "-",
-                        "chervinkoms@gmail.com"
-                ))
+                        "chervinkoms@gmail.com"))
                 .contact(new Contact(
                         "junior java - Oleksandr Kuzminchuk",
                         "-",

@@ -57,7 +57,7 @@ public class ClassroomRestController {
     @PostMapping("/save")
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(
-            value = "Save a classroom",
+            value = "Save classroom",
             notes = "Saving the unique classroom to DB",
             nickname = "save",
             produces = MediaType.APPLICATION_JSON_VALUE,
@@ -83,7 +83,7 @@ public class ClassroomRestController {
     @PatchMapping("/update/{id}")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
-            value = "Update a classroom",
+            value = "Update classroom",
             notes = "Updating a classroom from DB to new Classroom number must be unique and not repeat",
             nickname = "update",
             produces = MediaType.APPLICATION_JSON_VALUE,
