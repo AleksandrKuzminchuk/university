@@ -1,14 +1,17 @@
 package ua.foxminded.task10.uml.service;
 
-import ua.foxminded.task10.uml.model.Group;
+import ua.foxminded.task10.uml.dto.GroupDTO;
+import ua.foxminded.task10.uml.dto.StudentDTO;
 
 import java.util.List;
 
-public interface GroupService extends CrudRepositoryService<Group, Integer>{
+public interface GroupService extends CrudRepositoryService<GroupDTO, Integer>{
 
-    void saveAll(List<Group> groups);
+    void saveAll(List<GroupDTO> groups);
 
-    Group findByName(Group group);
+    GroupDTO findByName(String groupName);
 
-    Group update(Group group);
+    void update(GroupDTO group);
+
+    List<StudentDTO> findStudents(Integer groupId);
 }

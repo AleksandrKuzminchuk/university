@@ -1,29 +1,33 @@
 package ua.foxminded.task10.uml.service;
 
-import ua.foxminded.task10.uml.model.Group;
-import ua.foxminded.task10.uml.model.Student;
+import ua.foxminded.task10.uml.dto.StudentDTO;
+import ua.foxminded.task10.uml.dto.response.StudentUpdateResponse;
 
 import java.util.List;
 
-public interface StudentService extends CrudRepositoryService<Student, Integer> {
+public interface StudentService extends CrudRepositoryService<StudentDTO, Integer> {
 
-    void saveAll(List<Student> students);
+    void saveAll(List<StudentDTO> students);
 
-    List<Student> findByCourseNumber(Integer number);
+    List<StudentDTO> findByCourseNumber(Integer number);
 
-    void update ( Student student);
+    void update (StudentDTO student);
 
-    List<Student> findByGroupName(Group group);
+    StudentUpdateResponse updateForm(Integer id);
+
+    List<StudentDTO> findByGroupName(String groupName);
 
     void deleteByCourseNumber(Integer courseNumber);
 
-    Student deleteGroup(Integer studentId);
+    void deleteGroup(Integer studentId);
 
     void deleteByGroupId(Integer id);
 
-    List<Student> findByNameOrSurname(String firstName, String lastName);
+    List<StudentDTO> findByNameOrSurname(String firstName, String lastName);
 
-    List<Student> findByGroupId(Integer id);
+    List<StudentDTO> findByGroupId(Integer id);
 
     Long countByGroupId(Integer id);
+
+    Long countByCourse(Integer course);
 }

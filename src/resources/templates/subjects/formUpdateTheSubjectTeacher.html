@@ -12,10 +12,11 @@
 <div th:insert="~{university :: copy}"></div>
 <div class="login-page">
     <div class="form">
-        <form class="login-form" th:method="PATCH" th:action="'/subjects/' + ${subject.id} + '/updated/' + ${oldTeacher.id} + '/teacher'">
+        <form class="login-form" th:method="PATCH"
+              th:action="'/subjects/' + ${updateTeacher.subject.id} + '/updated/' + ${updateTeacher.teacher.id} + '/teacher'" th:object="${updateTeacher}">
             <span class="custom-dropdown big">
             <select th:object="${newTeacher}" th:field="*{id}" id="teacher">
-                <option th:each="teacher : ${teachers}" th:value="${teacher.id}"
+                <option th:each="teacher : ${updateTeacher.teachers}" th:value="${teacher.id}"
                         th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></option>
             </select>
             </span>>

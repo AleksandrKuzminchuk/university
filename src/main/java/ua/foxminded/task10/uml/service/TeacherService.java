@@ -1,25 +1,34 @@
 package ua.foxminded.task10.uml.service;
 
-import ua.foxminded.task10.uml.model.Subject;
-import ua.foxminded.task10.uml.model.Teacher;
+import ua.foxminded.task10.uml.dto.SubjectDTO;
+import ua.foxminded.task10.uml.dto.TeacherDTO;
+import ua.foxminded.task10.uml.dto.response.TeacherAddSubjectResponse;
+import ua.foxminded.task10.uml.dto.response.TeacherFindSubjectResponse;
+import ua.foxminded.task10.uml.dto.response.TeacherUpdateSubjectResponse;
 
 import java.util.List;
 
-public interface TeacherService extends CrudRepositoryService<Teacher, Integer>{
+public interface TeacherService extends CrudRepositoryService<TeacherDTO, Integer>{
 
-    void saveAll(List<Teacher> teachers);
+    void saveAll(List<TeacherDTO> teachers);
 
-    Teacher update(Teacher teacher);
+    void update(TeacherDTO teacher);
 
-    void addSubject(Teacher teacher, Subject subject);
+    SubjectDTO addSubject(Integer teacherId, Integer subjectId);
 
-    void addSubjects(Teacher teacher, List<Subject> subjects);
+    List<SubjectDTO> addSubjects(TeacherDTO teacher, List<SubjectDTO> subjects);
 
-    List<Teacher> findByNameOrSurname(Teacher teacher);
+    List<TeacherDTO> findByNameOrSurname(String name, String surname);
 
-    List<Subject> findSubjects(Integer teacherId);
+    List<SubjectDTO> findSubjects(Integer teacherId);
 
-    void updateSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId);
+    SubjectDTO updateSubject(Integer teacherId, Integer oldSubjectId, Integer newSubjectId);
 
     void deleteSubject(Integer teacherId, Integer subjectId);
+
+    TeacherFindSubjectResponse findSubjectsForm(Integer id);
+
+    TeacherAddSubjectResponse addSubjectFrom(Integer id);
+
+    TeacherUpdateSubjectResponse updateSubjectForm(Integer teacherId, Integer subjectId);
 }

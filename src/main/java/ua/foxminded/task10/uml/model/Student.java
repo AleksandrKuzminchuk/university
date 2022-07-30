@@ -1,13 +1,13 @@
 package ua.foxminded.task10.uml.model;
 
 
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.Objects;
 
@@ -15,7 +15,11 @@ import java.util.Objects;
 @Setter
 @Entity
 @Table(name = "students")
+@JsonTypeName(value = "student")
 @ToString(onlyExplicitlyIncluded = true, callSuper = true)
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id", scope = Integer.class)
 @AttributeOverride(name = "id", column = @Column(name = "student_id"))
 public class Student extends Person {
 

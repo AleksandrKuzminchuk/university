@@ -1,17 +1,20 @@
 package ua.foxminded.task10.uml.service;
 
-
-
-import ua.foxminded.task10.uml.model.Event;
+import ua.foxminded.task10.uml.dto.EventDTO;
+import ua.foxminded.task10.uml.dto.response.EventUpdateSaveResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface EventService extends CrudRepositoryService<Event, Integer> {
+public interface EventService extends CrudRepositoryService<EventDTO, Integer> {
 
-    void saveAll(List<Event> events);
+    void saveAll(List<EventDTO> events);
 
-    Event update(Event event);
+    void update(EventDTO eventDTO);
 
-    List<Event> find(LocalDateTime startDateTime, LocalDateTime endDateTime);
+    List<EventDTO> find(LocalDateTime startDateTime, LocalDateTime endDateTime);
+
+    EventUpdateSaveResponse updateForm(Integer id);
+
+    EventUpdateSaveResponse saveForm();
 }

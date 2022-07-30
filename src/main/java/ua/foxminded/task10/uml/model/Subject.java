@@ -1,5 +1,6 @@
 package ua.foxminded.task10.uml.model;
 
+import com.fasterxml.jackson.annotation.JsonRootName;
 import lombok.*;
 import org.hibernate.Hibernate;
 
@@ -14,17 +15,16 @@ import java.util.Objects;
 @Entity
 @NoArgsConstructor
 @Table(name = "subjects")
+@JsonRootName(value = "subject")
 @ToString(onlyExplicitlyIncluded = true)
 public class Subject {
 
     @Id
-    @NonNull
     @ToString.Include
     @Column(name = "subject_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NonNull
     @ToString.Include
     @Column(name = "subject_name")
     @NotBlank(message = "Can't be empty and consist on placeholders. Hint-'GEOMETRY'")

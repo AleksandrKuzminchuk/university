@@ -12,7 +12,7 @@
 <div class="login-page">
     <div class="form">
         <form class="login-form" th:action="@{/subjects}">
-            <b th:text="'Subject ' + ${#strings.toUpperCase(deleteSubjectById.name)} + ' DELETED SUCCESSFULLY'" style="text-align: center;" ></b>
+            <b th:text="'Subject DELETED SUCCESSFULLY'" style="text-align: center;" ></b>
             <button type="submit">return to subjects page</button>
             <p class="message">main page <a th:href="@{/university}">UNIVERSITY</a></p>
         </form>
