@@ -14,7 +14,10 @@ import ua.foxminded.task10.uml.dto.ClassroomDTO;
 import ua.foxminded.task10.uml.dto.mapper.ClassroomMapper;
 import ua.foxminded.task10.uml.dto.response.ClassroomResponse;
 import ua.foxminded.task10.uml.service.ClassroomService;
+import ua.foxminded.task10.uml.util.errors.ErrorResponse;
 import ua.foxminded.task10.uml.util.errors.ErrorsUtil;
+import ua.foxminded.task10.uml.util.errors.GlobalErrorResponse;
+import ua.foxminded.task10.uml.util.exceptions.GlobalNotValidException;
 import ua.foxminded.task10.uml.util.validations.ClassroomValidator;
 
 import javax.validation.Valid;
@@ -64,11 +67,17 @@ public class ClassroomRestController {
             response = ClassroomDTO.class,
             httpMethod = "POST",
             responseContainer = "ClassroomDTO")
-    @ApiResponses(value = {@ApiResponse(
-            code = 201,
-            message = "The classroom created successfully",
-            response = ClassroomDTO.class,
-            responseContainer = "ClassroomDTO")})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 201,
+                    message = "The classroom created successfully",
+                    response = ClassroomDTO.class,
+                    responseContainer = "ClassroomDTO"),
+            @ApiResponse(
+                    code = 404,
+                    message = "Classroom is already taken",
+                    response = ErrorResponse.class,
+                    responseContainer = "ErrorResponse")})
     public ClassroomDTO save(@ApiParam(value = "ClassroomDTO instance") @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO,
                              BindingResult bindingResult) {
         log.info("requested-> [POST]-'/api/classrooms/save'");
@@ -90,11 +99,17 @@ public class ClassroomRestController {
             response = ClassroomDTO.class,
             httpMethod = "PATCH",
             responseContainer = "ClassroomDTO")
-    @ApiResponses(value = {@ApiResponse(
-            code = 200,
-            message = "The classroom updated successfully",
-            response = ClassroomDTO.class,
-            responseContainer = "ClassroomDTO")})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 200,
+                    message = "The classroom updated successfully",
+                    response = ClassroomDTO.class,
+                    responseContainer = "ClassroomDTO"),
+            @ApiResponse(
+                    code = 404,
+                    message = "Classroom is already taken",
+                    response = ErrorResponse.class,
+                    responseContainer = "ErrorResponse")})
     public ClassroomDTO update(@ApiParam(value = "Classroom - Id") @PathVariable("id") Integer id,
                                @ApiParam(value = "ClassroomDTO instance")
                                @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO, BindingResult bindingResult) {
@@ -118,11 +133,17 @@ public class ClassroomRestController {
             response = ResponseEntity.class,
             httpMethod = "DELETE",
             responseContainer = "ResponseEntity<?>")
-    @ApiResponses(value = {@ApiResponse(
-            code = 200,
-            message = "Classroom deleted successfully",
-            response = ResponseEntity.class,
-            responseContainer = "ResponseEntity<?>")})
+    @ApiResponses(value = {
+            @ApiResponse(
+                    code = 200,
+                    message = "Classroom deleted successfully",
+                    response = ResponseEntity.class,
+                    responseContainer = "ResponseEntity<?>"),
+            @ApiResponse(
+                    code = 404,
+                    message = "Classroom not exists",
+                    response = ErrorResponse.class,
+                    responseContainer = "ErrorResponse")})
     public ResponseEntity<?> deleteById(@ApiParam(value = "Classroom - Id") @PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/classrooms/{id}/delete'");
         classroomService.deleteById(id);
