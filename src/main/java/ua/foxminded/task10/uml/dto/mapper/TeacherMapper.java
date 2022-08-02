@@ -18,12 +18,12 @@ public class TeacherMapper {
         this.modelMapper = modelMapper;
     }
 
-    public Teacher convertToTeacher(TeacherDTO teacherDTO){
+    public Teacher map(TeacherDTO teacherDTO){
         log.info("Mapping to teacher...");
         return modelMapper.map(teacherDTO, Teacher.class);
     }
 
-    public TeacherDTO convertToTeacherDTO(Teacher teacher){
+    public TeacherDTO map(Teacher teacher){
         log.info("Mapping to teacherDTO...");
         return modelMapper.map(teacher, TeacherDTO.class);
     }

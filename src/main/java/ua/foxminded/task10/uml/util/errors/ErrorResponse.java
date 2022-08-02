@@ -13,15 +13,15 @@ import org.springframework.stereotype.Component;
 @Component
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(value = "GlobalErrorResponse", description = "Return exception GlobalErrorResponse")
-public class GlobalErrorResponse {
+@ApiModel(value = "ErrorResponse", description = "Return exception ErrorResponse")
+public class ErrorResponse {
 
     @ApiModelProperty(value = "Exception class name", example = "GlobalNotValidException", position = 1)
     private String className;
-    @ApiModelProperty(value = "Exception field name", example = "firstName", position = 2)
-    private String fieldName;
-    @ApiModelProperty(value = "Exception message", example = "Can't find this student", position = 3)
+
+    @ApiModelProperty(value = "Exception message", example = "Can't find this student", position = 2)
     private String message;
-    @ApiModelProperty(value = "Date and time when was exception", example = "2022-07-29 19:32", position = 4)
+
+    @ApiModelProperty(value = "Date and time when was exception", example = "2022-07-29 19:32", position = 3)
     private String dateTime;
 }

@@ -18,12 +18,12 @@ public class GroupMapper {
         this.modelMapper = modelMapper;
     }
 
-    public Group convertToGroup(GroupDTO groupDTO){
+    public Group map(GroupDTO groupDTO){
         log.info("Mapping to group...");
         return modelMapper.map(groupDTO, Group.class);
     }
 
-    public GroupDTO convertToGroupDTO(Group group){
+    public GroupDTO map(Group group){
         log.info("Mapping to groupDTO...");
         return modelMapper.map(group, GroupDTO.class);
     }

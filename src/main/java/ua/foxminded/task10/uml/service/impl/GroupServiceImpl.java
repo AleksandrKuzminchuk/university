@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ua.foxminded.task10.uml.dto.GroupDTO;
 import ua.foxminded.task10.uml.dto.StudentDTO;
 import ua.foxminded.task10.uml.dto.mapper.GroupMapper;
-import ua.foxminded.task10.uml.dto.mapper.StudentMapper;
 import ua.foxminded.task10.uml.model.Group;
 import ua.foxminded.task10.uml.repository.GroupRepository;
 import ua.foxminded.task10.uml.service.GroupService;
@@ -35,9 +34,9 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public GroupDTO save(GroupDTO groupDTO) {
         log.info("SAVING... {}", groupDTO);
-        Group group = groupMapper.convertToGroup(groupDTO);
+        Group group = groupMapper.map(groupDTO);
         groupRepository.save(group);
-        GroupDTO savedGroupDTO = groupMapper.convertToGroupDTO(group);
+        GroupDTO savedGroupDTO = groupMapper.map(group);
         log.info("SAVED {} SUCCESSFULLY", savedGroupDTO);
         return savedGroupDTO;
     }
@@ -48,7 +47,7 @@ public class GroupServiceImpl implements GroupService {
         requiredGroupExistence(groupId);
         log.info("FINDING... GROUP BY ID - {}", groupId);
         Group result = groupRepository.findById(groupId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by groupId- %d", groupId)));
-        GroupDTO groupDTO = groupMapper.convertToGroupDTO(result);
+        GroupDTO groupDTO = groupMapper.map(result);
         log.info("FOUND {} BY ID - {} SUCCESSFULLY", groupDTO, groupId);
         return groupDTO;
     }
@@ -66,7 +65,7 @@ public class GroupServiceImpl implements GroupService {
     public List<GroupDTO> findAll() {
         log.info("FINDING... ALL GROUPS");
         List<Group> result = groupRepository.findAll(Sort.by(Sort.Order.asc("name")));
-        List<GroupDTO> groupsDTO = result.stream().map(groupMapper::convertToGroupDTO).collect(Collectors.toList());
+        List<GroupDTO> groupsDTO = result.stream().map(groupMapper::map).collect(Collectors.toList());
         log.info("FOUND {} GROUPS", groupsDTO.size());
         return groupsDTO;
     }
@@ -104,7 +103,7 @@ public class GroupServiceImpl implements GroupService {
     public void saveAll(List<GroupDTO> groupsDTO) {
         requireNonNull(groupsDTO);
         log.info("SAVING... {} GROUPS", groupsDTO.size());
-        List<Group> groups = groupsDTO.stream().map(groupMapper::convertToGroup).collect(Collectors.toList());
+        List<Group> groups = groupsDTO.stream().map(groupMapper::map).collect(Collectors.toList());
         groupRepository.saveAll(groups);
         log.info("SAVED {} GROUPS SUCCESSFULLY", groups.size());
     }
@@ -113,7 +112,7 @@ public class GroupServiceImpl implements GroupService {
     public GroupDTO findByName(String groupName) {
         log.info("FINDING... GROUPS BY NAME - {}", groupName);
         Group result = groupRepository.findByName(groupName).orElseThrow(() -> new GlobalNotFoundException(format("Can't find groupName by name - %s", groupName)));
-        GroupDTO groupDTO = groupMapper.convertToGroupDTO(result);
+        GroupDTO groupDTO = groupMapper.map(result);
         log.info("FOUND {} BY NAME - {} SUCCESSFULLY", groupDTO, groupName);
         return groupDTO;
     }
@@ -122,9 +121,9 @@ public class GroupServiceImpl implements GroupService {
     public void update(GroupDTO groupDTO) {
         requiredGroupExistence(groupDTO.getId());
         log.info("UPDATING... GROUP BY ID - {}", groupDTO.getId());
-        Group group = groupMapper.convertToGroup(groupDTO);
+        Group group = groupMapper.map(groupDTO);
         Group updatedGroup = groupRepository.save(group);
-        groupMapper.convertToGroupDTO(updatedGroup);
+        groupMapper.map(updatedGroup);
         log.info("UPDATED GROUP BY ID - {} SUCCESSFULLY", groupDTO.getId());
     }
 

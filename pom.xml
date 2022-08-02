@@ -22,7 +22,6 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <java.version>8</java.version>
-        <springfox.version>2.6.0</springfox.version>
         <junit-platform.version>5.3.1</junit-platform.version>
     </properties>
 
@@ -40,9 +39,14 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-boot-starter</artifactId>
+            <version>3.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.hibernate.validator</groupId>
             <artifactId>hibernate-validator</artifactId>
-            <version>6.2.0.Final</version>
+            <version>7.0.4.Final</version>
         </dependency>
 
         <dependency>
@@ -70,17 +74,24 @@
             <artifactId>modelmapper</artifactId>
             <version>3.1.0</version>
         </dependency>
-<!--Основной пакет Swagger2-->
+        <!--Основной пакет Swagger2-->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger2</artifactId>
-            <version>${springfox.version}</version>
+            <version>3.0.0</version>
+            <scope>compile</scope>
         </dependency>
-<!--Пакет пользовательского интерфейса Swagger2, документация интерфейсного интерфейса API-->
+        <!--Пакет пользовательского интерфейса Swagger2, документация интерфейсного интерфейса API-->
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
-            <version>${springfox.version}</version>
+            <version>3.0.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.springfox</groupId>
+            <artifactId>springfox-bean-validators</artifactId>
+            <version>3.0.0</version>
         </dependency>
     </dependencies>
 

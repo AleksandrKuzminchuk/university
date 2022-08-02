@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.util.errors.GlobalErrorResponse;
+import ua.foxminded.task10.uml.util.errors.ErrorResponse;
 import ua.foxminded.task10.uml.util.errors.GlobalValidationErrorResponse;
 
 import javax.validation.ConstraintViolationException;
@@ -17,11 +18,9 @@ import static ua.foxminded.task10.uml.util.formatters.DateTimeFormat.formatter;
 public class GlobalHandleException extends Exception{
 
     @ExceptionHandler(GlobalNotFoundException.class)
-    public ResponseEntity<GlobalErrorResponse> handleExceptionNotFound(GlobalNotFoundException e){
-        GlobalErrorResponse response = new GlobalErrorResponse();
-        response.setFieldName(e.getClass().getSimpleName());
-        response.setMessage(e.getMessage());
-        response.setDateTime(LocalDateTime.now().format(formatter));
+    public ResponseEntity<ErrorResponse> handleExceptionNotFound(GlobalNotFoundException e){
+        ErrorResponse response = ErrorResponse.builder().className(e.getClass().getSimpleName())
+                .message(e.getMessage()).dateTime(LocalDateTime.now().format(formatter)).build();
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
 
@@ -30,32 +29,26 @@ public class GlobalHandleException extends Exception{
     public GlobalValidationErrorResponse handleConstraintViolationException(ConstraintViolationException e){
         final List<GlobalErrorResponse> violations = e.getConstraintViolations().stream()
                 .map(
-                        violation -> new GlobalErrorResponse(
-                                violation.getPropertyPath().toString(),
-                                violation.getMessage(),
-                                LocalDateTime.now().format(formatter)
-                        )
+                        violation -> GlobalErrorResponse.builder().className(violation.getClass().getName())
+                                .fieldName(violation.getPropertyPath().toString()).message(violation.getMessage())
+                                .dateTime(LocalDateTime.now().format(formatter)).build()
                 ).collect(Collectors.toList());
+
         return new GlobalValidationErrorResponse(violations);
     }
 
     @ExceptionHandler(GlobalNotNullException.class)
-    public ResponseEntity<GlobalErrorResponse> handleExceptionNotNull(GlobalNotNullException e){
-        GlobalErrorResponse response = new GlobalErrorResponse();
-        response.setFieldName(e.getClass().getSimpleName());
-        response.setDateTime(LocalDateTime.now().format(formatter));
-        response.setMessage(e.getMessage());
+    public ResponseEntity<ErrorResponse> handleExceptionNotNull(GlobalNotNullException e){
+        ErrorResponse response = ErrorResponse.builder().className(e.getClass().getSimpleName())
+                .message(e.getMessage()).dateTime(LocalDateTime.now().format(formatter)).build();
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(GlobalNotValidException.class)
-    private ResponseEntity<GlobalErrorResponse> handleException(GlobalNotValidException e) {
-        GlobalErrorResponse response = new GlobalErrorResponse(
-                e.getClass().getSimpleName(),
-                e.getMessage(),
-                LocalDateTime.now().format(formatter)
-        );
+    private ResponseEntity<ErrorResponse> handleException(GlobalNotValidException e) {
+        ErrorResponse response = ErrorResponse.builder().className(e.getClass().getSimpleName())
+                .message(e.getMessage()).dateTime(LocalDateTime.now().format(formatter)).build();
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }

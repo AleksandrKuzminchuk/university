@@ -53,9 +53,9 @@ public class SubjectServiceImpl implements SubjectService {
     @Override
     public SubjectDTO save(SubjectDTO subjectDTO) {
         log.info("SAVING... {}", subjectDTO);
-        Subject subject = subjectMapper.convertToSubject(subjectDTO);
+        Subject subject = subjectMapper.map(subjectDTO);
         Subject savedSubject = subjectRepository.save(subject);
-        SubjectDTO savedSubjectDTO = subjectMapper.convertToSubjectDTO(savedSubject);
+        SubjectDTO savedSubjectDTO = subjectMapper.map(savedSubject);
         log.info("SAVED {} SUCCESSFULLY", savedSubjectDTO);
         return savedSubjectDTO;
     }
@@ -66,7 +66,7 @@ public class SubjectServiceImpl implements SubjectService {
         requiredSubjectExistence(subjectId);
         log.info("FINDING... SUBJECT BY ID - {}", subjectId);
         Subject result = extractSubjectByIdWithRepo(subjectId);
-        SubjectDTO subjectDTO = subjectMapper.convertToSubjectDTO(result);
+        SubjectDTO subjectDTO = subjectMapper.map(result);
         log.info("FOUND {} BY ID - {} SUCCESSFULLY", subjectDTO, subjectId);
         return subjectDTO;
     }
@@ -76,7 +76,7 @@ public class SubjectServiceImpl implements SubjectService {
         log.info("FINDING... SUBJECT BY NAME {}", subjectName);
         Subject result = subjectRepository.findByName(subjectName)
                 .orElseThrow(() -> new GlobalNotFoundException(format("Can't find subjectName by name - %s", subjectName)));
-        SubjectDTO subjectDTO = subjectMapper.convertToSubjectDTO(result);
+        SubjectDTO subjectDTO = subjectMapper.map(result);
         log.info("FOUND {} SUBJECT BY NAME {}", subjectDTO, subjectName);
         return subjectDTO;
     }
@@ -94,7 +94,7 @@ public class SubjectServiceImpl implements SubjectService {
     public List<SubjectDTO> findAll() {
         log.info("FINDING... ALL SUBJECTS");
         List<Subject> result = subjectRepository.findAll();
-        List<SubjectDTO> subjectsDTO = result.stream().map(subjectMapper::convertToSubjectDTO).collect(Collectors.toList());
+        List<SubjectDTO> subjectsDTO = result.stream().map(subjectMapper::map).collect(Collectors.toList());
         log.info("FOUND {} SUBJECTS SUCCESSFULLY", subjectsDTO.size());
         return subjectsDTO;
     }
@@ -149,7 +149,7 @@ public class SubjectServiceImpl implements SubjectService {
     public void saveAll(List<SubjectDTO> subjectsDTO) {
         requireNonNull(subjectsDTO);
         log.info("SAVING {} SUBJECTS", subjectsDTO.size());
-        List<Subject> subjects = subjectsDTO.stream().map(subjectMapper::convertToSubject).collect(Collectors.toList());
+        List<Subject> subjects = subjectsDTO.stream().map(subjectMapper::map).collect(Collectors.toList());
         subjectRepository.saveAll(subjects);
         log.info("SAVED {} SUBJECTS SUCCESSFULLY", subjects.size());
     }
@@ -158,9 +158,9 @@ public class SubjectServiceImpl implements SubjectService {
     public void update(SubjectDTO subjectDTO) {
         requiredSubjectExistence(subjectDTO.getId());
         log.info("UPDATING... SUBJECT BY ID - {}", subjectDTO.getId());
-        Subject subject = subjectMapper.convertToSubject(subjectDTO);
+        Subject subject = subjectMapper.map(subjectDTO);
         Subject updatedSubject = subjectRepository.save(subject);
-        subjectMapper.convertToSubjectDTO(updatedSubject);
+        subjectMapper.map(updatedSubject);
         log.info("UPDATED {} SUCCESSFULLY", updatedSubject);
     }
 
@@ -217,7 +217,7 @@ public class SubjectServiceImpl implements SubjectService {
         log.info("FINDING... TEACHERS BY SUBJECT ID - {}", subjectId);
         Subject subject = extractSubjectByIdWithRepo(subjectId);
         List<Teacher> teachers = subject.getTeachers();
-        List<TeacherDTO> teachersDTO = teachers.stream().map(teacherMapper::convertToTeacherDTO).collect(Collectors.toList());
+        List<TeacherDTO> teachersDTO = teachers.stream().map(teacherMapper::map).collect(Collectors.toList());
         log.info("FOUND {} TEACHERS BY TEACHER ID - {}", subject.getTeachers().size(), subjectId);
         return teachersDTO;
     }
@@ -262,7 +262,7 @@ public class SubjectServiceImpl implements SubjectService {
     }
 
     private TeacherDTO getTeacherDTO(Teacher newTeacher) {
-        return teacherMapper.convertToTeacherDTO(newTeacher);
+        return teacherMapper.map(newTeacher);
     }
 
 
