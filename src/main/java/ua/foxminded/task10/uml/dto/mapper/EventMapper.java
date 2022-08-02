@@ -18,12 +18,12 @@ public class EventMapper {
         this.modelMapper = modelMapper;
     }
 
-    public Event convertToEvent(EventDTO eventDTO){
+    public Event map(EventDTO eventDTO){
         log.info("Mapping to event...");
         return modelMapper.map(eventDTO, Event.class);
     }
 
-    public EventDTO convertToEventDTO(Event event){
+    public EventDTO map(Event event){
         log.info("Mapping to eventDTO...");
         return modelMapper.map(event, EventDTO.class);
     }

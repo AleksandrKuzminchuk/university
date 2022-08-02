@@ -16,8 +16,6 @@ import ua.foxminded.task10.uml.dto.response.ClassroomResponse;
 import ua.foxminded.task10.uml.service.ClassroomService;
 import ua.foxminded.task10.uml.util.errors.ErrorResponse;
 import ua.foxminded.task10.uml.util.errors.ErrorsUtil;
-import ua.foxminded.task10.uml.util.errors.GlobalErrorResponse;
-import ua.foxminded.task10.uml.util.exceptions.GlobalNotValidException;
 import ua.foxminded.task10.uml.util.validations.ClassroomValidator;
 
 import javax.validation.Valid;
@@ -31,9 +29,9 @@ import java.util.List;
 @Api(value = "classroom-rest-controller", produces = MediaType.APPLICATION_JSON_VALUE, tags = {"Classroom API"})
 public class ClassroomRestController {
 
-    private final ClassroomService classroomService;
-    private final ClassroomValidator classroomValidator;
-    private final ClassroomMapper classroomMapper;
+    private final ClassroomService service;
+    private final ClassroomValidator validator;
+    private final ClassroomMapper mapper;
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
@@ -53,7 +51,7 @@ public class ClassroomRestController {
                     response = ClassroomResponse.class)})
     public ClassroomResponse findAll() {
         log.info("requested-> [GET]-'/api/classrooms'");
-        List<ClassroomDTO> classroomsDTO = classroomService.findAll();
+        List<ClassroomDTO> classroomsDTO = service.findAll();
         return new ClassroomResponse(classroomsDTO);
     }
 
@@ -81,10 +79,10 @@ public class ClassroomRestController {
     public ClassroomDTO save(@ApiParam(value = "ClassroomDTO instance") @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO,
                              BindingResult bindingResult) {
         log.info("requested-> [POST]-'/api/classrooms/save'");
-        ClassroomDTO saveClassroomDTO = classroomMapper.convertToClassroomDTO(classroomCreateDTO);
-        classroomValidator.validate(saveClassroomDTO, bindingResult);
+        ClassroomDTO saveClassroomDTO = mapper.map(classroomCreateDTO);
+        validator.validate(saveClassroomDTO, bindingResult);
         extractedErrors(bindingResult);
-        ClassroomDTO savedClassroomDTO = classroomService.save(saveClassroomDTO);
+        ClassroomDTO savedClassroomDTO = service.save(saveClassroomDTO);
         log.info("SAVED {} SUCCESSFULLY", savedClassroomDTO);
         return savedClassroomDTO;
     }
@@ -114,11 +112,11 @@ public class ClassroomRestController {
                                @ApiParam(value = "ClassroomDTO instance")
                                @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO, BindingResult bindingResult) {
         log.info("requested-> [PATCH]-'/api/classrooms/update/{id}'");
-        ClassroomDTO updateClassroomDTO = classroomMapper.convertToClassroomDTO(classroomCreateDTO);
-        classroomValidator.validate(updateClassroomDTO, bindingResult);
+        ClassroomDTO updateClassroomDTO = mapper.map(classroomCreateDTO);
+        validator.validate(updateClassroomDTO, bindingResult);
         extractedErrors(bindingResult);
         updateClassroomDTO.setId(id);
-        classroomService.update(updateClassroomDTO);
+        service.update(updateClassroomDTO);
         log.info("UPDATED {} CLASSROOM SUCCESSFULLY", updateClassroomDTO);
         return updateClassroomDTO;
     }
@@ -146,7 +144,7 @@ public class ClassroomRestController {
                     responseContainer = "ErrorResponse")})
     public ResponseEntity<?> deleteById(@ApiParam(value = "Classroom - Id") @PathVariable("id") Integer id) {
         log.info("requested-> [DELETE]-'/api/classrooms/{id}/delete'");
-        classroomService.deleteById(id);
+        service.deleteById(id);
         log.info("DELETED CLASSROOM BY ID - {} SUCCESSFULLY", id);
         return ResponseEntity.ok().build();
     }
@@ -167,7 +165,7 @@ public class ClassroomRestController {
             responseContainer = "ClassroomDTO")})
     public ClassroomDTO findByNumber(@ApiParam(value = "Classroom number") @PathVariable("number") Integer classroomNumber) {
         log.info("requested-> [GET]-'/api/classrooms/find/by_number'");
-        ClassroomDTO result = classroomService.findByNumber(classroomNumber);
+        ClassroomDTO result = service.findByNumber(classroomNumber);
         log.info("FOUND {} CLASSROOMS BY NUMBER - {} SUCCESSFULLY", result, classroomNumber);
         return result;
     }
@@ -189,7 +187,7 @@ public class ClassroomRestController {
             responseContainer = "ResponseEntity<?>")})
     public ResponseEntity<?> deletedAll() {
         log.info("requested- [DELETE]-'/api/classrooms/deleted/all'");
-        classroomService.deleteAll();
+        service.deleteAll();
         log.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
         return ResponseEntity.ok().build();
     }

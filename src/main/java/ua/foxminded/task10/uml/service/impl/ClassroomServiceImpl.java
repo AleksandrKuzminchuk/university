@@ -32,7 +32,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     public void saveAll(List<ClassroomDTO> classroomsDTO) {
         requireNonNull(classroomsDTO);
         log.info("SAVING... {} CLASSROOMS", classroomsDTO.size());
-        List<Classroom> classrooms = classroomsDTO.stream().map(classroomMapper::convertToClassroom).collect(Collectors.toList());
+        List<Classroom> classrooms = classroomsDTO.stream().map(classroomMapper::map).collect(Collectors.toList());
         classroomRepository.saveAll(classrooms);
         log.info("SAVED {} CLASSROOMS SUCCESSFULLY", classrooms.size());
     }
@@ -41,18 +41,18 @@ public class ClassroomServiceImpl implements ClassroomService {
     public void update(ClassroomDTO classroomDTO) {
         requiredClassroomExistence(classroomDTO.getId());
         log.info("UPDATING... CLASSROOM BY ID - {}", classroomDTO.getId());
-        Classroom classroom = classroomMapper.convertToClassroom(classroomDTO);
+        Classroom classroom = classroomMapper.map(classroomDTO);
         Classroom updatedClassroom = classroomRepository.save(classroom);
-        classroomMapper.convertToClassroomDTO(updatedClassroom);
+        classroomMapper.map(updatedClassroom);
         log.info("UPDATED {} SUCCESSFULLY", updatedClassroom);
     }
 
     @Override
     public ClassroomDTO save(ClassroomDTO classroomDTO) {
         log.info("SAVING... {}", classroomDTO);
-        Classroom classroom = classroomMapper.convertToClassroom(classroomDTO);
+        Classroom classroom = classroomMapper.map(classroomDTO);
         classroomRepository.save(classroom);
-        ClassroomDTO savedClassroomDTO = classroomMapper.convertToClassroomDTO(classroom);
+        ClassroomDTO savedClassroomDTO = classroomMapper.map(classroom);
         log.info("SAVED {} SUCCESSFULLY", savedClassroomDTO);
         return savedClassroomDTO;
     }
@@ -63,7 +63,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         requiredClassroomExistence(classroomId);
         log.info("FINDING... CLASSROOM BY ID- {}", classroomId);
         Classroom classroom = classroomRepository.findById(classroomId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find classroom by classroomId - %d", classroomId)));
-        ClassroomDTO classroomDTO = classroomMapper.convertToClassroomDTO(classroom);
+        ClassroomDTO classroomDTO = classroomMapper.map(classroom);
         log.info("FOUND CLASSROOM BY ID - {} SUCCESSFULLY", classroomId);
         return classroomDTO;
     }
@@ -82,7 +82,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         log.info("FINDING... ALL CLASSROOMS");
         List<Classroom> result = classroomRepository.findAll(Sort.by(Sort.Order.asc("number")));
         log.info("FOUND {} CLASSROOMS", result.size());
-        return result.stream().map(classroomMapper::convertToClassroomDTO).collect(Collectors.toList());
+        return result.stream().map(classroomMapper::map).collect(Collectors.toList());
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     public ClassroomDTO findByNumber(Integer classroomNumber) {
         log.info("FINDING... CLASSROOMS BY NUMBER - {}", classroomNumber);
         Classroom classroom = classroomRepository.findByNumber(classroomNumber).orElseThrow(() -> new GlobalNotFoundException(format("Classroom by number [%d] not found", classroomNumber)));
-        ClassroomDTO classroomDTO = classroomMapper.convertToClassroomDTO(classroom);
+        ClassroomDTO classroomDTO = classroomMapper.map(classroom);
         log.info("FOUND {} CLASSROOM BY NUMBER - {} SUCCESSFULLY", classroom, classroomNumber);
         return classroomDTO;
     }

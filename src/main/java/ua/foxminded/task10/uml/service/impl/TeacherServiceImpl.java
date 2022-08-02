@@ -51,9 +51,9 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     public TeacherDTO save(TeacherDTO teacherDTO) {
         log.info("SAVING... {}", teacherDTO);
-        Teacher teacher = teacherMapper.convertToTeacher(teacherDTO);
+        Teacher teacher = teacherMapper.map(teacherDTO);
         Teacher savedTeacher = teacherRepository.save(teacher);
-        TeacherDTO savedTeacherDTO = teacherMapper.convertToTeacherDTO(savedTeacher);
+        TeacherDTO savedTeacherDTO = teacherMapper.map(savedTeacher);
         log.info("SAVED {} SUCCESSFULLY", savedTeacherDTO);
         return savedTeacherDTO;
     }
@@ -64,7 +64,7 @@ public class TeacherServiceImpl implements TeacherService {
         requiredTeacherExistence(teacherId);
         log.info("FINDING... TEACHER BY ID - {}", teacherId);
         Teacher result = extractTeacherByIdWithRepo(teacherId);
-        TeacherDTO teacherDTO = teacherMapper.convertToTeacherDTO(result);
+        TeacherDTO teacherDTO = teacherMapper.map(result);
         log.info("FOUND {} BY ID - {}", teacherDTO, teacherId);
         return teacherDTO;
     }
@@ -148,7 +148,7 @@ public class TeacherServiceImpl implements TeacherService {
     public void saveAll(List<TeacherDTO> teachersDTO) {
         requireNonNull(teachersDTO);
         log.info("SAVING... {} TEACHERS", teachersDTO.size());
-        List<Teacher> teachers = teachersDTO.stream().map(teacherMapper::convertToTeacher).collect(Collectors.toList());
+        List<Teacher> teachers = teachersDTO.stream().map(teacherMapper::map).collect(Collectors.toList());
         teacherRepository.saveAll(teachers);
         log.info("SAVED {} TEACHERS SUCCESSFULLY", teachers.size());
     }
@@ -157,9 +157,9 @@ public class TeacherServiceImpl implements TeacherService {
     public void update(TeacherDTO teacherDTO) {
         requiredTeacherExistence(teacherDTO.getId());
         log.info("UPDATING... TEACHER BY ID - {}", teacherDTO.getId());
-        Teacher updatedTeacher = teacherMapper.convertToTeacher(teacherDTO);
+        Teacher updatedTeacher = teacherMapper.map(teacherDTO);
         Teacher savedTeacher = teacherRepository.save(updatedTeacher);
-        teacherMapper.convertToTeacherDTO(savedTeacher);
+        teacherMapper.map(savedTeacher);
         log.info("UPDATED TEACHER BY ID - {} SUCCESSFULLY", savedTeacher.getId());
     }
 
@@ -257,13 +257,13 @@ public class TeacherServiceImpl implements TeacherService {
         log.info("FINDING... SUBJECTS BY TEACHER ID - {}", teacherId);
         Teacher teacher = extractTeacherByIdWithRepo(teacherId);
         List<Subject> subjects = teacher.getSubjects();
-        List<SubjectDTO> subjectsDTO = subjects.stream().map(subjectMapper::convertToSubjectDTO).collect(Collectors.toList());
+        List<SubjectDTO> subjectsDTO = subjects.stream().map(subjectMapper::map).collect(Collectors.toList());
         log.info("FOUND SUBJECTS {} BY TEACHER ID - {} SUCCESSFULLY", teacher.getSubjects().size(), teacherId);
         return subjectsDTO;
     }
 
     private SubjectDTO getSubjectDTO(Subject newSubject) {
-        return subjectMapper.convertToSubjectDTO(newSubject);
+        return subjectMapper.map(newSubject);
     }
 
     private void checkToUniqueSubjectInList(Integer teacherId, Integer subjectId) {
@@ -284,7 +284,7 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     private List<TeacherDTO> getTeachersDTO(List<Teacher> teachers) {
-        return teachers.stream().map(teacherMapper::convertToTeacherDTO).collect(Collectors.toList());
+        return teachers.stream().map(teacherMapper::map).collect(Collectors.toList());
     }
 
     private void requiredTeacherExistence(Integer teacherId) {

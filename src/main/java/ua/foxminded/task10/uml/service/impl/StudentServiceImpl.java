@@ -44,9 +44,9 @@ public class StudentServiceImpl implements StudentService {
     @Override
     public StudentDTO save(StudentDTO studentDTO) {
         log.info("SAVING... {}", studentDTO);
-        Student student = studentMapper.convertToStudent(studentDTO);
+        Student student = studentMapper.map(studentDTO);
         Student saveStudent = studentRepository.save(student);
-        StudentDTO savedStudentDTO = studentMapper.convertToStudentDTO(saveStudent);
+        StudentDTO savedStudentDTO = studentMapper.map(saveStudent);
         log.info("SAVED {} SUCCESSFULLY", savedStudentDTO);
         return savedStudentDTO;
     }
@@ -57,7 +57,7 @@ public class StudentServiceImpl implements StudentService {
         requiredStudentExistence(studentId);
         log.info("FINDING... STUDENT BY ID - {}", studentId);
         Student result = studentRepository.findById(studentId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find student by studentId - %d", studentId)));
-        StudentDTO studentDTO = studentMapper.convertToStudentDTO(result);
+        StudentDTO studentDTO = studentMapper.map(result);
         log.info("FOUND {} BY ID - {}", studentDTO, studentId);
         return studentDTO;
     }
@@ -168,7 +168,7 @@ public class StudentServiceImpl implements StudentService {
     public void saveAll(List<StudentDTO> studentsDTO) {
         requireNonNull(studentsDTO);
         log.info("SAVING... {} STUDENTS", studentsDTO.size());
-        List<Student> students = studentsDTO.stream().map(studentMapper::convertToStudent).collect(Collectors.toList());
+        List<Student> students = studentsDTO.stream().map(studentMapper::map).collect(Collectors.toList());
         studentRepository.saveAll(students);
         log.info("SAVED {} STUDENTS SUCCESSFULLY", students.size());
     }
@@ -197,11 +197,11 @@ public class StudentServiceImpl implements StudentService {
         requiredStudentExistence(studentDTO.getId());
         requiredGroupExistence(studentDTO.getGroup().getId());
         GroupDTO groupDTO = groupService.findById(studentDTO.getGroup().getId());
-        Student student = studentMapper.convertToStudent(studentDTO);
-        Group group = groupMapper.convertToGroup(groupDTO);
+        Student student = studentMapper.map(studentDTO);
+        Group group = groupMapper.map(groupDTO);
         student.setGroup(group);
         Student updatedStudent = studentRepository.save(student);
-        studentMapper.convertToStudentDTO(updatedStudent);
+        studentMapper.map(updatedStudent);
         log.info("UPDATED SUCCESSFULLY");
     }
 
@@ -210,10 +210,10 @@ public class StudentServiceImpl implements StudentService {
         requiredStudentExistence(studentId);
         log.info("UPDATING... STUDENTS' BY ID - {} GROUP", studentId);
         StudentDTO studentDTO = findById(studentId);
-        Student student = studentMapper.convertToStudent(studentDTO);
+        Student student = studentMapper.map(studentDTO);
         student.setGroup(null);
         Student savedStudent = studentRepository.save(student);
-        studentMapper.convertToStudentDTO(savedStudent);
+        studentMapper.map(savedStudent);
         log.info("UPDATED THE STUDENTS' BY ID - {} GROUP SUCCESSFULLY", studentId);
     }
 
@@ -227,7 +227,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     private List<StudentDTO> getStudentsDTO(List<Student> students) {
-        return students.stream().map(studentMapper::convertToStudentDTO).collect(Collectors.toList());
+        return students.stream().map(studentMapper::map).collect(Collectors.toList());
     }
 
     private void requiredGroupExistence(Integer groupId) {

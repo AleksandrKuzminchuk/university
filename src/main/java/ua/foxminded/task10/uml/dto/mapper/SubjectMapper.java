@@ -18,12 +18,12 @@ public class SubjectMapper {
         this.modelMapper = modelMapper;
     }
 
-    public Subject convertToSubject(SubjectDTO subjectDTO){
+    public Subject map(SubjectDTO subjectDTO){
         log.info("Mapping to subject...");
         return modelMapper.map(subjectDTO, Subject.class);
     }
 
-    public SubjectDTO convertToSubjectDTO(Subject subject){
+    public SubjectDTO map(Subject subject){
         log.info("Mapping to subjectDTO...");
         return modelMapper.map(subject, SubjectDTO.class);
     }
