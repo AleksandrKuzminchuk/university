@@ -21,4 +21,8 @@ public class ClassroomDTO {
     @Max(value = 1000, message = "Must be less than 1000. Range courses from 1 to 1000")
     @ApiModelProperty(notes = "Unique number classroom", example = "125", required = true, position = 2)
     private Integer number;
+
+    public ClassroomDTO(Integer id) {
+        this.id = id;
+    }
 }

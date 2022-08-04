@@ -111,7 +111,7 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public GroupDTO findByName(String groupName) {
         log.info("FINDING... GROUPS BY NAME - {}", groupName);
-        Group result = groupRepository.findByName(groupName).orElseThrow(() -> new GlobalNotFoundException(format("Can't find groupName by name - %s", groupName)));
+        Group result = groupRepository.findByName(groupName).orElseThrow(() -> new GlobalNotFoundException(format("Can't find group by name - %s", groupName)));
         GroupDTO groupDTO = groupMapper.map(result);
         log.info("FOUND {} BY NAME - {} SUCCESSFULLY", groupDTO, groupName);
         return groupDTO;

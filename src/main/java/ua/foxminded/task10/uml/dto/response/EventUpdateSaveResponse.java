@@ -7,7 +7,6 @@ import java.util.List;
 
 @Data
 public class EventUpdateSaveResponse {
-
     private EventDTO event;
     private List<SubjectDTO> subjects;
     private List<ClassroomDTO> classrooms;

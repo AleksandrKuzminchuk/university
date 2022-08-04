@@ -7,15 +7,13 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
 import ua.foxminded.task10.uml.dto.SubjectDTO;
 import ua.foxminded.task10.uml.repository.SubjectRepository;
-import ua.foxminded.task10.uml.service.SubjectService;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class SubjectValidator implements Validator {
 
-    private final SubjectRepository  subjectRepository;
-    private final SubjectService subjectService;
+    private final SubjectRepository repository;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -26,19 +24,8 @@ public class SubjectValidator implements Validator {
     public void validate(Object target, Errors errors) {
         log.info("VALIDATING SUBJECT BY NAME {}", target);
         SubjectDTO subjectDTO = (SubjectDTO) target;
-        if (subjectRepository.findByName(subjectDTO.getName()).isPresent()){
+        if (repository.findByName(subjectDTO.getName()).isPresent()){
             errors.rejectValue("name", "", "Subject [" + subjectDTO.getName() + "] is already taken");
         }
-    }
-
-    public void validateUniqueTeacher(Integer subjectId, Integer teacherId, Errors errors) {
-        log.info("Validation of subjects for the uniqueness of the teacher");
-        subjectService.findTeachers(subjectId).forEach(teacher ->
-                {
-                    if (teacher.getId().equals(teacherId)) {
-                        errors.rejectValue("id", "", "The subject already has the teacher of id [" + teacherId + "]");
-                    }
-                }
-        );
     }
 }

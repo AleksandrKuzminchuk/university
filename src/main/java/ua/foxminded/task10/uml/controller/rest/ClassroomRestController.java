@@ -16,6 +16,7 @@ import ua.foxminded.task10.uml.dto.response.ClassroomResponse;
 import ua.foxminded.task10.uml.service.ClassroomService;
 import ua.foxminded.task10.uml.util.errors.ErrorResponse;
 import ua.foxminded.task10.uml.util.errors.ErrorsUtil;
+import ua.foxminded.task10.uml.util.errors.GlobalErrorResponse;
 import ua.foxminded.task10.uml.util.validations.ClassroomValidator;
 
 import javax.validation.Valid;
@@ -76,7 +77,7 @@ public class ClassroomRestController {
                     message = "Classroom is already taken",
                     response = ErrorResponse.class,
                     responseContainer = "ErrorResponse")})
-    public ClassroomDTO save(@ApiParam(value = "ClassroomDTO instance") @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO,
+    public ClassroomDTO save(@ApiParam(value = "ClassroomCreateDTO instance") @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO,
                              BindingResult bindingResult) {
         log.info("requested-> [POST]-'/api/classrooms/save'");
         ClassroomDTO saveClassroomDTO = mapper.map(classroomCreateDTO);
@@ -104,12 +105,17 @@ public class ClassroomRestController {
                     response = ClassroomDTO.class,
                     responseContainer = "ClassroomDTO"),
             @ApiResponse(
+                    code = 400,
+                    message = "Classroom not valid",
+                    response = GlobalErrorResponse.class,
+                    responseContainer = "GlobalErrorResponse"),
+            @ApiResponse(
                     code = 404,
                     message = "Classroom is already taken",
                     response = ErrorResponse.class,
                     responseContainer = "ErrorResponse")})
     public ClassroomDTO update(@ApiParam(value = "Classroom - Id") @PathVariable("id") Integer id,
-                               @ApiParam(value = "ClassroomDTO instance")
+                               @ApiParam(value = "ClassroomCreateDTO instance")
                                @RequestBody @Valid ClassroomCreateDTO classroomCreateDTO, BindingResult bindingResult) {
         log.info("requested-> [PATCH]-'/api/classrooms/update/{id}'");
         ClassroomDTO updateClassroomDTO = mapper.map(classroomCreateDTO);
@@ -138,6 +144,11 @@ public class ClassroomRestController {
                     response = ResponseEntity.class,
                     responseContainer = "ResponseEntity<?>"),
             @ApiResponse(
+                    code = 400,
+                    message = "Classroom not valid",
+                    response = GlobalErrorResponse.class,
+                    responseContainer = "GlobalErrorResponse"),
+            @ApiResponse(
                     code = 404,
                     message = "Classroom not exists",
                     response = ErrorResponse.class,
@@ -149,7 +160,7 @@ public class ClassroomRestController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/find/by_number/{number}")
+    @GetMapping("/find/by_number")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
             value = "Find classroom",
@@ -163,7 +174,7 @@ public class ClassroomRestController {
             message = "Found classroom by number successfully",
             response = ClassroomDTO.class,
             responseContainer = "ClassroomDTO")})
-    public ClassroomDTO findByNumber(@ApiParam(value = "Classroom number") @PathVariable("number") Integer classroomNumber) {
+    public ClassroomDTO findByNumber(@ApiParam(value = "Classroom number", example = "45") @RequestHeader("number") Integer classroomNumber) {
         log.info("requested-> [GET]-'/api/classrooms/find/by_number'");
         ClassroomDTO result = service.findByNumber(classroomNumber);
         log.info("FOUND {} CLASSROOMS BY NUMBER - {} SUCCESSFULLY", result, classroomNumber);

@@ -32,7 +32,7 @@ public class EventServiceImpl implements EventService {
     private final GroupService groupService;
     private final SubjectService subjectService;
     private final ClassroomService classroomService;
-    private final EventMapper eventMapper;
+    private final EventMapper mapper;
 
     @Override
     public EventUpdateSaveResponse saveForm() {
@@ -50,9 +50,9 @@ public class EventServiceImpl implements EventService {
     public EventDTO save(EventDTO eventDTO) {
         requiredEventExistence(eventDTO);
         log.info("SAVING... {}", eventDTO);
-        Event event = eventMapper.map(eventDTO);
+        Event event = mapper.map(eventDTO);
         Event savedEvent = eventRepository.save(event);
-        EventDTO savedEventDTO = eventMapper.map(savedEvent);
+        EventDTO savedEventDTO = mapper.map(savedEvent);
         log.info("SAVED {} SUCCESSFULLY", savedEventDTO);
         return savedEventDTO;
     }
@@ -64,7 +64,7 @@ public class EventServiceImpl implements EventService {
         log.info("FINDING... EVENT BY ID - {}", eventId);
         Event result = eventRepository.findById(eventId).
                 orElseThrow(() -> new GlobalNotFoundException(format("Can't find event by eventId - %d", eventId)));
-        EventDTO eventDTO = eventMapper.map(result);
+        EventDTO eventDTO = mapper.map(result);
         log.info("FOUND {} BY ID - {}", eventDTO, eventId);
         return eventDTO;
     }
@@ -82,7 +82,7 @@ public class EventServiceImpl implements EventService {
     public List<EventDTO> findAll() {
         log.info("FINDING... ALL EVENTS");
         List<Event> result = eventRepository.findAll(Sort.by(Sort.Order.asc("dateTime")));
-        List<EventDTO> eventsDTO= result.stream().map(eventMapper::map).collect(Collectors.toList());
+        List<EventDTO> eventsDTO= result.stream().map(mapper::map).collect(Collectors.toList());
         log.info("FOUND {} EVENTS", result.size());
         return eventsDTO;
     }
@@ -125,7 +125,7 @@ public class EventServiceImpl implements EventService {
         requireNonNull(eventsDTO);
         eventsDTO.forEach(this::requiredEventExistence);
         log.info("SAVING... {} EVENTS", eventsDTO.size());
-        List<Event> events = eventsDTO.stream().map(eventMapper::map).collect(Collectors.toList());
+        List<Event> events = eventsDTO.stream().map(mapper::map).collect(Collectors.toList());
         eventRepository.saveAll(events);
         log.info("SAVED {} EVENTS SUCCESSFULLY", events.size());
     }
@@ -149,9 +149,9 @@ public class EventServiceImpl implements EventService {
         requireNonNull(eventDTO.getId());
         requiredEventByIdExistence(eventDTO.getId());
         log.info("UPDATING... EVENT BY ID - {}", eventDTO.getId());
-        Event event = eventMapper.map(eventDTO);
+        Event event = mapper.map(eventDTO);
         Event updatedEvent = eventRepository.save(event);
-        eventMapper.map(updatedEvent);
+        mapper.map(updatedEvent);
         log.info("UPDATED EVENT BY ID - {} SUCCESSFULLY", eventDTO.getId());
     }
 
@@ -161,7 +161,7 @@ public class EventServiceImpl implements EventService {
         requireNonNull(endDateTime);
         log.info("FINDING... EVENT FROM {} TO {}", startDateTime.format(formatter), endDateTime.format(formatter));
         List<Event> result = eventRepository.findByDateTimeOrderByDateTime(startDateTime, endDateTime);
-        List<EventDTO> eventsDTO = result.stream().map(eventMapper::map).collect(Collectors.toList());
+        List<EventDTO> eventsDTO = result.stream().map(mapper::map).collect(Collectors.toList());
         log.info("FOUND {} EVENT FROM {} TO {}", result.size(), startDateTime.format(formatter), endDateTime.format(formatter));
         return eventsDTO;
     }

@@ -3,15 +3,14 @@ package ua.foxminded.task10.uml.dto;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 
 @Data
-@ApiModel(value = "StudentDTO")
-public class StudentDTO {
-
-    @ApiModelProperty(notes = "Unique Id student", example = "78", allowEmptyValue = true, position = 1)
-    private Integer id;
+@NoArgsConstructor
+@ApiModel(value = "StudentUpdateDTO")
+public class StudentUpdateDTO {
 
     @NotBlank(message = "Can't be empty and consist on placeholders. Hint-'Aleksandr'")
     @Pattern(regexp = "[A-Z][a-z]{3,30}", message = "Name must start with a capital letter and be limited to 30 characters")

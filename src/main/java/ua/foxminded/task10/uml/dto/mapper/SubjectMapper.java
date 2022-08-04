@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ua.foxminded.task10.uml.dto.SubjectCreateDTO;
 import ua.foxminded.task10.uml.dto.SubjectDTO;
 import ua.foxminded.task10.uml.model.Subject;
 
@@ -26,5 +27,10 @@ public class SubjectMapper {
     public SubjectDTO map(Subject subject){
         log.info("Mapping to subjectDTO...");
         return modelMapper.map(subject, SubjectDTO.class);
+    }
+
+    public SubjectDTO map(SubjectCreateDTO subjectCreateDTO){
+        log.info("Mapping to SubjectDTO...");
+        return modelMapper.map(subjectCreateDTO, SubjectDTO.class);
     }
 }

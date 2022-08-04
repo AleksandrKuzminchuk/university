@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import ua.foxminded.task10.uml.dto.GroupCreateDTO;
 import ua.foxminded.task10.uml.dto.GroupDTO;
 import ua.foxminded.task10.uml.model.Group;
 
@@ -26,5 +27,10 @@ public class GroupMapper {
     public GroupDTO map(Group group){
         log.info("Mapping to groupDTO...");
         return modelMapper.map(group, GroupDTO.class);
+    }
+
+    public GroupDTO map(GroupCreateDTO groupCreateDTO){
+        log.info("Mapping to groupDTO...");
+        return modelMapper.map(groupCreateDTO, GroupDTO.class);
     }
 }

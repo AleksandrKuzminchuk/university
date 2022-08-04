@@ -4,8 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import ua.foxminded.task10.uml.dto.EventDTO;
+import ua.foxminded.task10.uml.dto.*;
 import ua.foxminded.task10.uml.model.Event;
+import ua.foxminded.task10.uml.model.Group;
 
 @Slf4j
 @Component
@@ -26,5 +27,16 @@ public class EventMapper {
     public EventDTO map(Event event){
         log.info("Mapping to eventDTO...");
         return modelMapper.map(event, EventDTO.class);
+    }
+
+    public EventDTO map(EventCreateDTO eventCreateDTO){
+        log.info("Mapping to EventDTO...");
+        EventDTO eventDTO = new EventDTO();
+        eventDTO.setDateTime(eventCreateDTO.getDateTime());
+        eventDTO.setGroup(new GroupDTO(eventCreateDTO.getGroupId()));
+        eventDTO.setClassroom(new ClassroomDTO(eventCreateDTO.getClassroomId()));
+        eventDTO.setSubject(new SubjectDTO(eventCreateDTO.getSubjectId()));
+        eventDTO.setTeacher(new TeacherDTO(eventCreateDTO.getTeacherId()));
+        return eventDTO;
     }
 }

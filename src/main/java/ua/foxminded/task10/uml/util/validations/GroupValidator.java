@@ -14,7 +14,7 @@ import ua.foxminded.task10.uml.repository.GroupRepository;
 @RequiredArgsConstructor
 public class GroupValidator implements Validator {
 
-    private final GroupRepository groupRepository;
+    private final GroupRepository repository;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -25,7 +25,7 @@ public class GroupValidator implements Validator {
     public void validate(Object target, Errors errors) {
         log.info("VALIDATING GROUP BY NAME {}", target);
         GroupDTO group = (GroupDTO) target;
-        if (groupRepository.findByName(group.getName()).isPresent()){
+        if (repository.findByName(group.getName()).isPresent()){
             errors.rejectValue("name","", "Group [" + group.getName() + "] is already taken");
         }
     }

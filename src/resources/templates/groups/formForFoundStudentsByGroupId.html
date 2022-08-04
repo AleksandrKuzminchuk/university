@@ -16,7 +16,7 @@
 <div th:insert="~{students/studentTable :: students}"></div>
 
 <div class="form">
-    <form class="login-form" th:method="DELETE" th:action="@{/students/delete/all/by_group/{groupId}(groupId=${group.id})}">
+    <form class="login-form" th:method="DELETE" th:action="@{/students/delete/all/by_group/{groupId}(groupId=${students.get(0).getGroup().getId()})}">
         <button type="submit">DELETE THESE STUDENTS FROM GROUP</button>
     </form>
 </div>

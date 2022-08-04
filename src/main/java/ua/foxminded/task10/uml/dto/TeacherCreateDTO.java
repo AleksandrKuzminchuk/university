@@ -10,20 +10,15 @@ import javax.validation.constraints.Pattern;
 
 @Data
 @NoArgsConstructor
-@ApiModel(value = "TeacherDTO")
-public class TeacherDTO {
-    @ApiModelProperty(notes = "Unique Id teacher", example = "65", position = 1)
-    private Integer id;
+@ApiModel(value = "TeacherCreateDTO")
+public class TeacherCreateDTO {
+
     @NotBlank(message = "Can't be empty and consist on placeholders. Hint-'Aleksandr'")
     @Pattern(regexp = "[A-Z][a-z]{3,30}", message = "Name must start with a capital letter and be limited to 30 characters")
-    @ApiModelProperty(notes = "First name teacher", example = "Filip", position = 2)
+    @ApiModelProperty(notes = "First name teacher", example = "Filip", position = 1)
     private String firstName;
     @NotBlank(message = "Can't be empty and consist on placeholders. Hint-'Jordan'")
     @Pattern(regexp = "[A-Z][a-z]{3,30}", message = "Surname must start with a capital letter and be limited to 30 characters")
-    @ApiModelProperty(notes = "Last name teacher", example = "Dorin", position = 3)
+    @ApiModelProperty(notes = "Last name teacher", example = "Dorin", position = 2)
     private String lastName;
-
-    public TeacherDTO(Integer id) {
-        this.id = id;
-    }
 }

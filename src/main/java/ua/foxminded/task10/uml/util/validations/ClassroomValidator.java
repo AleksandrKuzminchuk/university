@@ -14,7 +14,7 @@ import ua.foxminded.task10.uml.repository.ClassroomRepository;
 @RequiredArgsConstructor
 public class ClassroomValidator implements Validator {
 
-    public final ClassroomRepository classroomRepository;
+    public final ClassroomRepository repository;
 
     @Override
     public boolean supports(Class<?> clazz) {
@@ -25,7 +25,7 @@ public class ClassroomValidator implements Validator {
     public void validate(Object target, Errors errors) {
         log.info("VALIDATING CLASSROOM BY NUMBER {}", target);
         ClassroomDTO classroomDTO = (ClassroomDTO) target;
-        if (classroomRepository.findByNumber(classroomDTO.getNumber()).isPresent()) {
+        if (repository.findByNumber(classroomDTO.getNumber()).isPresent()) {
             errors.rejectValue("number", "", "Classroom [" + classroomDTO.getNumber() + "] is already taken");
         }
     }

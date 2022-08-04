@@ -25,15 +25,15 @@ import static java.lang.String.format;
 @RequiredArgsConstructor
 public class ClassroomServiceImpl implements ClassroomService {
 
-    private final ClassroomRepository classroomRepository;
-    private final ClassroomMapper classroomMapper;
+    private final ClassroomRepository repository;
+    private final ClassroomMapper mapper;
 
     @Override
     public void saveAll(List<ClassroomDTO> classroomsDTO) {
         requireNonNull(classroomsDTO);
         log.info("SAVING... {} CLASSROOMS", classroomsDTO.size());
-        List<Classroom> classrooms = classroomsDTO.stream().map(classroomMapper::map).collect(Collectors.toList());
-        classroomRepository.saveAll(classrooms);
+        List<Classroom> classrooms = classroomsDTO.stream().map(mapper::map).collect(Collectors.toList());
+        repository.saveAll(classrooms);
         log.info("SAVED {} CLASSROOMS SUCCESSFULLY", classrooms.size());
     }
 
@@ -41,18 +41,18 @@ public class ClassroomServiceImpl implements ClassroomService {
     public void update(ClassroomDTO classroomDTO) {
         requiredClassroomExistence(classroomDTO.getId());
         log.info("UPDATING... CLASSROOM BY ID - {}", classroomDTO.getId());
-        Classroom classroom = classroomMapper.map(classroomDTO);
-        Classroom updatedClassroom = classroomRepository.save(classroom);
-        classroomMapper.map(updatedClassroom);
+        Classroom classroom = mapper.map(classroomDTO);
+        Classroom updatedClassroom = repository.save(classroom);
+        mapper.map(updatedClassroom);
         log.info("UPDATED {} SUCCESSFULLY", updatedClassroom);
     }
 
     @Override
     public ClassroomDTO save(ClassroomDTO classroomDTO) {
         log.info("SAVING... {}", classroomDTO);
-        Classroom classroom = classroomMapper.map(classroomDTO);
-        classroomRepository.save(classroom);
-        ClassroomDTO savedClassroomDTO = classroomMapper.map(classroom);
+        Classroom classroom = mapper.map(classroomDTO);
+        repository.save(classroom);
+        ClassroomDTO savedClassroomDTO = mapper.map(classroom);
         log.info("SAVED {} SUCCESSFULLY", savedClassroomDTO);
         return savedClassroomDTO;
     }
@@ -62,8 +62,8 @@ public class ClassroomServiceImpl implements ClassroomService {
         requireNonNull(classroomId);
         requiredClassroomExistence(classroomId);
         log.info("FINDING... CLASSROOM BY ID- {}", classroomId);
-        Classroom classroom = classroomRepository.findById(classroomId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find classroom by classroomId - %d", classroomId)));
-        ClassroomDTO classroomDTO = classroomMapper.map(classroom);
+        Classroom classroom = repository.findById(classroomId).orElseThrow(() -> new GlobalNotFoundException(format("Can't find classroom by classroomId - %d", classroomId)));
+        ClassroomDTO classroomDTO = mapper.map(classroom);
         log.info("FOUND CLASSROOM BY ID - {} SUCCESSFULLY", classroomId);
         return classroomDTO;
     }
@@ -72,7 +72,7 @@ public class ClassroomServiceImpl implements ClassroomService {
     public boolean existsById(Integer classroomId) {
         requireNonNull(classroomId);
         log.info("CHECKING... CLASSROOM EXISTS BY ID - {}", classroomId);
-        boolean result = classroomRepository.existsById(classroomId);
+        boolean result = repository.existsById(classroomId);
         log.info("CLASSROOM BY ID - {} EXISTS - {}", classroomId, result);
         return result;
     }
@@ -80,15 +80,15 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public List<ClassroomDTO> findAll() {
         log.info("FINDING... ALL CLASSROOMS");
-        List<Classroom> result = classroomRepository.findAll(Sort.by(Sort.Order.asc("number")));
+        List<Classroom> result = repository.findAll(Sort.by(Sort.Order.asc("number")));
         log.info("FOUND {} CLASSROOMS", result.size());
-        return result.stream().map(classroomMapper::map).collect(Collectors.toList());
+        return result.stream().map(mapper::map).collect(Collectors.toList());
     }
 
     @Override
     public Long count() {
         log.info("FINDING... COUNT CLASSROOMS");
-        Long result = classroomRepository.count();
+        Long result = repository.count();
         log.info("FOUND COUNT({}) CLASSROOMS", result);
         return result;
     }
@@ -98,7 +98,7 @@ public class ClassroomServiceImpl implements ClassroomService {
         requireNonNull(classroomId);
         requiredClassroomExistence(classroomId);
         log.info("DELETING... CLASSROOM BY ID- {}", classroomId);
-        classroomRepository.deleteById(classroomId);
+        repository.deleteById(classroomId);
         log.info("DELETED CLASSROOMS BY ID - {} SUCCESSFULLY", classroomId);
     }
 
@@ -110,21 +110,21 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     public void deleteAll() {
         log.info("DELETING... ALL CLASSROOMS");
-        classroomRepository.deleteAll();
+        repository.deleteAll();
         log.info("DELETED ALL CLASSROOMS SUCCESSFULLY");
     }
 
     @Override
     public ClassroomDTO findByNumber(Integer classroomNumber) {
         log.info("FINDING... CLASSROOMS BY NUMBER - {}", classroomNumber);
-        Classroom classroom = classroomRepository.findByNumber(classroomNumber).orElseThrow(() -> new GlobalNotFoundException(format("Classroom by number [%d] not found", classroomNumber)));
-        ClassroomDTO classroomDTO = classroomMapper.map(classroom);
+        Classroom classroom = repository.findByNumber(classroomNumber).orElseThrow(() -> new GlobalNotFoundException(format("Classroom by number [%d] not found", classroomNumber)));
+        ClassroomDTO classroomDTO = mapper.map(classroom);
         log.info("FOUND {} CLASSROOM BY NUMBER - {} SUCCESSFULLY", classroom, classroomNumber);
         return classroomDTO;
     }
 
     private void requiredClassroomExistence(Integer classroomId) {
-        if (!classroomRepository.existsById(classroomId))
+        if (!repository.existsById(classroomId))
             throw new GlobalNotFoundException(format("Classroom by id - %d not exists", classroomId));
     }
 
