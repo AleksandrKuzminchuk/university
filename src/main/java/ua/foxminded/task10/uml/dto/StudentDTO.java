@@ -2,11 +2,15 @@ package ua.foxminded.task10.uml.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.*;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 @ApiModel(value = "StudentDTO")
 public class StudentDTO {
 
@@ -31,4 +35,10 @@ public class StudentDTO {
 
     @ApiModelProperty(notes = "Unique group student", example = "G-10", position = 5)
     private GroupDTO group;
+
+    public StudentDTO(String firstName, String lastName, Integer course) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.course = course;
+    }
 }

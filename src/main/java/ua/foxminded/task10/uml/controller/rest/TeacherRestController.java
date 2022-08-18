@@ -194,7 +194,7 @@ public class TeacherRestController {
             responseContainer = "TeacherResponse"))
     public TeacherResponse findByNameOrSurname(@ApiParam(value = "Teacher") @RequestHeader Map<String, String> teacher) {
         log.info("requested-> [GET]-'/api/teachers/find/name-or-surname'");
-        List<TeacherDTO> teachersDTO = service.findByNameOrSurname(teacher.get("name"), teacher.get("surname"));
+        List<TeacherDTO> teachersDTO = service.findByNameOrSurname(teacher.get("firstName"), teacher.get("lastName"));
         return new TeacherResponse(teachersDTO);
     }
 

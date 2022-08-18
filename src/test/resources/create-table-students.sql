@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS students CASCADE;
 CREATE TABLE public.students
 (
     student_id SERIAL PRIMARY KEY,

@@ -6,19 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.MultiValueMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ua.foxminded.task10.uml.dto.*;
 import ua.foxminded.task10.uml.dto.mapper.StudentMapper;
-import ua.foxminded.task10.uml.dto.response.ClassroomResponse;
 import ua.foxminded.task10.uml.dto.response.StudentsResponse;
 import ua.foxminded.task10.uml.service.StudentService;
 import ua.foxminded.task10.uml.util.errors.ErrorResponse;
 import ua.foxminded.task10.uml.util.errors.ErrorsUtil;
 import ua.foxminded.task10.uml.util.errors.GlobalErrorResponse;
-import ua.foxminded.task10.uml.util.errors.GlobalValidationErrorResponse;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -285,7 +282,7 @@ public class StudentRestController {
         return new StudentsResponse(studentsDTO);
     }
 
-    @GetMapping("/find/name-or-surname")   //TODO
+    @GetMapping("/find/name-or-surname")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
             value = "Find students by name or surname",
@@ -302,7 +299,7 @@ public class StudentRestController {
             responseContainer = "StudentsResponse"))
     public StudentsResponse findByNameOrSurname(@ApiParam(value = "Student") @RequestHeader Map<String, String> student) {
         log.info("requested-> [GET]-'/api/students/find/name-or-surname'");
-        List<StudentDTO> students = service.findByNameOrSurname(student.get("name"), student.get("surname"));
+        List<StudentDTO> students = service.findByNameOrSurname(student.get("firstName"), student.get("lastName"));
         log.info("Found students {} by name or surname SUCCESSFULLY", students.size());
         return new StudentsResponse(students);
     }
