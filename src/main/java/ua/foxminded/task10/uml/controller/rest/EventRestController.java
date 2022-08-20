@@ -77,7 +77,7 @@ public class EventRestController {
                     response = ErrorResponse.class,
                     responseContainer = "ErrorResponse")})
     public EventDTO save(@ApiParam(value = "EventCreateDTO instance") @RequestBody EventCreateDTO eventCreateDTO) {
-        log.info("requested-> [POST]-'/api/events/saved'");
+        log.info("requested-> [POST]-'/api/events/save'");
         EventDTO saveEventDTO = mapper.map(eventCreateDTO);
         EventDTO savedEvent = service.save(saveEventDTO);
         log.info("SAVED {} EVENT SUCCESSFULLY", savedEvent);
@@ -137,7 +137,7 @@ public class EventRestController {
                     response = ErrorResponse.class,
                     responseContainer = "ErrorResponse")})
     public ResponseEntity<?> deleteById(@ApiParam(value = "Event Id") @PathVariable("id") Integer id) {
-        log.info("requested-> [DELETE]-'/api/events/{id}/deleted'");
+        log.info("requested-> [DELETE]-'/api/events/{id}/delete'");
         service.deleteById(id);
         log.info("DELETED EVENT BY ID - {} SUCCESSFULLY", id);
         return ResponseEntity.ok().build();
@@ -180,9 +180,9 @@ public class EventRestController {
             message = "Found events successfully",
             response = EventResponse.class,
             responseContainer = "EventResponse")})
-    public EventResponse findEvents(@ApiParam(value = "startDateTime", defaultValue = "2020-08-02T11:11") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    public EventResponse findEvents(@ApiParam(value = "startDateTime", defaultValue = "2020-08-02 11:11") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
                                     @RequestHeader(value = "startDateTime") LocalDateTime startDateTime,
-                                    @ApiParam(value =  "endDateTime",defaultValue = "2023-08-02T11:11") @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+                                    @ApiParam(value =  "endDateTime",defaultValue = "2023-08-02 11:11") @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
                                     @RequestHeader(value = "endDateTime") LocalDateTime endDateTime) {
         log.info("requested-> [GET]->'/api/events/find'");
         List<EventDTO> eventsDTO = service.find(startDateTime, endDateTime);

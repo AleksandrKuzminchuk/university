@@ -36,7 +36,7 @@ public class Group {
 
     @Singular
     @ToString.Exclude
-    @OneToMany(cascade = {CascadeType.PERSIST}, mappedBy = "group", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "group", fetch = FetchType.LAZY)
     private List<Student> students;
 
     public Group(@NonNull Integer id) {

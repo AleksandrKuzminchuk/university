@@ -20,10 +20,10 @@
     <form class="login-form" th:method="DELETE" th:action="@{/students/deleted/all}">
         <button type="submit">DELETE ALL STUDENTS</button>
     </form>
-    <form class="login-form" th:method="DELETE"
-          th:action="@{/students/delete/all/by_group/{groupId}(groupId=${groupId})}">
-        <button type="submit">DELETE ALL STUDENTS BY THIS GROUP</button>
-    </form>
+<!--    <form class="login-form" th:method="DELETE"-->
+<!--          th:action="@{/students/delete/all/by_group/{groupId}(groupId=${groupId})}">-->
+<!--        <button type="submit">DELETE ALL STUDENTS BY THIS GROUP</button>-->
+<!--    </form>-->
     <form class="login-form" th:method="DELETE"
           th:action="@{/students/delete/by_course/{course}(course=${students.get(0).course})}">
         <button type="submit">DELETE ALL STUDENTS BY THIS COURSE</button>

@@ -8,8 +8,11 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
+@EqualsAndHashCode
 @ApiModel(value = "ClassroomDTO")
 public class ClassroomDTO {
 

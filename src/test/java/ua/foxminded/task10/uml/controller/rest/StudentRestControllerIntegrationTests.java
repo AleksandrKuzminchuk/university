@@ -2,6 +2,7 @@ package ua.foxminded.task10.uml.controller.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,10 +12,12 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ua.foxminded.task10.uml.dto.GroupDTO;
+import ua.foxminded.task10.uml.dto.StudentCreateDTO;
 import ua.foxminded.task10.uml.dto.StudentDTO;
+import ua.foxminded.task10.uml.dto.StudentUpdateDTO;
+import ua.foxminded.task10.uml.dto.mapper.StudentMapper;
 import ua.foxminded.task10.uml.service.GroupService;
 import ua.foxminded.task10.uml.service.StudentService;
-import ua.foxminded.task10.uml.util.exceptions.GlobalNotFoundException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,16 +38,16 @@ class StudentRestControllerIntegrationTests {
     @Autowired
     private GroupService groupService;
     @Autowired
-    ObjectMapper mapper;
+    private ObjectMapper objectMapper;
 
-    @AfterEach
+    @BeforeEach
     void setUp() {
         studentService.deleteAll();
         groupService.deleteAll();
     }
 
     @Test
-    void givenListOfStudentsDTO_whenGetAllStudents_thenReturnStudentsDTOList() throws Exception {
+    void givenListOfStudentsDTO_whenGetAll_thenReturnStudentsDTOList() throws Exception {
 
         createStudentsDTO();
 
@@ -58,13 +61,13 @@ class StudentRestControllerIntegrationTests {
     }
 
     @Test
-    void givenStudentDTOObject_whenCreateStudentDTO_thenReturnSavedStudentDTO() throws Exception{
+    void givenStudentDTOObject_whenCreate_thenReturnSavedStudentDTO() throws Exception{
 
-        StudentDTO studentDTO = new StudentDTO("Mark", "Oliver", 5);
+        StudentCreateDTO studentDTO = new StudentCreateDTO("Mark", "Oliver", 5);
 
         ResultActions response = mockMvc.perform(post("/api/students/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(studentDTO)));
+                .content(objectMapper.writeValueAsString(studentDTO)));
 
         response.andDo(print())
                 .andExpect(status().isCreated())
@@ -75,26 +78,26 @@ class StudentRestControllerIntegrationTests {
     }
 
     @Test
-    void givenStudentDTOObject_whenCreateStudentDTO_thenReturnBadRequest400NotValid() throws Exception{
+    void givenStudentDTOObject_whenCreate_thenReturnBadRequest400NotValid() throws Exception{
 
-        StudentDTO studentDTO = new StudentDTO("mark", "Oliver", 6);
+        StudentCreateDTO studentDTO = new StudentCreateDTO("mark", "Oliver", 6);
 
         ResultActions response = mockMvc.perform(post("/api/students/save")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(studentDTO)));
+                .content(objectMapper.writeValueAsString(studentDTO)));
 
         response.andDo(print())
                 .andExpect(status().isBadRequest());
     }
 
     @Test
-    void givenUpdatedStudentDTO_whenUpdateStudentDTO_thenReturnUpdatedStudentDTOObject() throws Exception{
+    void givenUpdatedStudentDTO_whenUpdate_thenReturnUpdatedStudentDTOObject() throws Exception{
 
         GroupDTO group = createGroupDTO();
 
         StudentDTO studentDTO = createStudentDTO();
 
-        StudentDTO updatedStudent = new StudentDTO();
+        StudentUpdateDTO updatedStudent = new StudentUpdateDTO();
         updatedStudent.setFirstName("Kiril");
         updatedStudent.setLastName("Hurmek");
         updatedStudent.setCourse(4);
@@ -102,11 +105,12 @@ class StudentRestControllerIntegrationTests {
 
         ResultActions response = mockMvc.perform(patch("/api/students/update/{id}", studentDTO.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedStudent)));
+                .content(objectMapper.writeValueAsString(updatedStudent)));
 
         response.andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.id", is(studentDTO.getId())))
                 .andExpect(jsonPath("$.firstName", is(updatedStudent.getFirstName())))
                 .andExpect(jsonPath("$.lastName", is(updatedStudent.getLastName())))
                 .andExpect(jsonPath("$.course", is(updatedStudent.getCourse())))
@@ -115,18 +119,18 @@ class StudentRestControllerIntegrationTests {
     }
 
     @Test
-    void givenUpdatedStudentDTO_whenUpdateStudentDTO_thenReturnNotFound404StudentNotExists() throws Exception {
+    void givenUpdatedStudentDTO_whenUpdate_thenReturnNotFound404StudentNotExists() throws Exception {
 
         createStudentDTO();
 
-        StudentDTO updatedStudent = new StudentDTO();
+        StudentUpdateDTO updatedStudent = new StudentUpdateDTO();
         updatedStudent.setFirstName("Kiril");
         updatedStudent.setLastName("Hurmek");
         updatedStudent.setCourse(4);
 
         ResultActions response = mockMvc.perform(patch("/api/students/update/2")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedStudent)));
+                .content(objectMapper.writeValueAsString(updatedStudent)));
 
         response.andExpect(status().isNotFound())
                 .andDo(print());
@@ -134,11 +138,11 @@ class StudentRestControllerIntegrationTests {
     }
 
     @Test
-    void givenUpdatedStudentDTO_whenUpdateStudentDTO_thenReturn404NotFoundGroupNotExists() throws Exception{
+    void givenUpdatedStudentDTO_whenUpdate_thenReturn404NotFoundGroupNotExists() throws Exception{
 
         StudentDTO studentDTO = createStudentDTO();
 
-        StudentDTO updatedStudent = new StudentDTO();
+        StudentUpdateDTO updatedStudent = new StudentUpdateDTO();
         updatedStudent.setFirstName("Kiril");
         updatedStudent.setLastName("Hurmek");
         updatedStudent.setCourse(4);
@@ -146,25 +150,25 @@ class StudentRestControllerIntegrationTests {
 
         ResultActions response = mockMvc.perform(patch("/api/students/update/{id}", studentDTO.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedStudent)));
+                .content(objectMapper.writeValueAsString(updatedStudent)));
 
         response.andExpect(status().isNotFound())
                 .andDo(print());
     }
 
     @Test
-    void givenUpdatedStudentDTO_whenUpdateStudentDTO_thenReturnBadRequest400NotValid() throws Exception {
+    void givenUpdatedStudentDTO_whenUpdate_thenReturnBadRequest400NotValid() throws Exception {
 
         StudentDTO studentDTO = createStudentDTO();
 
-        StudentDTO updatedStudent = new StudentDTO();
+        StudentUpdateDTO updatedStudent = new StudentUpdateDTO();
         updatedStudent.setFirstName("kiril");
         updatedStudent.setLastName("hurmek");
         updatedStudent.setCourse(8);
 
         ResultActions response = mockMvc.perform(patch("/api/students/update/{id}", studentDTO.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(mapper.writeValueAsString(updatedStudent)));
+                .content(objectMapper.writeValueAsString(updatedStudent)));
 
         response.andExpect(status().isBadRequest())
                 .andDo(print());
@@ -172,7 +176,7 @@ class StudentRestControllerIntegrationTests {
     }
 
     @Test
-    void givenResponseEntity_whenDeleteStudentDTOById_thenReturn200() throws Exception {
+    void givenResponseEntity_whenDeleteById_thenReturn200() throws Exception {
 
         StudentDTO studentDTO = createStudentDTO();
 
@@ -183,7 +187,7 @@ class StudentRestControllerIntegrationTests {
     }
 
     @Test
-    void givenResponseEntity_whenDeleteStudentDTOById_thenReturn404NotFound() throws Exception {
+    void givenResponseEntity_whenDeleteById_thenReturn404NotFound() throws Exception {
 
         ResultActions response = mockMvc.perform(delete("/api/students/10/delete"));
 

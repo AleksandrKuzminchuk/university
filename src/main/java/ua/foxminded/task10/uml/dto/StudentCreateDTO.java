@@ -2,6 +2,7 @@ package ua.foxminded.task10.uml.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,6 +10,7 @@ import javax.validation.constraints.*;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @ApiModel(value = "StudentCreateDTO")
 public class StudentCreateDTO {
 
@@ -27,4 +29,6 @@ public class StudentCreateDTO {
     @NotNull(message = "Can't be empty and consist on placeholders")
     @ApiModelProperty(notes = "Course student", example = "4", position = 3)
     private Integer course;
+
+
 }

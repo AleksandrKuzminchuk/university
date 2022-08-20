@@ -33,17 +33,17 @@ public class Event {
 
     @OneToOne
     @ToString.Include
-    @JoinColumn(name = "subject_id", referencedColumnName = "subject_id", unique = true)
+    @JoinColumn(name = "subject_id", referencedColumnName = "subject_id")
     private Subject subject;
 
     @OneToOne
     @ToString.Include
-    @JoinColumn(name = "classroom_id", referencedColumnName = "classroom_id", unique = true)
+    @JoinColumn(name = "classroom_id", referencedColumnName = "classroom_id")
     private Classroom classroom;
 
     @OneToOne
     @ToString.Include
-    @JoinColumn(name = "group_id", referencedColumnName = "group_id", unique = true)
+    @JoinColumn(name = "group_id", referencedColumnName = "group_id")
     private Group group;
 
     @OneToOne

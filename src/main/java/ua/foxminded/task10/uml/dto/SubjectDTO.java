@@ -26,4 +26,8 @@ public class SubjectDTO {
     public SubjectDTO(Integer id) {
         this.id = id;
     }
+
+    public SubjectDTO(String name) {
+        this.name = name;
+    }
 }

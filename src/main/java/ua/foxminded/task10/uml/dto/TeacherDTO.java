@@ -26,4 +26,9 @@ public class TeacherDTO {
     public TeacherDTO(Integer id) {
         this.id = id;
     }
+
+    public TeacherDTO(String firstName, String lastName) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+    }
 }

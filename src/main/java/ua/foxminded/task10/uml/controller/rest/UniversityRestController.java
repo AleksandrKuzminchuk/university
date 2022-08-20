@@ -46,7 +46,7 @@ public class UniversityRestController {
             response = EventResponse.class,
             responseContainer = "EventResponse")})
     public EventResponse showUniversity() {
-        log.info("University home page");
+        log.info("University home page -> [GET]-'/api/university'");
         List<EventDTO> eventList = service.find(LocalDateTime.of(LocalDate.now(), LocalTime.MIN),
                 LocalDateTime.of(LocalDate.now(), LocalTime.MAX));
         return new EventResponse(eventList);

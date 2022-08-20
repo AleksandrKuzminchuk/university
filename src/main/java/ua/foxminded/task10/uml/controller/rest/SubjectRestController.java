@@ -197,7 +197,7 @@ public class SubjectRestController {
             message = "Found subject by name successfully",
             response = SubjectDTO.class,
             responseContainer = "SubjectDTO")})
-    public ResponseEntity<SubjectDTO> findByName(@ApiParam("Subject name") @RequestHeader String subjectName) {
+    public ResponseEntity<SubjectDTO> findByName(@ApiParam("Subject name") @RequestHeader("name") String subjectName) {
         log.info("requested-> [GET]-'/api/subjects/find/by_name'");
         SubjectDTO result = service.findByName(subjectName);
         log.info("FOUND {} SUBJECT BY NAME {}", result, subjectName);
@@ -237,7 +237,7 @@ public class SubjectRestController {
                     responseContainer = "ErrorResponse")})
     public TeacherDTO addTeacher(@ApiParam(value = "Subject Id") @PathVariable("subjectId") Integer subjectId,
                                  @ApiParam(value = "Teacher Id") @PathVariable("teacherId") Integer teacherId) {
-        log.info("requested-> [POST]-'/api/subjects/{id}/add/teacher'");
+        log.info("requested-> [POST]-'/api/subjects/{subjectId}/add/{teacherId}/teacher'");
         TeacherDTO teacherDTOToBeAdded = service.addTeacher(subjectId, teacherId);
         log.info("ADDED SUBJECT BY ID - {} TO TEACHER BY ID - {} SUCCESSFULLY", subjectId, teacherId);
         return teacherDTOToBeAdded;

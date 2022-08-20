@@ -32,4 +32,12 @@ public class EventDTO {
     private GroupDTO group;
     @ApiModelProperty(notes = "Teacher name and surname", example = "teacher\n{\nid: 21\nfirstName: Kiril\nlastName: Hurmek\n}", position = 6)
     private TeacherDTO teacher;
+
+    public EventDTO(LocalDateTime dateTime, SubjectDTO subject, ClassroomDTO classroom, GroupDTO group, TeacherDTO teacher) {
+        this.dateTime = dateTime;
+        this.subject = subject;
+        this.classroom = classroom;
+        this.group = group;
+        this.teacher = teacher;
+    }
 }
