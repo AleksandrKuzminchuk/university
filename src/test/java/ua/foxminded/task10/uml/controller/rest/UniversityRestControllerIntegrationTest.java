@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import ua.foxminded.task10.uml.dto.*;
 import ua.foxminded.task10.uml.service.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,6 +21,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ua.foxminded.task10.uml.util.formatters.DateTimeFormat.formatter;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -89,9 +91,9 @@ class UniversityRestControllerIntegrationTest {
         classroomDTO1.setNumber(78);
         GroupDTO groupDTO1 = new GroupDTO();
         groupDTO1.setName("G-67");
-        eventsDTO.add(new EventDTO(LocalDateTime.of(2022, 8, 20, 9, 0, 0), subjectDTO,
+        eventsDTO.add(new EventDTO(LocalDateTime.now(), subjectDTO,
                 classroomDTO, groupDTO, teacherDTO));
-        eventsDTO.add(new EventDTO(LocalDateTime.of(2022, 8, 20, 10, 0, 0), subjectDTO,
+        eventsDTO.add(new EventDTO(LocalDateTime.now(), subjectDTO,
                 classroomDTO, groupDTO, teacherDTO));
         return eventsDTO.stream().map(eventDTO -> service.save(eventDTO)).collect(Collectors.toList());
     }

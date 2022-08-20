@@ -195,7 +195,7 @@ class EventRestControllerIntegrationTest {
 
     //TODO not threw exception GlobalNotFoundException, although I threw (andExpect(status().isNotFound())); Help me please)
 //    @Test
-//    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NoyFoundSubject() throws Exception {
+//    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundSubject() throws Exception {
 //
 //        ClassroomDTO classroomDTO = new ClassroomDTO();
 //        classroomDTO.setNumber(785);
@@ -225,7 +225,7 @@ class EventRestControllerIntegrationTest {
 //    }
 
 //    @Test
-//    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NoyFoundClassroom() throws Exception {
+//    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundClassroom() throws Exception {
 //
 //        SubjectDTO changeSubject = subjectService.save(new SubjectDTO("MATH"));
 //
