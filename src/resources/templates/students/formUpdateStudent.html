@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>UPDATE STUDENT</title>
     <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
     <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
@@ -16,13 +16,14 @@
               th:method="PATCH"
               th:action="@{/students/{id}/updated(id=${studentUpdate.student.id})}"
               th:object="${studentUpdate}">
-            <input type="text" th:field="*{student.firstName}" id="firstName" placeholder="name"/>
-            <input type="text" th:field="*{student.lastName}" id="lastName" placeholder="surname"/>
-            <input type="text" th:field="*{student.course}" id="course" placeholder="course"/>
+            <input type="hidden" th:field="*{student.id}" id="studentId" name="id" value="*{student.id}"/>
+            <input type="text" th:field="*{student.firstName}" name="firstName" placeholder="name"/>
+            <input type="text" th:field="*{student.lastName}" name="lastName" placeholder="surname"/>
+            <input type="text" th:field="*{student.course}" name="course" placeholder="course"/>
             <span class="custom-dropdown big">
             <select th:object="${studentUpdate}" th:field="*{student.group.id}" id="student">
-                <option th:each="group : ${studentUpdate.groups}" th:value="${group.id}"
-                        th:text="${group.name}"></option>
+                <option typeof="hidden" th:each="group : ${studentUpdate.groups}" th:value="${group.id}" id="groupId" name="group" th:text="${group.id}" value="${group.id}"></option>
+                <option th:each="group : ${studentUpdate.groups}" th:value="${group.id}" id="name" name="group" th:text="${group.name}" value="${group.name}"></option>
             </select>
             </span>
             <button type="submit">update</button>

@@ -1,11 +1,13 @@
 package ua.foxminded.task10.uml.controller.rest;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ua.foxminded.task10.uml.dto.*;
@@ -25,6 +27,9 @@ import static ua.foxminded.task10.uml.util.formatters.DateTimeFormat.formatter;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Sql(value = {"classpath:create-table-classrooms.sql", "classpath:create-table-subjects.sql", "classpath:create-table-teachers_subjects.sql",
+        "classpath:create-table-teachers.sql", "classpath:create-table-groups.sql", "classpath:create-table-events.sql"},
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class UniversityRestControllerIntegrationTest {
 
     @Autowired
@@ -42,6 +47,11 @@ class UniversityRestControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        service.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
         service.deleteAll();
     }
 

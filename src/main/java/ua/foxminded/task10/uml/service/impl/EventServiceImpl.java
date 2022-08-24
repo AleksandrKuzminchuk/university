@@ -148,6 +148,7 @@ public class EventServiceImpl implements EventService {
     public void update(EventDTO eventDTO) {
         requireNonNull(eventDTO.getId());
         requiredEventByIdExistence(eventDTO.getId());
+        requiredEventExistence(eventDTO);
         log.info("UPDATING... EVENT BY ID - {}", eventDTO.getId());
         Event event = mapper.map(eventDTO);
         Event updatedEvent = eventRepository.save(event);

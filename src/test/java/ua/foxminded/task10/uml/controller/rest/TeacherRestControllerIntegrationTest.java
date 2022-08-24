@@ -1,6 +1,7 @@
 package ua.foxminded.task10.uml.controller.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ua.foxminded.task10.uml.dto.SubjectDTO;
@@ -25,9 +27,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ua.foxminded.task10.uml.util.ConstantsTests.ID_NOT_EXISTS;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Sql(value = {"classpath:create-table-classrooms.sql", "classpath:create-table-subjects.sql", "classpath:create-table-teachers_subjects.sql",
+        "classpath:create-table-teachers.sql", "classpath:create-table-groups.sql", "classpath:create-table-events.sql"},
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class TeacherRestControllerIntegrationTest {
 
     @Autowired
@@ -41,6 +47,12 @@ class TeacherRestControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        subjectService.deleteAll();
+        service.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
         subjectService.deleteAll();
         service.deleteAll();
     }
@@ -101,7 +113,7 @@ class TeacherRestControllerIntegrationTest {
     @Test
     void givenResponseEntity_whenDeleteById_thenReturn404NotFound() throws Exception {
 
-        ResultActions response = mockMvc.perform(delete("/api/teachers/125/delete"));
+        ResultActions response = mockMvc.perform(delete("/api/teachers/{id}/delete", ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -146,7 +158,7 @@ class TeacherRestControllerIntegrationTest {
 
         TeacherCreateDTO updateTeacher = createTeacherCreateDTO();
 
-        ResultActions response = mockMvc.perform(patch("/api/teachers/update/4545")
+        ResultActions response = mockMvc.perform(patch("/api/teachers/update/{id}", ID_NOT_EXISTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(updateTeacher)));
 
@@ -203,7 +215,7 @@ class TeacherRestControllerIntegrationTest {
     @Test
     void givenSubjectsDTOList_whenFindSubjects_thenReturn404NotFound() throws Exception {
 
-        ResultActions response = mockMvc.perform(get("/api/teachers/4545/find/subjects"));
+        ResultActions response = mockMvc.perform(get("/api/teachers/{id}/find/subjects", ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -247,10 +259,8 @@ class TeacherRestControllerIntegrationTest {
 
         TeacherDTO teacherDTO = createTeacherDTO();
 
-        Integer idSubject = 4545;
-
         ResultActions response = mockMvc
-                .perform(post("/api/teachers/{teacherId}/add/subject/{subjectId}", teacherDTO.getId(), idSubject));
+                .perform(post("/api/teachers/{teacherId}/add/subject/{subjectId}", teacherDTO.getId(), ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -259,12 +269,10 @@ class TeacherRestControllerIntegrationTest {
     @Test
     void givenSubjectDTOObject_whenAddSubject_thenReturn404NotFoundTeacher() throws Exception {
 
-        Integer idTeacher = 4545;
-
         SubjectDTO subjectDTO = createSubjectDTO();
 
         ResultActions response = mockMvc
-                .perform(post("/api/teachers/{teacherId}/add/subject/{subjectId}", idTeacher, subjectDTO.getId()));
+                .perform(post("/api/teachers/{teacherId}/add/subject/{subjectId}", ID_NOT_EXISTS, subjectDTO.getId()));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -295,8 +303,6 @@ class TeacherRestControllerIntegrationTest {
     @Test
     void givenUpdatedSubjectDTOObject_whenUpdateSubject_thenReturn404NotFoundTeacher() throws Exception {
 
-        Integer idTeacher = 4545;
-
         TeacherDTO teacherDTO = createTeacherDTO();
 
         SubjectDTO oldSubject = createSubjectDTO();
@@ -307,7 +313,7 @@ class TeacherRestControllerIntegrationTest {
 
         ResultActions response = mockMvc
                 .perform(patch("/api/teachers/{teacherId}/update/{oldSubjectId}/subject/new/{newSubjectId}",
-                        idTeacher, oldSubject.getId(), newSubject.getId()));
+                        ID_NOT_EXISTS, oldSubject.getId(), newSubject.getId()));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -316,8 +322,6 @@ class TeacherRestControllerIntegrationTest {
     @Test
     void givenUpdatedSubjectDTOObject_whenUpdateSubject_thenReturn404NotFoundOldSubject() throws Exception {
 
-        Integer idOldSubject = 4545;
-
         TeacherDTO teacherDTO = createTeacherDTO();
 
         SubjectDTO oldSubject = createSubjectDTO();
@@ -328,7 +332,7 @@ class TeacherRestControllerIntegrationTest {
 
         ResultActions response = mockMvc
                 .perform(patch("/api/teachers/{teacherId}/update/{oldSubjectId}/subject/new/{newSubjectId}",
-                        teacherDTO.getId(), idOldSubject, newSubject.getId()));
+                        teacherDTO.getId(), ID_NOT_EXISTS, newSubject.getId()));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -336,8 +340,6 @@ class TeacherRestControllerIntegrationTest {
 
     @Test
     void givenUpdatedSubjectDTOObject_whenUpdateSubject_thenReturn404NotFoundNewSubject() throws Exception {
-
-        Integer idNewSubject = 4545;
 
         TeacherDTO teacherDTO = createTeacherDTO();
 
@@ -347,7 +349,7 @@ class TeacherRestControllerIntegrationTest {
 
         ResultActions response = mockMvc
                 .perform(patch("/api/teachers/{teacherId}/update/{oldSubjectId}/subject/new/{newSubjectId}",
-                        teacherDTO.getId(), oldSubject.getId(), idNewSubject));
+                        teacherDTO.getId(), oldSubject.getId(), ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -372,8 +374,6 @@ class TeacherRestControllerIntegrationTest {
     @Test
     void givenResponseEntity_whenDeleteSubject_thenReturn404NotFoundTeacher() throws Exception {
 
-        Integer idTeacher = 4545;
-
         TeacherDTO teacherDTO = createTeacherDTO();
 
         SubjectDTO subjectDTO = createSubjectDTO();
@@ -381,7 +381,7 @@ class TeacherRestControllerIntegrationTest {
         service.addSubject(teacherDTO.getId(), subjectDTO.getId());
 
         ResultActions response = mockMvc
-                .perform(delete("/api/teachers/{teacherId}/delete/{subjectId}/subject", idTeacher, subjectDTO.getId()));
+                .perform(delete("/api/teachers/{teacherId}/delete/{subjectId}/subject", ID_NOT_EXISTS, subjectDTO.getId()));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -390,8 +390,6 @@ class TeacherRestControllerIntegrationTest {
     @Test
     void givenResponseEntity_whenDeleteSubject_thenReturn404NotFoundSubject() throws Exception {
 
-        Integer idSubject = 4545;
-
         TeacherDTO teacherDTO = createTeacherDTO();
 
         SubjectDTO subjectDTO = createSubjectDTO();
@@ -399,7 +397,7 @@ class TeacherRestControllerIntegrationTest {
         service.addSubject(teacherDTO.getId(), subjectDTO.getId());
 
         ResultActions response = mockMvc
-                .perform(delete("/api/teachers/{teacherId}/delete/{subjectId}/subject", teacherDTO.getId(), idSubject));
+                .perform(delete("/api/teachers/{teacherId}/delete/{subjectId}/subject", teacherDTO.getId(), ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());

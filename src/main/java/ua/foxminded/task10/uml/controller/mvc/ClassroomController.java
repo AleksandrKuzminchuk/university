@@ -2,6 +2,7 @@ package ua.foxminded.task10.uml.controller.mvc;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -42,6 +43,7 @@ public class ClassroomController {
     }
 
     @PostMapping("/saved")
+    @ResponseStatus(HttpStatus.CREATED)
     public String save(Model model, @ModelAttribute("newClassroom") @Valid @NotNull ClassroomDTO classroomDTO,
                                 BindingResult bindingResult) {
         log.info("requested-> [POST]-'/classrooms/saved'");
@@ -50,7 +52,7 @@ public class ClassroomController {
             return "classrooms/formSaveClassroom";
         }
         ClassroomDTO newClassroom = classroomService.save(classroomDTO);
-        model.addAttribute("newClassroom", newClassroom);
+        model.addAttribute("savedClassroom", newClassroom);
         log.info("SAVED {} SUCCESSFULLY", newClassroom);
         return "classrooms/formSavedClassroom";
     }
@@ -93,7 +95,7 @@ public class ClassroomController {
     }
 
     @GetMapping("/found/by_number")
-    public String findByNumber(Model model, @ModelAttribute @Valid @NotNull ClassroomDTO classroomDTO, BindingResult bindingResult) {
+    public String findByNumber(Model model, @ModelAttribute("classroom") @Valid @NotNull ClassroomDTO classroomDTO, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/classrooms/found/by_number'");
         if (bindingResult.hasErrors()) {
             return "classrooms/formFindClassroomByNumber";

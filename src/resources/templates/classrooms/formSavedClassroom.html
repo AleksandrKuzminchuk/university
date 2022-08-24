@@ -12,7 +12,7 @@
 <div class="login-page">
     <div class="form">
         <form class="login-form" th:action="@{/classrooms}">
-            <b th:text="'Classroom number [' + ${newClassroom.number} + '] SAVED SUCCESSFULLY'" style="text-align: center;" ></b>
+            <b th:text="'Classroom number [' + ${savedClassroom.number} + '] SAVED SUCCESSFULLY'" style="text-align: center;" ></b>
             <button type="submit">return to classrooms page</button>
             <p class="message">main page <a th:href="@{/university}">UNIVERSITY</a></p>
         </form>

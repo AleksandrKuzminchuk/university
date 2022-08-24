@@ -2,6 +2,7 @@ package ua.foxminded.task10.uml.controller.mvc;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -40,13 +41,14 @@ public class SubjectController {
         return "subjects/subjects";
     }
 
-    @GetMapping("/subjects/new")
+    @GetMapping("/new")
     public String saveForm(@ModelAttribute("newSubject") SubjectDTO subjectDTO) {
-        log.info("requested-> [GET]-'/new");
+        log.info("requested-> [GET]-'/subjects/new");
         return "subjects/formForSaveSubject";
     }
 
     @PostMapping("/saved")
+    @ResponseStatus(HttpStatus.CREATED)
     public String save(Model model, @ModelAttribute("newSubject") @Valid @NotNull SubjectDTO subjectDTO, BindingResult bindingResult) {
         log.info("requested-> [POST]-'/subjects/saved'");
         subjectValidator.validate(subjectDTO, bindingResult);
@@ -69,7 +71,7 @@ public class SubjectController {
     }
 
     @PatchMapping("/{id}/updated")
-    public String update(Model model, @ModelAttribute @Valid @NotNull SubjectDTO subjectDTO, BindingResult bindingResult,
+    public String update(Model model, @ModelAttribute("updateSubject") @Valid @NotNull SubjectDTO subjectDTO, BindingResult bindingResult,
                          @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/subjects/{id}/updated'");
         subjectValidator.validate(subjectDTO, bindingResult);
@@ -106,7 +108,7 @@ public class SubjectController {
     }
 
     @GetMapping("/found/by_name")
-    public String findByName(Model model, @ModelAttribute @Valid @NotNull SubjectDTO subjectDTO, BindingResult bindingResult) {
+    public String findByName(Model model, @ModelAttribute("findSubject") @Valid @NotNull SubjectDTO subjectDTO, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/subjects/found/by_name'");
         if (bindingResult.hasErrors()){
             return "subjects/formForFindSubjectByName";
@@ -128,7 +130,7 @@ public class SubjectController {
     }
 
     @PostMapping("/{id}/added/teacher")
-    public String addTeacher(@ModelAttribute TeacherDTO teacherDTO,
+    public String addTeacher(@ModelAttribute("addTeacher") TeacherDTO teacherDTO,
                              @PathVariable("id") Integer id) {
         log.info("requested-> [POST]-'/subjects/{id}/added/teacher'");
         subjectService.addTeacher(id, teacherDTO.getId());
@@ -160,7 +162,7 @@ public class SubjectController {
     }
 
     @PatchMapping("/{subjectId}/updated/{oldTeacherId}/teacher")
-    public String updateTeacher(Model model, @ModelAttribute TeacherDTO teacherDTO,
+    public String updateTeacher(Model model, @ModelAttribute("newTeacher") TeacherDTO teacherDTO,
                                           @PathVariable("oldTeacherId") Integer oldTeacherId,
                                           @PathVariable("subjectId") Integer subjectId) {
         log.info("requested-> [PATCH]-'/subjects/{subjectId}/updated/{oldTeacherId}/teacher'");

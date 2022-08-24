@@ -2,11 +2,13 @@ package ua.foxminded.task10.uml.controller.mvc;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ua.foxminded.task10.uml.dto.GroupDTO;
 import ua.foxminded.task10.uml.dto.StudentDTO;
 import ua.foxminded.task10.uml.dto.response.StudentUpdateResponse;
 import ua.foxminded.task10.uml.model.Course;
@@ -40,15 +42,16 @@ public class StudentController {
 
     @GetMapping("/new")
     public String saveForm(@ModelAttribute("newStudent") StudentDTO studentDTO) {
-        log.info("requested-> [GET]-'/students/new_student'");
+        log.info("requested-> [GET]-'/students/new'");
         return "students/formSaveStudent";
     }
 
     @PostMapping("/saved")
+    @ResponseStatus(HttpStatus.CREATED)
     public String save(Model model,
-                       @ModelAttribute @Valid @NotNull StudentDTO studentDTO,
+                       @ModelAttribute("newStudent") @Valid @NotNull StudentDTO studentDTO,
                        BindingResult bindingResult) {
-        log.info("requested-> [POST]-'/savedStudent'");
+        log.info("requested-> [POST]-'/students/saved'");
         if (bindingResult.hasErrors()) {
             return "students/formSaveStudent";
         }
@@ -64,13 +67,13 @@ public class StudentController {
         log.info("requested-> [GET]-'/students/{id}/update'");
         StudentUpdateResponse updateResult = studentService.updateForm(id);
         model.addAttribute("studentUpdate", updateResult);
-        log.info("UPDATED");
+        log.info("FORM PREPARED FOR UPDATE");
         return "students/formUpdateStudent";
     }
 
     @PatchMapping("/{id}/updated")
     public String update(Model model,
-                         @ModelAttribute @Valid @NotNull StudentUpdateResponse updateResponse,
+                         @ModelAttribute("updateStudent") @Valid @NotNull StudentDTO updateResponse,
                          BindingResult bindingResult,
                          @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/students/{id}/updated'{}", updateResponse);
@@ -79,10 +82,10 @@ public class StudentController {
         }
         StudentDTO studentDTO = new StudentDTO();
         studentDTO.setId(id);
-        studentDTO.setFirstName(updateResponse.getStudent().getFirstName());
-        studentDTO.setLastName(updateResponse.getStudent().getLastName());
-        studentDTO.setGroup(updateResponse.getStudent().getGroup());
-        studentDTO.setCourse(updateResponse.getStudent().getCourse());
+        studentDTO.setFirstName(updateResponse.getFirstName());
+        studentDTO.setLastName(updateResponse.getLastName());
+        studentDTO.setGroup(updateResponse.getGroup());
+        studentDTO.setCourse(updateResponse.getCourse());
         studentService.update(studentDTO);
         log.info("UPDATED {} SUCCESSFULLY", studentDTO);
         return "students/formUpdatedStudent";
@@ -90,7 +93,7 @@ public class StudentController {
 
     @DeleteMapping("/{id}/deleted")
     public String deleteById(@PathVariable("id") Integer id) {
-        log.info("requested-> [DELETE]-'/students/{id}/delete_student'");
+        log.info("requested-> [DELETE]-'/students/{id}/deleted'");
         studentService.deleteById(id);
         log.info("DELETED STUDENT BY ID - {}", id);
         return "students/formDeletedStudent";
@@ -121,7 +124,7 @@ public class StudentController {
 
     @GetMapping("/found/by_course")
     public String findByCourseNumber(Model model,
-                                     @ModelAttribute @Valid @NotNull Course course, BindingResult bindingResult) {
+                                     @ModelAttribute("course") @Valid @NotNull Course course, BindingResult bindingResult) {
         log.info("requested-> [GET]-'/students/found/by_course'");
         if (bindingResult.hasErrors()) {
             return "students/formFindStudentsByCourse";
@@ -146,7 +149,7 @@ public class StudentController {
 
     @GetMapping("/find/by_group")
     public String findByGroupNameForm(Model model,
-                                      @ModelAttribute("student") StudentDTO studentDTO) {
+                                      @ModelAttribute("group") GroupDTO groupDTO) {
         log.info("requested-> [GET]-'/students/find/by_group'");
         model.addAttribute("groups", groupService.findAll());
         return "students/formForFindStudentsByGroupName";
@@ -154,14 +157,14 @@ public class StudentController {
 
     @GetMapping("/found/by_group")
     public String findByGroupName(Model model,
-                                  @ModelAttribute StudentDTO studentDTO) {
+                                  @ModelAttribute("findGroup") GroupDTO groupDTO) {
         log.info("requested-> [GET]-'/students/found/by_group'");
-        List<StudentDTO> result = studentService.findByGroupName(studentDTO.getGroup().getName());
+        List<StudentDTO> result = studentService.findByGroupName(groupDTO.getName());
         model.addAttribute("students", result);
         model.addAttribute("count", result.size());
-        model.addAttribute("groupId", studentDTO.getGroup().getId());
-        model.addAttribute("group", studentDTO.getGroup());
-        log.info("FOUND STUDENTS {} BY GROUP ID {}", result.size(), studentDTO.getGroup().getId());
+        model.addAttribute("groupId", groupDTO.getId());
+        model.addAttribute("group", groupDTO);
+        log.info("FOUND STUDENTS {} BY GROUP ID {}", result.size(), groupDTO.getId());
         return "students/students";
     }
 
@@ -184,7 +187,7 @@ public class StudentController {
     }
 
     @GetMapping("/found/by_name_surname")
-    public String findByNameOrSurname(Model model, @ModelAttribute Person student) {
+    public String findByNameOrSurname(Model model, @ModelAttribute("findStudent") Person student) {
         log.info("requested-> [GET]-'/students/found/by_name_surname'");
         List<StudentDTO> result = studentService.findByNameOrSurname(student.getFirstName(), student.getLastName());
         model.addAttribute("students", result);
@@ -194,7 +197,7 @@ public class StudentController {
 
     @DeleteMapping("/deleted/all")
     public String deleteAll() {
-        log.info("requested- [DELETE]-'/students/delete/all'");
+        log.info("requested- [DELETE]-'/students/deleted/all'");
         studentService.deleteAll();
         log.info("DELETED ALL STUDENT SUCCESSFULLY");
         return "students/formDeleteAllStudents";

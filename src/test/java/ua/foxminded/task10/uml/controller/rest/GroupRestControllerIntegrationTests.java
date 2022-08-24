@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ua.foxminded.task10.uml.dto.GroupCreateDTO;
@@ -26,9 +27,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ua.foxminded.task10.uml.util.ConstantsTests.ID_NOT_EXISTS;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Sql(value = {"classpath:create-table-students.sql", "classpath:create-table-groups.sql"},
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class GroupRestControllerIntegrationTests {
 
     @Autowired
@@ -42,6 +46,12 @@ class GroupRestControllerIntegrationTests {
 
     @BeforeEach
     void setUp() {
+        studentService.deleteAll();
+        service.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
         studentService.deleteAll();
         service.deleteAll();
     }
@@ -138,7 +148,7 @@ class GroupRestControllerIntegrationTests {
     @Test
     void givenResponseEntity_whenDeleteById_thenReturn404NotFound() throws Exception {
 
-        ResultActions response = mockMvc.perform(delete("/api/groups/45/delete"));
+        ResultActions response = mockMvc.perform(delete("/api/groups/{id}/delete", ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -207,7 +217,7 @@ class GroupRestControllerIntegrationTests {
     @Test
     void givenStudentsDTOList_whenFindStudents_thenReturn404NotFound() throws Exception {
 
-        ResultActions response = mockMvc.perform(get("/api/groups/52/find/students"));
+        ResultActions response = mockMvc.perform(get("/api/groups/{id}/find/students", ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());

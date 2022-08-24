@@ -2,6 +2,7 @@ package ua.foxminded.task10.uml.controller.mvc;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -46,6 +47,7 @@ public class GroupController {
     }
 
     @PostMapping("/saved")
+    @ResponseStatus(HttpStatus.CREATED)
     public String save(Model model, @ModelAttribute("newGroup") @Valid @NotNull GroupDTO groupDTO, BindingResult bindingResult){
         log.info("requested-> [POST]-'/groups/saved'");
         groupValidator.validate(groupDTO, bindingResult);
@@ -60,7 +62,7 @@ public class GroupController {
 
     @GetMapping("/{id}/update")
     public String updateFrom(Model model, @PathVariable("id") Integer id){
-        log.info("requested-> [GET]-/groups'/groups/{id}/update'");
+        log.info("requested-> [GET]-'/groups/{id}/update'");
         GroupDTO group = groupService.findById(id);
         model.addAttribute("group", group);
         log.info("UPDATING... {}", group);
@@ -68,7 +70,7 @@ public class GroupController {
     }
 
     @PatchMapping("/{id}/updated")
-    public String update(Model model, @ModelAttribute @Valid @NotNull GroupDTO groupDTO, BindingResult bindingResult,
+    public String update(Model model, @ModelAttribute("updateGroup") @Valid @NotNull GroupDTO groupDTO, BindingResult bindingResult,
                               @PathVariable("id") Integer id){
         log.info("requested-> [PATCH]-'/groups/{id}/updated'");
         groupValidator.validate(groupDTO, bindingResult);
@@ -100,12 +102,12 @@ public class GroupController {
 
     @GetMapping("/find/by_name")
     public String findByNameForm(@ModelAttribute("group") GroupDTO groupDTO){
-        log.info("requested-> [GET]-'find/by_name'");
+        log.info("requested-> [GET]-'/groups/find/by_name'");
         return "groups/formForFindGroupByName";
     }
 
     @GetMapping("/found/by_name")
-    public String findByName(Model model, @ModelAttribute @Valid @NotNull GroupDTO groupDTO, BindingResult bindingResult){
+    public String findByName(Model model, @ModelAttribute("findGroup") @Valid @NotNull GroupDTO groupDTO, BindingResult bindingResult){
         log.info("requested-> [GET]-'/groups/found/by_name'");
         if (bindingResult.hasErrors()){
             return "groups/formForFindGroupByName";

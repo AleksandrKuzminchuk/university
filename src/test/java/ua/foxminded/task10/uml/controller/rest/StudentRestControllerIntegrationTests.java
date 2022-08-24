@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ua.foxminded.task10.uml.dto.GroupDTO;
@@ -27,9 +28,12 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ua.foxminded.task10.uml.util.ConstantsTests.ID_NOT_EXISTS;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Sql(value = {"classpath:create-table-students.sql", "classpath:create-table-groups.sql"},
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class StudentRestControllerIntegrationTests {
     @Autowired
     private MockMvc mockMvc;
@@ -42,6 +46,12 @@ class StudentRestControllerIntegrationTests {
 
     @BeforeEach
     void setUp() {
+        studentService.deleteAll();
+        groupService.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
         studentService.deleteAll();
         groupService.deleteAll();
     }
@@ -128,7 +138,7 @@ class StudentRestControllerIntegrationTests {
         updatedStudent.setLastName("Hurmek");
         updatedStudent.setCourse(4);
 
-        ResultActions response = mockMvc.perform(patch("/api/students/update/2")
+        ResultActions response = mockMvc.perform(patch("/api/students/update/{id}", ID_NOT_EXISTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedStudent)));
 
@@ -189,7 +199,7 @@ class StudentRestControllerIntegrationTests {
     @Test
     void givenResponseEntity_whenDeleteById_thenReturn404NotFound() throws Exception {
 
-        ResultActions response = mockMvc.perform(delete("/api/students/10/delete"));
+        ResultActions response = mockMvc.perform(delete("/api/students/{id}/delete", ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -219,7 +229,7 @@ class StudentRestControllerIntegrationTests {
         student.setGroup(group);
         studentService.update(student);
 
-        ResultActions response = mockMvc.perform(patch("/api/students/2/delete/from_group"));
+        ResultActions response = mockMvc.perform(patch("/api/students/{id}/delete/from_group", ID_NOT_EXISTS));
 
         response.andExpect(status().isNotFound())
                 .andDo(print());
@@ -247,7 +257,7 @@ class StudentRestControllerIntegrationTests {
         createStudentsDTO().stream().peek(studentDTO1 -> studentDTO1.setGroup(group)).
                 forEach(studentDTO1 -> studentService.update(studentDTO1));
 
-        ResultActions response = mockMvc.perform(delete("/api/students/delete/all/by_group/2"));
+        ResultActions response = mockMvc.perform(delete("/api/students/delete/all/by_group/{id}", ID_NOT_EXISTS));
 
         response.andExpect(status().isNotFound())
                 .andDo(print());
@@ -296,7 +306,7 @@ class StudentRestControllerIntegrationTests {
     @Test
     void givenStudentsDTO_whenFindByGroup_thenReturnNotFound404() throws Exception {
 
-        ResultActions response = mockMvc.perform(get("/api/students/find/by_group/1"));
+        ResultActions response = mockMvc.perform(get("/api/students/find/by_group/{id}", ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());

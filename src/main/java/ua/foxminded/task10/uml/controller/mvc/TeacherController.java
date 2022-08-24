@@ -46,6 +46,7 @@ public class TeacherController {
     }
 
     @PostMapping("/saved")
+    @ResponseStatus(HttpStatus.CREATED)
     public String save(Model model,
                        @ModelAttribute("newTeacher") @Valid @NotNull TeacherDTO teacherDTO,
                        BindingResult bindingResult) {
@@ -79,7 +80,7 @@ public class TeacherController {
 
     @PatchMapping("/{id}/updated")
     public String update(Model model,
-                         @ModelAttribute @Valid @NotNull TeacherDTO teacherDTO,
+                         @ModelAttribute("updateTeacher") @Valid @NotNull TeacherDTO teacherDTO,
                          BindingResult bindingResult,
                          @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/teachers/{id}/updated'");
@@ -99,7 +100,7 @@ public class TeacherController {
                                              @PathVariable("subjectId") Integer subjectId) {
         log.info("requested-> [GET]-'/teachers/{teacherId}/update/{subjectId}/subject'");
         TeacherUpdateSubjectResponse updateSubject = teacherService.updateSubjectForm(teacherId, subjectId);
-        model.addAttribute("newSubject", new StudentDTO());
+        model.addAttribute("newSubject", new SubjectDTO());
         model.addAttribute("updateSubject", updateSubject);
         log.info("UPDATING... THE TEACHERS' BY ID - {} SUBJECT BY ID - {}", teacherId, subjectId);
         return "teachers/formUpdateTheTeacherSubject";
@@ -107,7 +108,7 @@ public class TeacherController {
 
     @PatchMapping("/{teacherId}/updated/{oldSubjectId}/subject")
     public String updateSubject(Model model,
-                                         @ModelAttribute SubjectDTO subjectDTO,
+                                         @ModelAttribute("newSubject") SubjectDTO subjectDTO,
                                          @PathVariable("oldSubjectId") Integer oldSubjectId,
                                          @PathVariable("teacherId") Integer teacherId) {
         log.info("requested-> [PATCH]-'/teachers/{teacherId}/updated/{oldSubjectId}/subject'");
@@ -119,7 +120,7 @@ public class TeacherController {
 
     @DeleteMapping("/deleted/all")
     public String deleteAll() {
-        log.info("requested-> [DELETE]-'/teachers/delete/all'");
+        log.info("requested-> [DELETE]-'/teachers/deleted/all'");
         teacherService.deleteAll();
         log.info("DELETED ALL TEACHERS SUCCESSFULLY");
         return "teachers/deleteAllTeachers";
@@ -147,17 +148,17 @@ public class TeacherController {
         log.info("requested-> [GET]-'/teachers/{id}/add/subject'");
         TeacherAddSubjectResponse addSubject = teacherService.addSubjectFrom(id);
         model.addAttribute("addSubject", addSubject);
-        model.addAttribute("subject", new StudentDTO());
+        model.addAttribute("subject", new SubjectDTO());
         log.info("PREPARED FORM ADD SUBJECT TO TEACHER BY ID- {}", id);
         return "teachers/formForAddTeacherToSubject";
     }
 
     @PostMapping("/{id}/added/subject")
-    public String addSubject(@ModelAttribute StudentDTO studentDTO,
+    public String addSubject(@ModelAttribute("addSubject") SubjectDTO subjectDTO,
                              @PathVariable("id") Integer id) {
         log.info("requested-> [POST]-'/teachers/{id}/added/subject'");
-        teacherService.addSubject(id, studentDTO.getId());
-        log.info("ADDED TEACHER BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", id, studentDTO.getId());
+        teacherService.addSubject(id, subjectDTO.getId());
+        log.info("ADDED TEACHER BY ID - {} TO SUBJECT BY ID - {} SUCCESSFULLY", id, subjectDTO.getId());
         return "teachers/formAddedTeacherToSubject";
     }
 

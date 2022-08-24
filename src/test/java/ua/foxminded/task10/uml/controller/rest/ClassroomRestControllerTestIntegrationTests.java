@@ -9,11 +9,11 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ua.foxminded.task10.uml.dto.ClassroomCreateDTO;
 import ua.foxminded.task10.uml.dto.ClassroomDTO;
-import ua.foxminded.task10.uml.dto.StudentDTO;
 import ua.foxminded.task10.uml.service.ClassroomService;
 
 import java.util.ArrayList;
@@ -24,9 +24,11 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ua.foxminded.task10.uml.util.ConstantsTests.ID_NOT_EXISTS;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Sql(value = "classpath:create-table-classrooms.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class ClassroomRestControllerTestIntegrationTests {
 
     @Autowired
@@ -40,6 +42,9 @@ class ClassroomRestControllerTestIntegrationTests {
     void setUp() {
         service.deleteAll();
     }
+
+    @AfterEach
+    void tearDown(){service.deleteAll();}
 
     @Test
     void givenStudentsDTOList_whenFindAll_thenReturnStudentsDTOList() throws Exception {
@@ -109,7 +114,7 @@ class ClassroomRestControllerTestIntegrationTests {
         ClassroomCreateDTO updateClassroom = new ClassroomCreateDTO();
         updateClassroom.setNumber(65);
 
-        ResultActions response = mockMvc.perform(patch("/api/classrooms/update/142")
+        ResultActions response = mockMvc.perform(patch("/api/classrooms/update/{id}", ID_NOT_EXISTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(updateClassroom)));
 
@@ -147,7 +152,7 @@ class ClassroomRestControllerTestIntegrationTests {
     @Test
     void givenResponseEntity_whenDeleteById_thenReturn404NotFound() throws Exception {
 
-        ResultActions response = mockMvc.perform(delete("/api/classrooms/50/delete"));
+        ResultActions response = mockMvc.perform(delete("/api/classrooms/{id}/delete", ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());

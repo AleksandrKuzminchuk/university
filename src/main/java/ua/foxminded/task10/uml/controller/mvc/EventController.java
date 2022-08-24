@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -43,7 +44,8 @@ public class EventController {
     }
 
     @PostMapping("/saved")
-    public String save(@ModelAttribute EventDTO eventDTO) {
+    @ResponseStatus(HttpStatus.CREATED)
+    public String save(@ModelAttribute("saveEvent") EventDTO eventDTO) {
         log.info("requested-> [POST]-'/events/saved'");
         EventDTO savedEventDTO = eventService.save(eventDTO);
         log.info("SAVED {} EVENT SUCCESSFULLY", savedEventDTO);
@@ -62,7 +64,7 @@ public class EventController {
 
     @PatchMapping("/{id}/updated")
     public String update(Model model,
-                         @ModelAttribute EventDTO eventDTO,
+                         @ModelAttribute("updateEvent") EventDTO eventDTO,
                          @PathVariable("id") Integer id) {
         log.info("requested-> [PATCH]-'/events/{id}/updated'");
         eventDTO.setId(id);
@@ -81,13 +83,13 @@ public class EventController {
     }
 
     @GetMapping("/find")
-    public String findEventsForm(@ModelAttribute("event") EventDTO eventDTO) {
+    public String findEventsForm(@ModelAttribute("event") EventExtraDTO eventExtraDTO) {
         log.info("requested-> [GET]-'/events/find'");
         return "events/formForFindEvents";
     }
 
     @GetMapping("/found")
-    public String findEvents(Model model, @ModelAttribute EventExtraDTO eventExtraDTO) {
+    public String findEvents(Model model, @ModelAttribute("findEvents") EventExtraDTO eventExtraDTO) {
         log.info("requested-> [GET]->'/events/found'");
         List<EventDTO> eventsDTO = eventService.find(eventExtraDTO.getStartDateTime(), eventExtraDTO.getEndDateTime());
         model.addAttribute("events", eventsDTO);

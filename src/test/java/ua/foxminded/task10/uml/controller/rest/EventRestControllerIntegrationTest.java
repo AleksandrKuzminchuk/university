@@ -1,18 +1,19 @@
 package ua.foxminded.task10.uml.controller.rest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import ua.foxminded.task10.uml.dto.*;
 import ua.foxminded.task10.uml.service.*;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,10 +22,14 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static ua.foxminded.task10.uml.util.ConstantsTests.*;
 import static ua.foxminded.task10.uml.util.formatters.DateTimeFormat.formatter;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
+@Sql(value = {"classpath:create-table-classrooms.sql", "classpath:create-table-subjects.sql", "classpath:create-table-teachers_subjects.sql",
+        "classpath:create-table-teachers.sql", "classpath:create-table-groups.sql", "classpath:create-table-events.sql"},
+        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 class EventRestControllerIntegrationTest {
 
     @Autowired
@@ -44,6 +49,15 @@ class EventRestControllerIntegrationTest {
 
     @BeforeEach
     void setUp() {
+        service.deleteAll();
+        subjectService.deleteAll();
+        classroomService.deleteAll();
+        groupService.deleteAll();
+        teacherService.deleteAll();
+    }
+
+    @AfterEach
+    void tearDown() {
         service.deleteAll();
         subjectService.deleteAll();
         classroomService.deleteAll();
@@ -87,7 +101,7 @@ class EventRestControllerIntegrationTest {
     void givenEventDTOObject_whenCreate_thenReturn404NotFoundSubject() throws Exception {
 
         EventCreateDTO eventCreateDTO = createEventCreateDTO();
-        eventCreateDTO.setSubjectId(4545);
+        eventCreateDTO.setSubjectId(ID_NOT_EXISTS);
 
         ResultActions response = mockMvc.perform(post("/api/events/save")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -101,7 +115,7 @@ class EventRestControllerIntegrationTest {
     void givenEventDTOObject_whenCreate_thenReturn404NotFoundClassroom() throws Exception {
 
         EventCreateDTO eventCreateDTO = createEventCreateDTO();
-        eventCreateDTO.setClassroomId(4545);
+        eventCreateDTO.setClassroomId(ID_NOT_EXISTS);
 
         ResultActions response = mockMvc.perform(post("/api/events/save")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -115,7 +129,7 @@ class EventRestControllerIntegrationTest {
     void givenEventDTOObject_whenCreate_thenReturn404NotFoundGroup() throws Exception {
 
         EventCreateDTO eventCreateDTO = createEventCreateDTO();
-        eventCreateDTO.setGroupId(4545);
+        eventCreateDTO.setGroupId(ID_NOT_EXISTS);
 
         ResultActions response = mockMvc.perform(post("/api/events/save")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -129,7 +143,7 @@ class EventRestControllerIntegrationTest {
     void givenEventDTOObject_whenCreate_thenReturn404NotFoundTeacher() throws Exception {
 
         EventCreateDTO eventCreateDTO = createEventCreateDTO();
-        eventCreateDTO.setTeacherId(4545);
+        eventCreateDTO.setTeacherId(ID_NOT_EXISTS);
 
         ResultActions response = mockMvc.perform(post("/api/events/save")
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -181,11 +195,9 @@ class EventRestControllerIntegrationTest {
     @Test
     void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundEvent() throws Exception {
 
-        Integer subjectId = 4545;
-
         EventCreateDTO updateEvent = new EventCreateDTO();
 
-        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", subjectId)
+        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", ID_NOT_EXISTS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(mapper.writeValueAsString(updateEvent)));
 
@@ -193,122 +205,121 @@ class EventRestControllerIntegrationTest {
                 .andExpect(status().isNotFound());
     }
 
-    //TODO not threw exception GlobalNotFoundException, although I threw (andExpect(status().isNotFound())); Help me please)
-//    @Test
-//    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundSubject() throws Exception {
-//
-//        ClassroomDTO classroomDTO = new ClassroomDTO();
-//        classroomDTO.setNumber(785);
-//        ClassroomDTO changeClassroom = classroomService.save(classroomDTO);
-//
-//        GroupDTO groupDTO = new GroupDTO();
-//        groupDTO.setName("H-10");
-//        GroupDTO changeGroup = groupService.save(groupDTO);
-//
-//        TeacherDTO changeTeacher = teacherService.save(new TeacherDTO("Jirkin", "Marlush"));
-//
-//        EventDTO eventDTO = createEventDTO();
-//
-//        EventCreateDTO updateEvent = new EventCreateDTO();
-//        updateEvent.setDateTime(eventDTO.getDateTime());
-//        updateEvent.setSubjectId(4545);
-//        updateEvent.setClassroomId(changeClassroom.getId());
-//        updateEvent.setGroupId(changeGroup.getId());
-//        updateEvent.setTeacherId(changeTeacher.getId());
-//
-//        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", eventDTO.getId())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(mapper.writeValueAsString(updateEvent)));
-//
-//        response.andDo(print())
-//                .andExpect(status().isNotFound());
-//    }
+    @Test
+    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundSubject() throws Exception {
 
-//    @Test
-//    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundClassroom() throws Exception {
-//
-//        SubjectDTO changeSubject = subjectService.save(new SubjectDTO("MATH"));
-//
-//        GroupDTO groupDTO = new GroupDTO();
-//        groupDTO.setName("H-10");
-//        GroupDTO changeGroup = groupService.save(groupDTO);
-//
-//        TeacherDTO changeTeacher = teacherService.save(new TeacherDTO("Jirkin", "Marlush"));
-//
-//        EventDTO eventDTO = createEventDTO();
-//
-//        EventCreateDTO updateEvent = new EventCreateDTO();
-//        updateEvent.setDateTime(eventDTO.getDateTime());
-//        updateEvent.setSubjectId(changeSubject.getId());
-//        updateEvent.setClassroomId(4545);
-//        updateEvent.setGroupId(changeGroup.getId());
-//        updateEvent.setTeacherId(changeTeacher.getId());
-//
-//        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", eventDTO.getId())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(mapper.writeValueAsString(updateEvent)));
-//
-//        response.andDo(print())
-//                .andExpect(status().isNotFound());
-//    }
-//
-//    @Test
-//    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundGroup() throws Exception {
-//
-//        SubjectDTO changeSubject = subjectService.save(new SubjectDTO("MATH"));
-//
-//        ClassroomDTO classroomDTO = new ClassroomDTO();
-//        classroomDTO.setNumber(785);
-//        ClassroomDTO changeClassroom = classroomService.save(classroomDTO);
-//
-//        TeacherDTO changeTeacher = teacherService.save(new TeacherDTO("Jirkin", "Marlush"));
-//
-//        EventDTO eventDTO = createEventDTO();
-//
-//        EventCreateDTO updateEvent = new EventCreateDTO();
-//        updateEvent.setDateTime(eventDTO.getDateTime());
-//        updateEvent.setSubjectId(changeSubject.getId());
-//        updateEvent.setClassroomId(changeClassroom.getId());
-//        updateEvent.setGroupId(4545);
-//        updateEvent.setTeacherId(changeTeacher.getId());
-//
-//        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", eventDTO.getId())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(mapper.writeValueAsString(updateEvent)));
-//
-//        response.andDo(print())
-//                .andExpect(status().isNotFound());
-//    }
+        ClassroomDTO classroomDTO = new ClassroomDTO();
+        classroomDTO.setNumber(785);
+        ClassroomDTO changeClassroom = classroomService.save(classroomDTO);
 
-//    @Test
-//    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundTeacher() throws Exception {
-//
-//        SubjectDTO changeSubject = subjectService.save(new SubjectDTO("MATH"));
-//
-//        ClassroomDTO classroomDTO = new ClassroomDTO();
-//        classroomDTO.setNumber(785);
-//        ClassroomDTO changeClassroom = classroomService.save(classroomDTO);
-//
-//        GroupDTO groupDTO = new GroupDTO();
-//        groupDTO.setName("H-10");
-//        GroupDTO changeGroup = groupService.save(groupDTO);
-//
-//        EventDTO eventDTO = createEventDTO();
-//
-//        EventCreateDTO updateEvent = new EventCreateDTO();
-//        updateEvent.setDateTime(eventDTO.getDateTime());
-//        updateEvent.setSubjectId(changeSubject.getId());
-//        updateEvent.setClassroomId(changeClassroom.getId());
-//        updateEvent.setGroupId(changeGroup.getId());
-//        updateEvent.setTeacherId(4545);
-//
-//        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", eventDTO.getId())
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .content(mapper.writeValueAsString(updateEvent)));
-//
-//        response.andDo(print())
-//                .andExpect(status().isNotFound());
-//    }
+        GroupDTO groupDTO = new GroupDTO();
+        groupDTO.setName("H-10");
+        GroupDTO changeGroup = groupService.save(groupDTO);
+
+        TeacherDTO changeTeacher = teacherService.save(new TeacherDTO("Jirkin", "Marlush"));
+
+        EventDTO eventDTO = createEventDTO();
+
+        EventCreateDTO updateEvent = new EventCreateDTO();
+        updateEvent.setDateTime(eventDTO.getDateTime());
+        updateEvent.setSubjectId(ID_NOT_EXISTS);
+        updateEvent.setClassroomId(changeClassroom.getId());
+        updateEvent.setGroupId(changeGroup.getId());
+        updateEvent.setTeacherId(changeTeacher.getId());
+
+        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", eventDTO.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(updateEvent)));
+
+        response.andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundClassroom() throws Exception {
+
+        SubjectDTO changeSubject = subjectService.save(new SubjectDTO("MATH"));
+
+        GroupDTO groupDTO = new GroupDTO();
+        groupDTO.setName("H-10");
+        GroupDTO changeGroup = groupService.save(groupDTO);
+
+        TeacherDTO changeTeacher = teacherService.save(new TeacherDTO("Jirkin", "Marlush"));
+
+        EventDTO eventDTO = createEventDTO();
+
+        EventCreateDTO updateEvent = new EventCreateDTO();
+        updateEvent.setDateTime(eventDTO.getDateTime());
+        updateEvent.setSubjectId(changeSubject.getId());
+        updateEvent.setClassroomId(ID_NOT_EXISTS);
+        updateEvent.setGroupId(changeGroup.getId());
+        updateEvent.setTeacherId(changeTeacher.getId());
+
+        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", eventDTO.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(updateEvent)));
+
+        response.andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundGroup() throws Exception {
+
+        SubjectDTO changeSubject = subjectService.save(new SubjectDTO("MATH"));
+
+        ClassroomDTO classroomDTO = new ClassroomDTO();
+        classroomDTO.setNumber(785);
+        ClassroomDTO changeClassroom = classroomService.save(classroomDTO);
+
+        TeacherDTO changeTeacher = teacherService.save(new TeacherDTO("Jirkin", "Marlush"));
+
+        EventDTO eventDTO = createEventDTO();
+
+        EventCreateDTO updateEvent = new EventCreateDTO();
+        updateEvent.setDateTime(eventDTO.getDateTime());
+        updateEvent.setSubjectId(changeSubject.getId());
+        updateEvent.setClassroomId(changeClassroom.getId());
+        updateEvent.setGroupId(ID_NOT_EXISTS);
+        updateEvent.setTeacherId(changeTeacher.getId());
+
+        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", eventDTO.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(updateEvent)));
+
+        response.andDo(print())
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void givenUpdatedEventDTOObject_whenUpdate_thenReturn404NotFoundTeacher() throws Exception {
+
+        SubjectDTO changeSubject = subjectService.save(new SubjectDTO("MATH"));
+
+        ClassroomDTO classroomDTO = new ClassroomDTO();
+        classroomDTO.setNumber(785);
+        ClassroomDTO changeClassroom = classroomService.save(classroomDTO);
+
+        GroupDTO groupDTO = new GroupDTO();
+        groupDTO.setName("H-10");
+        GroupDTO changeGroup = groupService.save(groupDTO);
+
+        EventDTO eventDTO = createEventDTO();
+
+        EventCreateDTO updateEvent = new EventCreateDTO();
+        updateEvent.setDateTime(eventDTO.getDateTime());
+        updateEvent.setSubjectId(changeSubject.getId());
+        updateEvent.setClassroomId(changeClassroom.getId());
+        updateEvent.setGroupId(changeGroup.getId());
+        updateEvent.setTeacherId(ID_NOT_EXISTS);
+
+        ResultActions response = mockMvc.perform(patch("/api/events/update/{id}", eventDTO.getId())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(mapper.writeValueAsString(updateEvent)));
+
+        response.andDo(print())
+                .andExpect(status().isNotFound());
+    }
 
     @Test
     void givenResponseEntity_whenDeleteById_thenReturn200() throws Exception {
@@ -325,9 +336,7 @@ class EventRestControllerIntegrationTest {
     @Test
     void givenResponseEntity_whenDeleteById_thenReturn404NotFound() throws Exception {
 
-        Integer eventId = 4545;
-
-        ResultActions response = mockMvc.perform(delete("/api/events/{id}/delete", eventId));
+        ResultActions response = mockMvc.perform(delete("/api/events/{id}/delete", ID_NOT_EXISTS));
 
         response.andDo(print())
                 .andExpect(status().isNotFound());
@@ -350,8 +359,8 @@ class EventRestControllerIntegrationTest {
         createEventsDTO();
 
         ResultActions response = mockMvc.perform(get("/api/events/find")
-                .header("startDateTime", LocalDateTime.of(2020, 1, 1, 11, 11, 0).format(formatter))
-                .header("endDateTime", LocalDateTime.of(2023, 1, 1, 11, 11, 0).format(formatter)));
+                .header("startDateTime", START_DATE_TIME.format(formatter))
+                .header("endDateTime", END_DATE_TIME.format(formatter)));
 
         response.andDo(print())
                 .andExpect(status().isOk())
@@ -359,39 +368,39 @@ class EventRestControllerIntegrationTest {
                 .andExpect(jsonPath("$.events.size()", is(2)));
     }
 
-    private SubjectDTO createSubjectDTO(){
+    private SubjectDTO createSubjectDTO() {
         SubjectDTO subjectDTO = new SubjectDTO();
         subjectDTO.setName("GEOMETRY");
         return subjectService.save(subjectDTO);
     }
 
-    private GroupDTO createGroupDTO(){
+    private GroupDTO createGroupDTO() {
         GroupDTO groupDTO = new GroupDTO();
         groupDTO.setName("G-19");
         return groupService.save(groupDTO);
     }
 
-    private ClassroomDTO createClassroomDTO(){
+    private ClassroomDTO createClassroomDTO() {
         ClassroomDTO classroomDTO = new ClassroomDTO();
         classroomDTO.setNumber(455);
         return classroomService.save(classroomDTO);
     }
 
-    private TeacherDTO createTeacherDTO(){
+    private TeacherDTO createTeacherDTO() {
         return teacherService.save(new TeacherDTO("Hurmek", "Fekir"));
     }
 
-    private EventDTO createEventDTO(){
-        return service.save(new EventDTO(LocalDateTime.of(2022, 8, 20, 9, 0, 0), createSubjectDTO(),
+    private EventDTO createEventDTO() {
+        return service.save(new EventDTO(GENERATE_DATE_TIME, createSubjectDTO(),
                 createClassroomDTO(), createGroupDTO(), createTeacherDTO()));
     }
 
-    private EventCreateDTO createEventCreateDTO(){
-        return new EventCreateDTO(LocalDateTime.of(2022, 8, 20, 9, 0, 0), createSubjectDTO().getId(),
+    private EventCreateDTO createEventCreateDTO() {
+        return new EventCreateDTO(GENERATE_DATE_TIME, createSubjectDTO().getId(),
                 createClassroomDTO().getId(), createGroupDTO().getId(), createTeacherDTO().getId());
     }
 
-    private List<EventDTO> createEventsDTO(){
+    private List<EventDTO> createEventsDTO() {
         List<EventDTO> eventsDTO = new ArrayList<>();
         SubjectDTO subjectDTO = createSubjectDTO();
         ClassroomDTO classroomDTO = createClassroomDTO();
@@ -401,9 +410,9 @@ class EventRestControllerIntegrationTest {
         classroomDTO1.setNumber(78);
         GroupDTO groupDTO1 = new GroupDTO();
         groupDTO1.setName("G-67");
-        eventsDTO.add(new EventDTO(LocalDateTime.of(2022, 8, 20, 9, 0, 0), subjectDTO,
+        eventsDTO.add(new EventDTO(GENERATE_DATE_TIME, subjectDTO,
                 classroomDTO, groupDTO, teacherDTO));
-        eventsDTO.add(new EventDTO(LocalDateTime.of(2022, 8, 21, 10, 0, 0), subjectDTO,
+        eventsDTO.add(new EventDTO(GENERATE_DATE_TIME, subjectDTO,
                 classroomDTO, groupDTO, teacherDTO));
         return eventsDTO.stream().map(eventDTO -> service.save(eventDTO)).collect(Collectors.toList());
     }
