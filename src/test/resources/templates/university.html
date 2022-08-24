@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8">
+    <title>University</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+</head>
+<body>
+
+<div th:fragment="copy">
+    <div id="intro-dm" style="text-align: center;">
+        <h1>UNIVERSITY</h1>
+    </div>
+
+    <div class="navbar">
+
+        <div class="dropdown">
+            <button class="dropbtn">Student
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a th:href="@{/students}">Students</a>
+                <a th:href="@{/students/new}">Save Student</a>
+                <a th:href="@{/students/find/by_course}">Find students by course</a>
+                <a th:href="@{/students/find/by_group}">Find students by group</a>
+                <a th:href="@{/students/find/by_name_surname}">Find students by name or surname</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">Teacher
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a th:href="@{/teachers}">Teachers</a>
+                <a th:href="@{/teachers/new}">Save teacher</a>
+                <a th:href="@{/teachers/find/by_name_surname}">Find teacher by name/surname</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">Group
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a th:href="@{/groups}">Groups</a>
+                <a th:href="@{/groups/new}">Save group</a>
+                <a th:href="@{/groups/find/by_name}">Find group by name</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">Subject
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a th:href="@{/subjects}">Subjects</a>
+                <a th:href="@{/subjects/new}">Save subject</a>
+                <a th:href="@{/subjects/find/by_name}">Find subject by name</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">Classrooms
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a th:href="@{/classrooms}">Classrooms</a>
+                <a th:href="@{/classrooms/new}">Save classroom</a>
+                <a th:href="@{/classrooms/find/by_number}">Find classroom by number</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">Event
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a th:href="@{/events}">Events</a>
+                <a th:href="@{/events/new}">Create Event</a>
+                <a th:href="@{/events/find}">Find events for period</a>
+            </div>
+        </div>
+
+        <div class="dropdown">
+            <button class="dropbtn">University
+                <i class="fa fa-caret-down"></i>
+            </button>
+            <div class="dropdown-content">
+                <a th:href="@{/university}">main page</a>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+
+<section>
+    <h1 style="text-align: center;" th:text="${'LIST EVENTS TODAY ' + #temporals.format(day, 'yyyy-MM-dd')}"></h1>
+    <h1 th:text="${count}">COUNT ALL EVENTS</h1>
+    <div class="tbl-header">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <thead>
+            <tr>
+                <th>Date and Time</th>
+                <th>Subject</th>
+                <th>Classroom</th>
+                <th>Teacher</th>
+                <th>Group</th>
+                <th>Show students</th>
+                <th>Update</th>
+                <th>Delete</th>
+            </tr>
+            </thead>
+        </table>
+    </div>
+    <div class="tbl-content">
+        <table cellpadding="0" cellspacing="0" border="0">
+            <tbody>
+            <tr th:each="event: ${events}">
+                <td aria-sort="ascending" th:text="${#temporals.format(event?.dateTime, 'yyyy-MM-dd HH:mm')}"/>
+                <td th:text="${event.subject?.name}"/>
+                <td th:text="${event.classroom?.number}"/>
+                <td th:text="${event.teacher?.firstName + ' ' + event.teacher?.lastName}"/>
+                <td th:text="${event.group?.name}"/>
+                <td>
+                    <form class="login-form" th:method="GET"
+                          th:action="@{/students/found/by_group/{groupId}(groupId=${event.group.id})}">
+                        <button type="submit">show students</button>
+                    </form>
+                </td>
+                <td>
+                    <form class="login-form" th:method="GET"
+                          th:action="@{events/{eventId}/update(eventId=${event.id})}">
+                        <button type="submit">update</button>
+                    </form>
+                </td>
+                <td>
+                    <form class="login-form" th:method="DELETE"
+                          th:action="@{events/{eventId}/deleted(eventId=${event.id})}">
+                        <button type="submit">delete</button>
+                    </form>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</section>
+
+</body>
+</html>
+

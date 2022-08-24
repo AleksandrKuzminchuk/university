@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>FIND EVENTS FOR TIME</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+</head>
+<body>
+<div th:insert="~{university :: copy}"></div>
+<div class="login-page">
+    <div class="form">
+        <form class="login-form" th:method="GET" th:action="@{/events/found}">
+            <input type="datetime-local" th:field="${event.startDateTime}" id="start date time" placeholder="from date time"/>
+            <input type="datetime-local" th:field="${event.endDateTime}" id="end date time" placeholder="to date time"/>
+            <button type="submit">find events</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>

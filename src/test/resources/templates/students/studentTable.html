@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>STUDENTS TABLE</title>
+  <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+  <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+  <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+</head>
+<body>
+<div th:fragment="students">
+<section>
+  <!--for demo wrap-->
+  <h1>LIST STUDENTS</h1>
+  <h1 th:text="${count}">COUNT ALL STUDENTS</h1>
+  <div class="tbl-header">
+    <table cellpadding="0" cellspacing="0" border="0">
+      <thead>
+      <tr>
+        <th>First name</th>
+        <th>Last name</th>
+        <th>Course</th>
+        <th>Group</th>
+        <th>Update</th>
+        <th>Delete</th>
+        <th>Delete from group</th>
+      </tr>
+      </thead>
+    </table>
+  </div>
+  <div class="tbl-content">
+    <table cellpadding="0" cellspacing="0" border="0">
+      <tbody>
+      <tr th:each="student: ${students}">
+        <td th:text="${#strings.capitalize(student.firstName)}"/>
+        <td th:text="${#strings.capitalize(student.lastName)}"/>
+        <td th:text="${student.course}"/>
+        <td>
+          <span th:text="${student.Group?.name}"></span>
+        </td>
+        <td>
+          <form class="login-form" th:method="GET" th:action="@{/students/{studentId}/update(studentId=${student.id})}">
+            <button type="submit">update</button>
+          </form>
+        </td>
+        <td>
+          <form class="login-form" th:method="DELETE" th:action="@{/students/{studentId}/deleted(studentId=${student.id})}">
+            <button type="submit">delete</button>
+          </form>
+        </td>
+        <td>
+          <form class="login-form" th:method="PATCH" th:action="@{/students/{studentId}/delete/from_group(studentId=${student.id})}">
+            <button type="submit">delete from group</button>
+          </form>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+</table>
+</div>

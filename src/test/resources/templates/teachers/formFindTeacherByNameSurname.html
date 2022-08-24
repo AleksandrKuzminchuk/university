@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>FIND TEACHER BY NAME SURNAME</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+</head>
+<body>
+
+<div th:insert="~{university :: copy}"></div>
+
+
+<div class="login-page">
+    <div class="form">
+        <form class="login-form" th:method="GET" th:action="@{/teachers/found/by_name_surname}" th:object="${newTeacher}">
+            <input type="text" th:field="*{firstName}" id="name" placeholder="name"/>
+            <div style="color:red" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}"></div>
+            <input type="text" th:field="*{lastName}" id="surname" placeholder="surname"/>
+            <div style="color:red" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}"></div>
+            <button type="submit">find</button>
+        </form>
+    </div>
+</div>
+
+</body>
+</html>

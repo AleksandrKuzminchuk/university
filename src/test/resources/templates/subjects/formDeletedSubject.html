@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>DELETED SUBJECT</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+</head>
+<body>
+<div th:insert="~{university :: copy}"></div>
+<div class="login-page">
+    <div class="form">
+        <form class="login-form" th:action="@{/subjects}">
+            <b th:text="'Subject DELETED SUCCESSFULLY'" style="text-align: center;" ></b>
+            <button type="submit">return to subjects page</button>
+            <p class="message">main page <a th:href="@{/university}">UNIVERSITY</a></p>
+        </form>
+    </div>
+</div>
+</body>
+</html>

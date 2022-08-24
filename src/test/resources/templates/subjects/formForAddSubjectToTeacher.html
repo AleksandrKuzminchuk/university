@@ -1,0 +1,28 @@
+ <!DOCTYPE html>
+<html lang="en" xmlns:th="http://thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ADD SUBJECT TO TEACHER</title>
+    <link rel="stylesheet" type="text/css" href="/resources/css/university/styleUniversity.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleSaveStudent.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleAllStudents.css"/>
+    <link rel="stylesheet" type="text/css" href="/resources/css/students/styleDropDownList.css"/>
+</head>
+<body>
+<div th:insert="~{university :: copy}"></div>
+<div class="login-page">
+    <div class="form">
+        <form class="login-form" th:method="POST" th:action="@{/subjects/{subjectId}/added/teacher(subjectId=${addTeacher.subject.id})}" th:object="${addTeacher}">
+            <input type="text" th:field="*{subject.name}" id="name" placeholder="subject name" READONLY/>
+            <span class="custom-dropdown big">
+            <select th:object="${teacher}" th:field="*{id}" id="teacher">
+                <option th:each="teacher : ${addTeacher.teachers}" th:value="${teacher.id}"
+                        th:text="${teacher.firstName} + ' ' + ${teacher.lastName}"></option>
+            </select>
+            </span>
+            <button type="submit">add</button>
+        </form>
+    </div>
+</div>
+</body>
+</html>
