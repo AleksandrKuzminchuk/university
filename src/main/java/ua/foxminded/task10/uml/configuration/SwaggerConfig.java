@@ -38,7 +38,7 @@ public class SwaggerConfig {
                 .description("Project Spring Boot PI Swagger")
                 .contact(new Contact(
                         "Oleksandr Kuzminchuk",
-                        "https://www.linkedin.com/in/aleksandr-kuzminchuk/",
+                        "https://www.linkedin.com/in/oleksandr-kuzminchuk/",
                         "lgoptimusg252@gmail.com"))
                 .version("1.0")
                 .build();
